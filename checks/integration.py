@@ -9,6 +9,7 @@ from importlib.metadata import version
 import json
 import os
 from pathlib import Path
+import re
 import shutil
 import signal
 import socket
@@ -16,6 +17,13 @@ import subprocess
 import sys
 import tempfile
 import time
+
+
+def redact(report, paths):
+    for path, label in paths:
+        for value in (path, path.replace("\\", "/"), path.replace("\\", "\\\\")):
+            report = re.sub(re.escape(json.dumps(value)[1:-1]), lambda match: label, report, flags=re.I)
+    return report
 
 
 def alive(pid):
@@ -98,6 +106,8 @@ def main():
 
         try:
             # Every call is a new OS process, running outside the source checkout.
+            help_text = call("--help")["help"]
+            assert all(value in help_text for value in ("aidebug launch", "aidebug inspect", "aidebug step", "aidebug stop", "timed_out", "VIRTUAL_ENV", "Handles expire")), help_text
             entry = call("launch", "--cwd", "work dir", "--python", sys.executable, "walk.py", "hello world", "--flag", implicit=True)
             pids = list(entry["processes"].values())
             assert entry["state"] == "stopped" and entry["reason"] == "entry", entry
@@ -168,12 +178,20 @@ def main():
             assert time.monotonic() - start < 3, "execution command ignored deadline"
             assert timed["state"] == "running" and timed["timed_out"], timed
             assert call("status")["state"] == "running"
+            paused = call("pause")
+            assert paused["state"] == "stopped" and paused["stack"]["frames"], paused
+            old = paused["location"]["frame"]
+            assert call("pause", ok=False)["error"]["code"] == "invalid_state"
+            assert call("continue", timeout=0.2)["timed_out"]
+            call("inspect", "--frame", old, ok=False)
+            assert call("pause")["state"] == "stopped"
+            assert call("continue", timeout=0.2)["timed_out"]
             call("step", "over", ok=False)
             text = call("output")["output"]["stdout"]["text"]
             child = int(text.split("child ")[1].split()[0])
             assert alive(child)
             cleanup(pids + [child])
-            checks.append("running timeout preserves control; stop removes helper, adapter, target, and target child")
+            checks.append("running timeout preserves control; pause inspects and resumes; stop removes helper, adapter, target, and target child")
             print("PASS execution timeout and owned process tree cleanup", flush=True)
 
             for args in [("wat",), ("--timeout", "nan", "status"), ("break", "set", "walk.py", "0"),
@@ -216,6 +234,27 @@ def main():
             checks.append("large variable previews and target output are bounded with explicit truncation")
             print("PASS response and output bounds", flush=True)
 
+            (workspace / "conditional.py").write_text("for i in range(500):\n    value = i * 2\nprint(value)\n")
+            for arguments in [("launch", "--condition", "True", "conditional.py"),
+                              ("break", "set", "conditional.py", "2", "--condition", ""),
+                              ("break", "set", "conditional.py", "2", "--condition", "x" * 513),
+                              ("break", "remove", "conditional.py", "2", "--condition", "True")]:
+                assert call(*arguments, ok=False)["error"]["code"] == "invalid_request"
+            conditional = call("launch", "--run", "--breakpoint", "conditional.py:2", "--condition", "i == 437", "conditional.py")
+            assert values(conditional)["i"]["value"] == "437", conditional
+            call("break", "set", "conditional.py", "2", "--condition", "i == 439")
+            preserved = call("break", "set", "conditional.py", "3")["breakpoints"]
+            assert preserved[0]["condition"] == "i == 439" and preserved[1]["condition"] is None, preserved
+            assert values(call("continue"))["i"]["value"] == "439"
+            call("break", "remove", "conditional.py", "3")
+            assert call("break", "set", "conditional.py", "2")["breakpoints"][0]["condition"] is None
+            assert values(call("continue"))["i"]["value"] == "440"
+            call("break", "remove", "conditional.py")
+            assert call("continue")["exit_code"] == 0
+            cleanup(list(conditional["processes"].values()))
+            checks.append("conditional launch skips to iteration 437; conditions update, persist, clear and remove; invalid conditions are JSON errors")
+            print("PASS conditional breakpoints", flush=True)
+
             early = call("launch", "running.py", timeout=0.01)
             assert early["state"] == "running" and early["timed_out"], early
             until(lambda: call("status")["state"] == "stopped", seconds=10)
@@ -243,7 +282,9 @@ def main():
               "platform": sys.platform, "cli": cli, "checks": checks,
               "transcript": transcript}
     destination = root / "checks" / "results.json"
-    destination.write_text(json.dumps(report, indent=2), encoding="utf-8")
+    report = json.dumps(report, indent=2)
+    report = redact(report, [(temp, "<workspace>"), (str(root), "<repo>"), (str(Path.home()), "<home>")])
+    destination.write_text(report, encoding="utf-8", newline="\n")
     print(f"PASS {len(checks)} integration groups; results: {destination}")
 
 

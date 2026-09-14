@@ -1,6 +1,7 @@
 """Real installed-CLI checks for Node, TypeScript source maps, browser UI, and Rust."""
 
 import argparse
+import ctypes
 import functools
 import http.server
 import json
@@ -14,7 +15,7 @@ import threading
 import time
 import urllib.request
 
-from integration import alive, until
+from integration import alive, redact, until
 
 
 def main():
@@ -59,7 +60,9 @@ for (const input of process.argv.slice(2)) {
             '<!doctype html><meta name="viewport" content="width=device-width,initial-scale=1">'
             '<title>Debugger UI fixture</title><label>Quantity <input id="quantity" value="2" size="3"></label>'
             '<button id="save">Save</button><output id="result"></output><script src="ui.js"></script>')
-        subprocess.run(["node", "-e", compile_js, compiler, str(workspace / "ts-walk.ts"), str(workspace / "ui.ts")], check=True, timeout=30)
+        (workspace / "conditional.ts").write_text('for (let i: number = 0; i < 500; i++) {\n  console.log(i);\n}\n')
+        (workspace / "conditional.html").write_text('<script src="conditional.js"></script>')
+        subprocess.run(["node", "-e", compile_js, compiler, str(workspace / "ts-walk.ts"), str(workspace / "ui.ts"), str(workspace / "conditional.ts")], check=True, timeout=30)
         binary = workspace / ("walk.exe" if os.name == "nt" else "walk")
         subprocess.run(["rustc", "-g", "-C", "opt-level=0", str(workspace / "walk.rs"), "-o", str(binary)], check=True, timeout=60)
         panic_binary = workspace / ("panic.exe" if os.name == "nt" else "panic")
@@ -72,7 +75,7 @@ for (const input of process.argv.slice(2)) {
             assert len(process.stdout) <= 65536
             result = json.loads(process.stdout)
             transcript.append({"command": list(args), "response": result})
-            assert result["ok"] == ok and process.returncode == (0 if ok else 1), (args, result, process.stderr)
+            assert (ok is None or result["ok"] == ok) and process.returncode == (0 if result["ok"] else 1), (args, result, process.stderr)
             assert not process.stderr, process.stderr
             return result
 
@@ -80,7 +83,16 @@ for (const input of process.argv.slice(2)) {
             return {v["name"]: v for v in result[key]["items"]}
 
         def stop(result):
-            call("stop")
+            # A transient OS profile lock is a reported, retryable cleanup failure.
+            # Require that retry actually removes both metadata and the profile.
+            for attempt in range(3):
+                closed = call("stop", ok=None)
+                if closed["ok"]:
+                    break
+                assert closed["error"]["code"] == "cleanup_failure", closed
+                assert (workspace / ".aidebug/session.json").exists(), closed
+                time.sleep(0.2)
+            assert closed["ok"], closed
             until(lambda: all(not alive(pid) for pid in result["processes"].values() if pid))
             assert not (workspace / ".aidebug/session.json").exists()
             assert not list((workspace / ".aidebug").glob("browser-*")), "Browser profile leaked"
@@ -122,6 +134,19 @@ for (const input of process.argv.slice(2)) {
                 groups.append(f"{language}: real breakpoint, nested values, all steps, handle expiry, output and cleanup")
                 print("PASS", language, flush=True)
 
+            (workspace / "conditional-node.js").write_text('for (let i = 0; i < 500; i++) {\n  console.log(i);\n}\n')
+            result = call("launch", "--adapter", options.js_adapter, "--run", "--breakpoint", "conditional-node.js:2", "--condition", "i === 437", "conditional-node.js")
+            assert values(result)["i"]["value"] == "437", result
+            call("break", "set", "conditional-node.js", "2", "--condition", "i === 439")
+            assert values(call("continue"))["i"]["value"] == "439"
+            call("break", "set", "conditional-node.js", "2")
+            assert values(call("continue"))["i"]["value"] == "440"
+            call("break", "remove", "conditional-node.js")
+            assert call("continue")["state"] == "exited"
+            stop(result)
+            groups.append("Node conditional launch skips to iteration 437, updates to 439 and clears to unconditional")
+            print("PASS Node conditional breakpoints", flush=True)
+
             (workspace / "error.js").write_text('function fail() {\n  const divisor = 0;\n  throw new Error("bad divisor");\n}\nfail();\n')
             result = call("launch", "--adapter", options.js_adapter, "--run", "--uncaught", "error.js")
             assert result["state"] == "stopped" and result["reason"] == "exception", result
@@ -135,11 +160,15 @@ for (const input of process.argv.slice(2)) {
             (workspace / "running.js").write_text('console.log("pid", process.pid);\nsetInterval(() => {}, 1000);\n')
             result = call("launch", "--adapter", options.js_adapter, "--run", "running.js", timeout=2)
             assert result["state"] == "running" and result["timed_out"], result
+            until(lambda: "pid " in call("output")["output"]["stdout"]["text"], seconds=20)
             output = call("output")["output"]["stdout"]["text"]
             pid = int(output.split("pid ")[1].split()[0])
+            paused = call("pause")
+            assert paused["state"] == "stopped" and paused["stack"]["frames"], paused
+            assert call("continue", timeout=0.2)["timed_out"]
             stop(result)
             until(lambda: not alive(pid))
-            groups.append("Node deadline preserves control and stop removes its actual target PID")
+            groups.append("Node deadline, pause/inspection/resume and actual target PID cleanup")
             print("PASS Node timeout and target cleanup", flush=True)
 
             class Quiet(http.server.SimpleHTTPRequestHandler):
@@ -159,7 +188,16 @@ for (const input of process.argv.slice(2)) {
             assert values(step)["total"]["value"] == "42", step
             call("continue", timeout=0.2)
             assert "UI total 42" in call("output")["output"]["stdout"]["text"]
+            paused = call("pause", timeout=2)
+            # An idle browser may defer suspension until the next JavaScript task.
+            assert paused["state"] in ("stopped", "running"), paused
+            if paused["state"] == "running":
+                assert paused["timed_out"], paused
+            else:
+                assert paused["stack"]["frames"], paused
+                assert call("continue", timeout=0.2)["timed_out"]
             browser_pids = set()
+            browser_handles = []
             if os.name == "nt":
                 processes = json.loads(subprocess.check_output([
                     "powershell", "-NoProfile", "-Command",
@@ -170,10 +208,44 @@ for (const input of process.argv.slice(2)) {
                     browser_pids.update(children)
                     parents.update(children)
                 assert browser_pids, "Expected owned Chrome descendants"
-            stop(result)
-            until(lambda: all(not alive(pid) for pid in browser_pids))
+                kernel = ctypes.WinDLL("kernel32", use_last_error=True)
+                kernel.OpenProcess.argtypes = [ctypes.c_ulong, ctypes.c_int, ctypes.c_ulong]
+                kernel.OpenProcess.restype = ctypes.c_void_p
+                kernel.CloseHandle.argtypes = [ctypes.c_void_p]
+                # Retain identities across stop: a recycled PID is not a leaked child.
+                browser_handles = [handle for pid in browser_pids if (handle := kernel.OpenProcess(0x100000, False, pid))]
+            try:
+                stop(result)
+                until(lambda: all(not alive(pid) for pid in browser_pids))
+            finally:
+                for handle in browser_handles:
+                    kernel.CloseHandle(handle)
             groups.append("headless browser clicks Save and stops in original TypeScript handler with quantity=2, price=21, total=42")
             print("PASS browser UI and TypeScript source maps", flush=True)
+
+            (workspace / "heartbeat.html").write_text('<script>setInterval(function tick() { const known = 41; document.title = String(known); }, 50);</script>')
+            result = call("launch", "--target", "browser", "--adapter", options.js_adapter, "--run",
+                          f"http://127.0.0.1:{server.server_port}/heartbeat.html", timeout=2)
+            assert result["state"] == "running" and result["timed_out"], result
+            until(lambda: call("status")["phase"] == "ready", seconds=20)
+            paused = call("pause")
+            assert paused["state"] == "stopped" and paused["stack"]["frames"], paused
+            assert call("continue", timeout=0.2)["timed_out"]
+            stop(result)
+            groups.append("Browser with recurring JavaScript pauses, inspects, resumes and cleans up")
+            print("PASS browser pause", flush=True)
+
+            result = call("launch", "--language", "typescript", "--target", "browser", "--adapter", options.js_adapter,
+                          "--breakpoint", "conditional.ts:2", "--condition", "i === 437",
+                          f"http://127.0.0.1:{server.server_port}/conditional.html")
+            assert values(result)["i"]["value"] == "437" and Path(result["location"]["file"]).name == "conditional.ts", result
+            call("break", "set", "conditional.ts", "2", "--condition", "i === 439")
+            assert values(call("continue"))["i"]["value"] == "439"
+            call("break", "remove", "conditional.ts")
+            assert call("continue", timeout=0.2)["state"] == "running"
+            stop(result)
+            groups.append("Browser TypeScript conditional breakpoint skips to 437 and updates through source maps")
+            print("PASS browser conditional breakpoints", flush=True)
 
             result = call("launch", "--language", "rust", "--adapter", options.rust_adapter, "--run", "--breakpoint", "walk.rs:10", str(binary))
             assert result["state"] == "stopped" and result["location"]["line"] == 10, result
@@ -204,15 +276,51 @@ for (const input of process.argv.slice(2)) {
             stop(result)
             groups.append("Rust panic filter, failing caller locals, stderr and nonzero exit")
             print("PASS Rust panic", flush=True)
+
+            (workspace / "loop.rs").write_text('fn main() {\n    loop { std::thread::sleep(std::time::Duration::from_millis(10)); }\n}\n')
+            loop_binary = workspace / ("loop.exe" if os.name == "nt" else "loop")
+            subprocess.run(["rustc", "-g", str(workspace / "loop.rs"), "-o", str(loop_binary)], check=True, timeout=60)
+            result = call("launch", "--language", "rust", "--adapter", options.rust_adapter, "--run", str(loop_binary), timeout=2)
+            assert result["state"] == "running" and result["timed_out"], result
+            paused = call("pause")
+            assert paused["state"] == "stopped" and paused["stack"]["frames"], paused
+            assert call("continue", timeout=0.2)["timed_out"]
+            stop(result)
+            groups.append("Rust running deadline, pause/inspection/resume and cleanup")
+            print("PASS Rust pause", flush=True)
+
+            (workspace / "conditional.rs").write_text('fn main() {\n    for i in 0..500 {\n        println!("{}", i);\n    }\n}\n')
+            conditional_binary = workspace / ("conditional.exe" if os.name == "nt" else "conditional")
+            subprocess.run(["rustc", "-g", str(workspace / "conditional.rs"), "-o", str(conditional_binary)], check=True, timeout=60)
+            result = call("launch", "--language", "rust", "--adapter", options.rust_adapter, "--run",
+                          "--breakpoint", "conditional.rs:3", "--condition", "i == 437", str(conditional_binary))
+            assert values(result)["i"]["value"] == "437", result
+            call("break", "set", "conditional.rs", "3", "--condition", "i == 439")
+            assert values(call("continue"))["i"]["value"] == "439"
+            call("break", "set", "conditional.rs", "3")
+            # println! maps this source line to several native breakpoint locations.
+            for _ in range(4):
+                next_iteration = values(call("continue"))["i"]["value"]
+                assert next_iteration in ("439", "440"), next_iteration
+                if next_iteration == "440":
+                    break
+            assert next_iteration == "440", "Clearing the condition must allow the next iteration"
+            call("break", "remove", "conditional.rs")
+            assert call("continue")["state"] == "exited"
+            stop(result)
+            groups.append("Rust conditional launch skips to iteration 437, updates to 439 and clears to unconditional")
+            print("PASS Rust conditional breakpoints", flush=True)
         finally:
             subprocess.run([cli, "--workspace", temporary, "stop"], cwd=temporary, capture_output=True, timeout=15)
             if server:
                 server.shutdown()
                 server.server_close()
-            (root / "checks/multilanguage-results.json").write_text(json.dumps({
+            report = json.dumps({
                 "passed": len(groups), "failed": int(sys.exc_info()[0] is not None),
                 "seconds": round(time.monotonic() - started, 2),
-                "groups": groups, "transcript": transcript}, indent=2), encoding="utf-8")
+                "groups": groups, "transcript": transcript}, indent=2)
+            report = redact(report, [(temporary, "<workspace>"), (str(root), "<repo>"), (str(Path.home()), "<home>")])
+            (root / "checks/multilanguage-results.json").write_text(report, encoding="utf-8", newline="\n")
     print(f"PASS {len(groups)} multi-language groups")
 
 

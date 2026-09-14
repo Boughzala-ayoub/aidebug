@@ -4,7 +4,8 @@ import sys
 import threading
 import time
 
-from aidebug.dap import DAP
+from aidebug.dap import DAP, DebugError
+from aidebug.session import source_breakpoints
 
 
 # The fake adapter must reject its own deliberately unauthenticated connection
@@ -40,6 +41,12 @@ time.sleep(30)
 
 
 def main():
+    try:
+        source_breakpoints({7: "x == 1"}, {})
+    except DebugError as error:
+        assert error.code == "unsupported"
+    else:
+        raise AssertionError("An adapter without conditional-breakpoint support must reject the request")
     events, failures, output = [], [], []
     captured = threading.Event()
 

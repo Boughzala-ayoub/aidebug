@@ -141,12 +141,14 @@ try {
   const limited='ffffffffffffffff';
   fs.writeFileSync(path.join(workspace,'.aidebug/recordings',limited+'.jsonl'),[
     {seq:1,kind:'session',session:limited,program:'bounded-recording.py',language:'python',target:'process',time:Date.now()/1000,elapsed:0},
-    {seq:2,kind:'result',truncated:true,message:'Observation exceeded 128 KiB',time:Date.now()/1000,elapsed:1},
-    {seq:3,kind:'end',time:Date.now()/1000,elapsed:2}
+    {seq:2,kind:'command',command:'pause',arguments:{command:'pause'},time:Date.now()/1000,elapsed:0.5},
+    {seq:3,kind:'result',truncated:true,message:'Observation exceeded 128 KiB',time:Date.now()/1000,elapsed:1},
+    {seq:4,kind:'end',time:Date.now()/1000,elapsed:2}
   ].map(value=>JSON.stringify(value)).join('\n')+'\n');
   await page.goto(viewer.url,{waitUntil:'domcontentloaded'});
   await page.locator(`[data-session="${limited}"]`).click();
   await wait(()=>document.querySelector('#observation-error').textContent.includes('too large'));
+  assert.match(await page.$eval('#timeline',el=>el.textContent),/Pause execution/);
   await shotViews('truncated-recording');
   const restricted=await browser.createBrowserContext();const noToken=await restricted.newPage();
   await noToken.goto(new URL(viewer.url).origin,{waitUntil:'domcontentloaded'});
@@ -163,7 +165,9 @@ try {
   await exec(cli,['--workspace',workspace,'stop'],{windowsHide:true,timeout:15000}).catch(()=>{});
   await exec(cli,['--workspace',workspace,'view','--stop'],{windowsHide:true,timeout:15000}).catch(()=>{});
   results.seconds=(Date.now()-started)/1000;
-  fs.writeFileSync(path.join(root,'checks/viewer-results.json'),JSON.stringify(results,null,2));
+  let report=JSON.stringify(results,null,2);
+  for (const [value,label] of [[workspace,'<workspace>'],[root,'<repo>'],[os.homedir(),'<home>']]) report=report.replaceAll(JSON.stringify(value).slice(1,-1),label);
+  fs.writeFileSync(path.join(root,'checks/viewer-results.json'),report);
   // This is the exact temporary workspace created above, never a user-supplied path.
   fs.rmSync(workspace,{recursive:true,force:true,maxRetries:5,retryDelay:150});
 }

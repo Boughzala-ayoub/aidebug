@@ -24,6 +24,33 @@ from . import launch as launch_options
 MAX_REQUEST = 32768
 MAX_RESPONSE = 65536
 
+USAGE_LOOP = """Agent debugging loop (run in the target project, or add --workspace PATH):
+  aidebug view --open
+  aidebug launch --module --run --breakpoint pricing.py:6 pytest -- -q test_checkout.py
+  aidebug inspect
+  aidebug inspect --frame FRAME_HANDLE
+  aidebug variables VALUE_HANDLE
+  aidebug note "Describe the observed values and suspected cause."
+  aidebug step over
+  aidebug continue
+  aidebug output
+  aidebug stop
+
+Replace the test and breakpoint with your project paths. For a script, use
+launch script.py; for unittest, use launch --module unittest -- -q test_module.
+Pytest must be installed in the target interpreter. Test runners catch assertions;
+--uncaught can stop at their final SystemExit instead. Set a breakpoint near the failure.
+Python selection: --python, VIRTUAL_ENV, workspace .venv, then the CLI interpreter.
+Check the response's python path. Every command returns JSON: check ok and state.
+Handles expire when execution resumes. Expand only values needed for the investigation.
+timed_out is not an exit: inspect status, or pause a running target, or stop it.
+Wait for phase: ready before pause. Idle browsers may wait for the next JS task.
+After editing source, stop and relaunch to verify. Recordings remain available.
+Conditional stop: break set pricing.py 6 --condition "count == 437"
+Conditions use the adapter's expression syntax and can execute target code.
+No arbitrary evaluate command is provided. See launch --help and break --help.
+"""
+
 
 def encode(result):
     data = json.dumps(result, ensure_ascii=True).encode() + b"\n"
@@ -57,14 +84,22 @@ def positive(value):
     return number
 
 
+def condition(value):
+    if not value.strip() or len(value) > 512 or "\0" in value:
+        raise argparse.ArgumentTypeError("condition must contain 1..512 characters without NUL")
+    return value
+
+
 def parse(argv):
-    parser = Parser(prog="aidebug", description="Local Python, JS/TS, and Rust debugger. Every command prints JSON.")
+    parser = Parser(prog="aidebug", description="Local Python, JS/TS, and Rust debugger. Every command prints JSON.",
+                    epilog=USAGE_LOOP, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--workspace", default=os.getcwd(), help="session workspace, default: current directory")
     parser.add_argument("--timeout", type=float, default=10, help="command deadline in seconds, 0.01 to 60")
     sub = parser.add_subparsers(dest="command", required=True)
     launch = sub.add_parser("launch", help="launch a script, executable, or local browser URL")
     launch.add_argument("--cwd", help="target working directory, default: workspace")
-    launch.add_argument("--python", default=sys.executable, help="target Python interpreter")
+    launch.add_argument("--python", help="target interpreter; default: VIRTUAL_ENV, workspace .venv, then CLI interpreter")
+    launch.add_argument("--module", action="store_true", help="launch the positional name as a Python module")
     launch.add_argument("--language", choices=["python", "javascript", "typescript", "js", "ts", "rust"], help="infer from script extension when omitted")
     launch.add_argument("--target", choices=["process", "node", "browser"])
     launch.add_argument("--adapter", help="CodeLLDB executable or standalone dapDebugServer.js")
@@ -74,6 +109,7 @@ def parse(argv):
     launch.add_argument("--web-root", help="browser URL paths map to this directory")
     launch.add_argument("--out-files", action="append", default=[], help="generated JS glob for source maps; repeatable")
     launch.add_argument("--breakpoint", action="append", default=[], help="set FILE:LINE before execution; repeatable")
+    launch.add_argument("--condition", type=condition, help="condition for all launch breakpoints; may execute target code")
     launch.add_argument("--run", action="store_true", help="run without stopping at entry")
     launch.add_argument("--uncaught", action="store_true", help="stop on uncaught exceptions, or Rust panics")
     launch.add_argument("script")
@@ -82,9 +118,11 @@ def parse(argv):
     bp.add_argument("action", choices=["set", "remove"])
     bp.add_argument("file")
     bp.add_argument("lines", type=positive, nargs="*")
+    bp.add_argument("--condition", type=condition, help="condition for the given lines; omit to make them unconditional")
     exceptions = sub.add_parser("exceptions")
     exceptions.add_argument("mode", choices=["on", "off"])
     sub.add_parser("continue")
+    sub.add_parser("pause", help="request a stop in the running target")
     step = sub.add_parser("step")
     step.add_argument("kind", choices=["into", "over", "out"])
     inspect = sub.add_parser("inspect")
@@ -115,6 +153,8 @@ def parse(argv):
     if args["command"] == "launch":
         launch_options.resolve(args)
     if args["command"] == "break":
+        if args["action"] != "set" and args["condition"] is not None:
+            raise DebugError("invalid_request", "--condition requires break set")
         args["file"] = str((workspace / args["file"]).resolve())
         if args["action"] == "set" and (not args["lines"] or not Path(args["file"]).is_file()):
             raise DebugError("invalid_request", "Setting breakpoints requires an existing file and positive lines")

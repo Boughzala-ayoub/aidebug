@@ -1,0 +1,3666 @@
+{
+  "passed": 3,
+  "failed": 0,
+  "groups": [
+    "module validation, missing module, cwd, workspace-only dependency and explicit interpreter override",
+    "unittest: multi-file stepping, caller values, captured failure, fix, passing rerun, recording and cleanup",
+    "pytest: multi-file stepping, caller values, captured failure, fix, passing rerun, recording and cleanup"
+  ],
+  "seconds": 169.81,
+  "transcript": [
+    {
+      "command": [
+        "launch",
+        "--module",
+        "a/b"
+      ],
+      "response": {
+        "ok": false,
+        "state": "unknown",
+        "error": {
+          "code": "invalid_request",
+          "message": "--module requires a dotted Python module name and Python language"
+        }
+      }
+    },
+    {
+      "command": [
+        "launch",
+        "--module",
+        "--language",
+        "rust",
+        "pkg"
+      ],
+      "response": {
+        "ok": false,
+        "state": "unknown",
+        "error": {
+          "code": "invalid_request",
+          "message": "--module requires a dotted Python module name and Python language"
+        }
+      }
+    },
+    {
+      "command": [
+        "launch",
+        "--module",
+        "--target",
+        "browser",
+        "pkg"
+      ],
+      "response": {
+        "ok": false,
+        "state": "unknown",
+        "error": {
+          "code": "invalid_request",
+          "message": "Node/browser targets require JavaScript or TypeScript"
+        }
+      }
+    },
+    {
+      "command": [
+        "launch",
+        "--module",
+        "a..b"
+      ],
+      "response": {
+        "ok": false,
+        "state": "unknown",
+        "error": {
+          "code": "invalid_request",
+          "message": "--module requires a dotted Python module name and Python language"
+        }
+      }
+    },
+    {
+      "command": [
+        "launch",
+        "--run",
+        "--cwd",
+        "checkout",
+        "--module",
+        "probe"
+      ],
+      "response": {
+        "ok": true,
+        "state": "exited",
+        "phase": "done",
+        "session": "66d673f9d2ab89e5",
+        "generation": 1,
+        "reason": null,
+        "exit_code": 0,
+        "thread": null,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 107916,
+          "adapter": 105604,
+          "target": 102020
+        },
+        "python": "<workspace>\\.venv\\Scripts\\python.exe",
+        "recording": {
+          "id": "66d673f9d2ab89e5",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "output"
+      ],
+      "response": {
+        "ok": true,
+        "state": "exited",
+        "phase": "done",
+        "session": "66d673f9d2ab89e5",
+        "generation": 2,
+        "reason": null,
+        "exit_code": 0,
+        "thread": null,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 107916,
+          "adapter": 105604,
+          "target": 102020
+        },
+        "python": "<workspace>\\.venv\\Scripts\\python.exe",
+        "recording": {
+          "id": "66d673f9d2ab89e5",
+          "truncated": false,
+          "error": null
+        },
+        "output": {
+          "stdout": {
+            "text": "731 <workspace>\\.venv\n",
+            "truncated": false,
+            "dropped_chars": 0
+          },
+          "stderr": {
+            "text": "",
+            "truncated": false,
+            "dropped_chars": 0
+          },
+          "adapter": {
+            "text": "",
+            "truncated": false,
+            "dropped_chars": 0
+          }
+        },
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "stop"
+      ],
+      "response": {
+        "ok": true,
+        "state": "exited",
+        "phase": "closed",
+        "session": "66d673f9d2ab89e5",
+        "generation": 3,
+        "reason": null,
+        "exit_code": 0,
+        "thread": null,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 107916,
+          "adapter": 105604,
+          "target": 102020
+        },
+        "python": "<workspace>\\.venv\\Scripts\\python.exe",
+        "recording": {
+          "id": "66d673f9d2ab89e5",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "launch",
+        "--run",
+        "--python",
+        ".venv\\Scripts\\python.exe",
+        "--cwd",
+        "checkout",
+        "checkout/probe.py"
+      ],
+      "response": {
+        "ok": true,
+        "state": "exited",
+        "phase": "done",
+        "session": "8d957f90d9eb5190",
+        "generation": 1,
+        "reason": null,
+        "exit_code": 0,
+        "thread": null,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 98120,
+          "adapter": 83460,
+          "target": 76952
+        },
+        "python": "<workspace>\\.venv\\Scripts\\python.exe",
+        "recording": {
+          "id": "8d957f90d9eb5190",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "stop"
+      ],
+      "response": {
+        "ok": true,
+        "state": "exited",
+        "phase": "closed",
+        "session": "8d957f90d9eb5190",
+        "generation": 3,
+        "reason": null,
+        "exit_code": 0,
+        "thread": null,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 98120,
+          "adapter": 83460,
+          "target": 76952
+        },
+        "python": "<workspace>\\.venv\\Scripts\\python.exe",
+        "recording": {
+          "id": "8d957f90d9eb5190",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "launch",
+        "--run",
+        "--python",
+        "<repo>\\.venv\\Scripts\\python.exe",
+        "--cwd",
+        "checkout",
+        "--module",
+        "probe"
+      ],
+      "response": {
+        "ok": true,
+        "state": "exited",
+        "phase": "done",
+        "session": "14340f6cb6956893",
+        "generation": 1,
+        "reason": null,
+        "exit_code": 1,
+        "thread": null,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 105688,
+          "adapter": 85068,
+          "target": 104192
+        },
+        "python": "<repo>\\.venv\\Scripts\\python.exe",
+        "recording": {
+          "id": "14340f6cb6956893",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "stop"
+      ],
+      "response": {
+        "ok": true,
+        "state": "exited",
+        "phase": "closed",
+        "session": "14340f6cb6956893",
+        "generation": 3,
+        "reason": null,
+        "exit_code": 1,
+        "thread": null,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 105688,
+          "adapter": 85068,
+          "target": 104192
+        },
+        "python": "<repo>\\.venv\\Scripts\\python.exe",
+        "recording": {
+          "id": "14340f6cb6956893",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "launch",
+        "--run",
+        "--module",
+        "aidebug_nonexistent_module_731"
+      ],
+      "response": {
+        "ok": true,
+        "state": "exited",
+        "phase": "done",
+        "session": "9f9b7815db60d97b",
+        "generation": 1,
+        "reason": null,
+        "exit_code": 1,
+        "thread": null,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 56768,
+          "adapter": 102396,
+          "target": 108080
+        },
+        "python": "<workspace>\\.venv\\Scripts\\python.exe",
+        "recording": {
+          "id": "9f9b7815db60d97b",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "stop"
+      ],
+      "response": {
+        "ok": true,
+        "state": "exited",
+        "phase": "closed",
+        "session": "9f9b7815db60d97b",
+        "generation": 3,
+        "reason": null,
+        "exit_code": 1,
+        "thread": null,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 56768,
+          "adapter": 102396,
+          "target": 108080
+        },
+        "python": "<workspace>\\.venv\\Scripts\\python.exe",
+        "recording": {
+          "id": "9f9b7815db60d97b",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "launch",
+        "--run",
+        "checkout/environment.py"
+      ],
+      "response": {
+        "ok": true,
+        "state": "exited",
+        "phase": "done",
+        "session": "70c8926104585059",
+        "generation": 1,
+        "reason": null,
+        "exit_code": 0,
+        "thread": null,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 84948,
+          "adapter": 101180,
+          "target": 97260
+        },
+        "python": "<workspace>\\custom-environment\\Scripts\\python.exe",
+        "recording": {
+          "id": "70c8926104585059",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "output"
+      ],
+      "response": {
+        "ok": true,
+        "state": "exited",
+        "phase": "done",
+        "session": "70c8926104585059",
+        "generation": 2,
+        "reason": null,
+        "exit_code": 0,
+        "thread": null,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 84948,
+          "adapter": 101180,
+          "target": 97260
+        },
+        "python": "<workspace>\\custom-environment\\Scripts\\python.exe",
+        "recording": {
+          "id": "70c8926104585059",
+          "truncated": false,
+          "error": null
+        },
+        "output": {
+          "stdout": {
+            "text": "<workspace>\\custom-environment\n",
+            "truncated": false,
+            "dropped_chars": 0
+          },
+          "stderr": {
+            "text": "",
+            "truncated": false,
+            "dropped_chars": 0
+          },
+          "adapter": {
+            "text": "",
+            "truncated": false,
+            "dropped_chars": 0
+          }
+        },
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "stop"
+      ],
+      "response": {
+        "ok": true,
+        "state": "exited",
+        "phase": "closed",
+        "session": "70c8926104585059",
+        "generation": 3,
+        "reason": null,
+        "exit_code": 0,
+        "thread": null,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 84948,
+          "adapter": 101180,
+          "target": 97260
+        },
+        "python": "<workspace>\\custom-environment\\Scripts\\python.exe",
+        "recording": {
+          "id": "70c8926104585059",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "launch",
+        "--run",
+        "--python",
+        "<workspace>\\.venv\\Scripts\\python.exe",
+        "checkout/environment.py"
+      ],
+      "response": {
+        "ok": true,
+        "state": "exited",
+        "phase": "done",
+        "session": "862e0c2d727a6486",
+        "generation": 1,
+        "reason": null,
+        "exit_code": 0,
+        "thread": null,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 98920,
+          "adapter": 106264,
+          "target": 63652
+        },
+        "python": "<workspace>\\.venv\\Scripts\\python.exe",
+        "recording": {
+          "id": "862e0c2d727a6486",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "stop"
+      ],
+      "response": {
+        "ok": true,
+        "state": "exited",
+        "phase": "closed",
+        "session": "862e0c2d727a6486",
+        "generation": 3,
+        "reason": null,
+        "exit_code": 0,
+        "thread": null,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 98920,
+          "adapter": 106264,
+          "target": 63652
+        },
+        "python": "<workspace>\\.venv\\Scripts\\python.exe",
+        "recording": {
+          "id": "862e0c2d727a6486",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "launch",
+        "checkout/environment.py"
+      ],
+      "response": {
+        "ok": false,
+        "state": "unknown",
+        "error": {
+          "code": "missing_dependency",
+          "message": "Python interpreter not found: <workspace>\\missing-env\\Scripts\\python.exe"
+        }
+      }
+    },
+    {
+      "command": [
+        "launch",
+        "--cwd",
+        "checkout",
+        "--module",
+        "--run",
+        "--uncaught",
+        "--breakpoint",
+        "checkout/pricing.py:4",
+        "unittest",
+        "--",
+        "-q",
+        "test_checkout"
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "6a32ed79188ebeac",
+        "generation": 1,
+        "reason": "breakpoint",
+        "exit_code": null,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 105556,
+          "adapter": 99336,
+          "target": 95520
+        },
+        "python": "<workspace>\\.venv\\Scripts\\python.exe",
+        "recording": {
+          "id": "6a32ed79188ebeac",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false,
+        "stack": {
+          "frames": [
+            {
+              "handle": "6a32ed79188ebeac:1:f:2",
+              "name": "average_price",
+              "file": "<workspace>\\checkout\\pricing.py",
+              "line": 4,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:1:f:3",
+              "name": "test_paid_average",
+              "file": "<workspace>\\checkout\\test_checkout.py",
+              "line": 8,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:1:f:4",
+              "name": "_callTestMethod",
+              "file": "C:\\Python311\\Lib\\unittest\\case.py",
+              "line": 579,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:1:f:5",
+              "name": "run",
+              "file": "C:\\Python311\\Lib\\unittest\\case.py",
+              "line": 623,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:1:f:6",
+              "name": "__call__",
+              "file": "C:\\Python311\\Lib\\unittest\\case.py",
+              "line": 678,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:1:f:7",
+              "name": "run",
+              "file": "C:\\Python311\\Lib\\unittest\\suite.py",
+              "line": 122,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:1:f:8",
+              "name": "__call__",
+              "file": "C:\\Python311\\Lib\\unittest\\suite.py",
+              "line": 84,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:1:f:9",
+              "name": "run",
+              "file": "C:\\Python311\\Lib\\unittest\\suite.py",
+              "line": 122,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:1:f:10",
+              "name": "__call__",
+              "file": "C:\\Python311\\Lib\\unittest\\suite.py",
+              "line": 84,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:1:f:11",
+              "name": "run",
+              "file": "C:\\Python311\\Lib\\unittest\\suite.py",
+              "line": 122,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:1:f:12",
+              "name": "__call__",
+              "file": "C:\\Python311\\Lib\\unittest\\suite.py",
+              "line": 84,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:1:f:13",
+              "name": "run",
+              "file": "C:\\Python311\\Lib\\unittest\\runner.py",
+              "line": 217,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:1:f:14",
+              "name": "runTests",
+              "file": "C:\\Python311\\Lib\\unittest\\main.py",
+              "line": 274,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:1:f:15",
+              "name": "__init__",
+              "file": "C:\\Python311\\Lib\\unittest\\main.py",
+              "line": 102,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:1:f:16",
+              "name": "<module>",
+              "file": "C:\\Python311\\Lib\\unittest\\__main__.py",
+              "line": 18,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:1:f:17",
+              "name": "_run_code",
+              "file": "C:\\Python311\\Lib\\runpy.py",
+              "line": 88,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:1:f:18",
+              "name": "_run_module_as_main",
+              "file": "C:\\Python311\\Lib\\runpy.py",
+              "line": 198,
+              "truncated": false
+            }
+          ],
+          "truncated": false
+        },
+        "location": {
+          "file": "<workspace>\\checkout\\pricing.py",
+          "line": 4,
+          "source": [
+            {
+              "line": 2,
+              "text": "",
+              "truncated": false
+            },
+            {
+              "line": 3,
+              "text": "def average_price(orders):",
+              "truncated": false
+            },
+            {
+              "line": 4,
+              "text": "    prices = paid_prices(orders)",
+              "truncated": false
+            },
+            {
+              "line": 5,
+              "text": "    count = len(orders)",
+              "truncated": false
+            },
+            {
+              "line": 6,
+              "text": "    return sum(prices) / count",
+              "truncated": false
+            }
+          ],
+          "frame": "6a32ed79188ebeac:1:f:2"
+        },
+        "locals": {
+          "items": [
+            {
+              "name": "orders",
+              "value": "[{'price': 10, 'paid': True}, {'price': 20, 'paid': True}, {'price': 100, 'paid': False}]",
+              "type": "list",
+              "handle": "6a32ed79188ebeac:1:v:21",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            }
+          ],
+          "start": 0,
+          "truncated": false,
+          "next_start": null,
+          "handle": "6a32ed79188ebeac:1:v:19"
+        }
+      }
+    },
+    {
+      "command": [
+        "step",
+        "into"
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "6a32ed79188ebeac",
+        "generation": 3,
+        "reason": "step",
+        "exit_code": null,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 105556,
+          "adapter": 99336,
+          "target": 95520
+        },
+        "python": "<workspace>\\.venv\\Scripts\\python.exe",
+        "recording": {
+          "id": "6a32ed79188ebeac",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false,
+        "stack": {
+          "frames": [
+            {
+              "handle": "6a32ed79188ebeac:3:f:22",
+              "name": "paid_prices",
+              "file": "<workspace>\\checkout\\orders.py",
+              "line": 2,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:3:f:2",
+              "name": "average_price",
+              "file": "<workspace>\\checkout\\pricing.py",
+              "line": 4,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:3:f:3",
+              "name": "test_paid_average",
+              "file": "<workspace>\\checkout\\test_checkout.py",
+              "line": 8,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:3:f:4",
+              "name": "_callTestMethod",
+              "file": "C:\\Python311\\Lib\\unittest\\case.py",
+              "line": 579,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:3:f:5",
+              "name": "run",
+              "file": "C:\\Python311\\Lib\\unittest\\case.py",
+              "line": 623,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:3:f:6",
+              "name": "__call__",
+              "file": "C:\\Python311\\Lib\\unittest\\case.py",
+              "line": 678,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:3:f:7",
+              "name": "run",
+              "file": "C:\\Python311\\Lib\\unittest\\suite.py",
+              "line": 122,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:3:f:8",
+              "name": "__call__",
+              "file": "C:\\Python311\\Lib\\unittest\\suite.py",
+              "line": 84,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:3:f:9",
+              "name": "run",
+              "file": "C:\\Python311\\Lib\\unittest\\suite.py",
+              "line": 122,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:3:f:10",
+              "name": "__call__",
+              "file": "C:\\Python311\\Lib\\unittest\\suite.py",
+              "line": 84,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:3:f:11",
+              "name": "run",
+              "file": "C:\\Python311\\Lib\\unittest\\suite.py",
+              "line": 122,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:3:f:12",
+              "name": "__call__",
+              "file": "C:\\Python311\\Lib\\unittest\\suite.py",
+              "line": 84,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:3:f:13",
+              "name": "run",
+              "file": "C:\\Python311\\Lib\\unittest\\runner.py",
+              "line": 217,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:3:f:14",
+              "name": "runTests",
+              "file": "C:\\Python311\\Lib\\unittest\\main.py",
+              "line": 274,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:3:f:15",
+              "name": "__init__",
+              "file": "C:\\Python311\\Lib\\unittest\\main.py",
+              "line": 102,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:3:f:16",
+              "name": "<module>",
+              "file": "C:\\Python311\\Lib\\unittest\\__main__.py",
+              "line": 18,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:3:f:17",
+              "name": "_run_code",
+              "file": "C:\\Python311\\Lib\\runpy.py",
+              "line": 88,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:3:f:18",
+              "name": "_run_module_as_main",
+              "file": "C:\\Python311\\Lib\\runpy.py",
+              "line": 198,
+              "truncated": false
+            }
+          ],
+          "truncated": false
+        },
+        "location": {
+          "file": "<workspace>\\checkout\\orders.py",
+          "line": 2,
+          "source": [
+            {
+              "line": 1,
+              "text": "def paid_prices(orders):",
+              "truncated": false
+            },
+            {
+              "line": 2,
+              "text": "    return [order[\"price\"] for order in orders if order[\"paid\"]]",
+              "truncated": false
+            }
+          ],
+          "frame": "6a32ed79188ebeac:3:f:22"
+        },
+        "locals": {
+          "items": [
+            {
+              "name": "orders",
+              "value": "[{'price': 10, 'paid': True}, {'price': 20, 'paid': True}, {'price': 100, 'paid': False}]",
+              "type": "list",
+              "handle": "6a32ed79188ebeac:3:v:21",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            }
+          ],
+          "start": 0,
+          "truncated": false,
+          "next_start": null,
+          "handle": "6a32ed79188ebeac:3:v:23"
+        }
+      }
+    },
+    {
+      "command": [
+        "break",
+        "set",
+        "checkout/pricing.py",
+        "6"
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "6a32ed79188ebeac",
+        "generation": 3,
+        "reason": "step",
+        "exit_code": null,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 105556,
+          "adapter": 99336,
+          "target": 95520
+        },
+        "python": "<workspace>\\.venv\\Scripts\\python.exe",
+        "recording": {
+          "id": "6a32ed79188ebeac",
+          "truncated": false,
+          "error": null
+        },
+        "breakpoints": [
+          {
+            "line": 4,
+            "requested_line": 4,
+            "condition": null,
+            "verified": true,
+            "message": ""
+          },
+          {
+            "line": 6,
+            "requested_line": 6,
+            "condition": null,
+            "verified": true,
+            "message": ""
+          }
+        ],
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "step",
+        "out"
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "6a32ed79188ebeac",
+        "generation": 5,
+        "reason": "step",
+        "exit_code": null,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 105556,
+          "adapter": 99336,
+          "target": 95520
+        },
+        "python": "<workspace>\\.venv\\Scripts\\python.exe",
+        "recording": {
+          "id": "6a32ed79188ebeac",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false,
+        "stack": {
+          "frames": [
+            {
+              "handle": "6a32ed79188ebeac:5:f:2",
+              "name": "average_price",
+              "file": "<workspace>\\checkout\\pricing.py",
+              "line": 4,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:5:f:3",
+              "name": "test_paid_average",
+              "file": "<workspace>\\checkout\\test_checkout.py",
+              "line": 8,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:5:f:4",
+              "name": "_callTestMethod",
+              "file": "C:\\Python311\\Lib\\unittest\\case.py",
+              "line": 579,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:5:f:5",
+              "name": "run",
+              "file": "C:\\Python311\\Lib\\unittest\\case.py",
+              "line": 623,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:5:f:6",
+              "name": "__call__",
+              "file": "C:\\Python311\\Lib\\unittest\\case.py",
+              "line": 678,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:5:f:7",
+              "name": "run",
+              "file": "C:\\Python311\\Lib\\unittest\\suite.py",
+              "line": 122,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:5:f:8",
+              "name": "__call__",
+              "file": "C:\\Python311\\Lib\\unittest\\suite.py",
+              "line": 84,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:5:f:9",
+              "name": "run",
+              "file": "C:\\Python311\\Lib\\unittest\\suite.py",
+              "line": 122,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:5:f:10",
+              "name": "__call__",
+              "file": "C:\\Python311\\Lib\\unittest\\suite.py",
+              "line": 84,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:5:f:11",
+              "name": "run",
+              "file": "C:\\Python311\\Lib\\unittest\\suite.py",
+              "line": 122,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:5:f:12",
+              "name": "__call__",
+              "file": "C:\\Python311\\Lib\\unittest\\suite.py",
+              "line": 84,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:5:f:13",
+              "name": "run",
+              "file": "C:\\Python311\\Lib\\unittest\\runner.py",
+              "line": 217,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:5:f:14",
+              "name": "runTests",
+              "file": "C:\\Python311\\Lib\\unittest\\main.py",
+              "line": 274,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:5:f:15",
+              "name": "__init__",
+              "file": "C:\\Python311\\Lib\\unittest\\main.py",
+              "line": 102,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:5:f:16",
+              "name": "<module>",
+              "file": "C:\\Python311\\Lib\\unittest\\__main__.py",
+              "line": 18,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:5:f:17",
+              "name": "_run_code",
+              "file": "C:\\Python311\\Lib\\runpy.py",
+              "line": 88,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:5:f:18",
+              "name": "_run_module_as_main",
+              "file": "C:\\Python311\\Lib\\runpy.py",
+              "line": 198,
+              "truncated": false
+            }
+          ],
+          "truncated": false
+        },
+        "location": {
+          "file": "<workspace>\\checkout\\pricing.py",
+          "line": 4,
+          "source": [
+            {
+              "line": 2,
+              "text": "",
+              "truncated": false
+            },
+            {
+              "line": 3,
+              "text": "def average_price(orders):",
+              "truncated": false
+            },
+            {
+              "line": 4,
+              "text": "    prices = paid_prices(orders)",
+              "truncated": false
+            },
+            {
+              "line": 5,
+              "text": "    count = len(orders)",
+              "truncated": false
+            },
+            {
+              "line": 6,
+              "text": "    return sum(prices) / count",
+              "truncated": false
+            }
+          ],
+          "frame": "6a32ed79188ebeac:5:f:2"
+        },
+        "locals": {
+          "items": [
+            {
+              "name": "orders",
+              "value": "[{'price': 10, 'paid': True}, {'price': 20, 'paid': True}, {'price': 100, 'paid': False}]",
+              "type": "list",
+              "handle": "6a32ed79188ebeac:5:v:21",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            }
+          ],
+          "start": 0,
+          "truncated": false,
+          "next_start": null,
+          "handle": "6a32ed79188ebeac:5:v:19"
+        }
+      }
+    },
+    {
+      "command": [
+        "continue"
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "6a32ed79188ebeac",
+        "generation": 7,
+        "reason": "breakpoint",
+        "exit_code": null,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 105556,
+          "adapter": 99336,
+          "target": 95520
+        },
+        "python": "<workspace>\\.venv\\Scripts\\python.exe",
+        "recording": {
+          "id": "6a32ed79188ebeac",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false,
+        "stack": {
+          "frames": [
+            {
+              "handle": "6a32ed79188ebeac:7:f:2",
+              "name": "average_price",
+              "file": "<workspace>\\checkout\\pricing.py",
+              "line": 6,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:7:f:3",
+              "name": "test_paid_average",
+              "file": "<workspace>\\checkout\\test_checkout.py",
+              "line": 8,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:7:f:4",
+              "name": "_callTestMethod",
+              "file": "C:\\Python311\\Lib\\unittest\\case.py",
+              "line": 579,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:7:f:5",
+              "name": "run",
+              "file": "C:\\Python311\\Lib\\unittest\\case.py",
+              "line": 623,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:7:f:6",
+              "name": "__call__",
+              "file": "C:\\Python311\\Lib\\unittest\\case.py",
+              "line": 678,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:7:f:7",
+              "name": "run",
+              "file": "C:\\Python311\\Lib\\unittest\\suite.py",
+              "line": 122,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:7:f:8",
+              "name": "__call__",
+              "file": "C:\\Python311\\Lib\\unittest\\suite.py",
+              "line": 84,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:7:f:9",
+              "name": "run",
+              "file": "C:\\Python311\\Lib\\unittest\\suite.py",
+              "line": 122,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:7:f:10",
+              "name": "__call__",
+              "file": "C:\\Python311\\Lib\\unittest\\suite.py",
+              "line": 84,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:7:f:11",
+              "name": "run",
+              "file": "C:\\Python311\\Lib\\unittest\\suite.py",
+              "line": 122,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:7:f:12",
+              "name": "__call__",
+              "file": "C:\\Python311\\Lib\\unittest\\suite.py",
+              "line": 84,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:7:f:13",
+              "name": "run",
+              "file": "C:\\Python311\\Lib\\unittest\\runner.py",
+              "line": 217,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:7:f:14",
+              "name": "runTests",
+              "file": "C:\\Python311\\Lib\\unittest\\main.py",
+              "line": 274,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:7:f:15",
+              "name": "__init__",
+              "file": "C:\\Python311\\Lib\\unittest\\main.py",
+              "line": 102,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:7:f:16",
+              "name": "<module>",
+              "file": "C:\\Python311\\Lib\\unittest\\__main__.py",
+              "line": 18,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:7:f:17",
+              "name": "_run_code",
+              "file": "C:\\Python311\\Lib\\runpy.py",
+              "line": 88,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:7:f:18",
+              "name": "_run_module_as_main",
+              "file": "C:\\Python311\\Lib\\runpy.py",
+              "line": 198,
+              "truncated": false
+            }
+          ],
+          "truncated": false
+        },
+        "location": {
+          "file": "<workspace>\\checkout\\pricing.py",
+          "line": 6,
+          "source": [
+            {
+              "line": 4,
+              "text": "    prices = paid_prices(orders)",
+              "truncated": false
+            },
+            {
+              "line": 5,
+              "text": "    count = len(orders)",
+              "truncated": false
+            },
+            {
+              "line": 6,
+              "text": "    return sum(prices) / count",
+              "truncated": false
+            }
+          ],
+          "frame": "6a32ed79188ebeac:7:f:2"
+        },
+        "locals": {
+          "items": [
+            {
+              "name": "count",
+              "value": "3",
+              "type": "int",
+              "handle": null,
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "orders",
+              "value": "[{'price': 10, 'paid': True}, {'price': 20, 'paid': True}, {'price': 100, 'paid': False}]",
+              "type": "list",
+              "handle": "6a32ed79188ebeac:7:v:21",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "prices",
+              "value": "[10, 20]",
+              "type": "list",
+              "handle": "6a32ed79188ebeac:7:v:25",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            }
+          ],
+          "start": 0,
+          "truncated": false,
+          "next_start": null,
+          "handle": "6a32ed79188ebeac:7:v:19"
+        }
+      }
+    },
+    {
+      "command": [
+        "inspect",
+        "--frame",
+        "6a32ed79188ebeac:7:f:3"
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "6a32ed79188ebeac",
+        "generation": 7,
+        "reason": "breakpoint",
+        "exit_code": null,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 105556,
+          "adapter": 99336,
+          "target": 95520
+        },
+        "python": "<workspace>\\.venv\\Scripts\\python.exe",
+        "recording": {
+          "id": "6a32ed79188ebeac",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false,
+        "stack": {
+          "frames": [
+            {
+              "handle": "6a32ed79188ebeac:7:f:2",
+              "name": "average_price",
+              "file": "<workspace>\\checkout\\pricing.py",
+              "line": 6,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:7:f:3",
+              "name": "test_paid_average",
+              "file": "<workspace>\\checkout\\test_checkout.py",
+              "line": 8,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:7:f:4",
+              "name": "_callTestMethod",
+              "file": "C:\\Python311\\Lib\\unittest\\case.py",
+              "line": 579,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:7:f:5",
+              "name": "run",
+              "file": "C:\\Python311\\Lib\\unittest\\case.py",
+              "line": 623,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:7:f:6",
+              "name": "__call__",
+              "file": "C:\\Python311\\Lib\\unittest\\case.py",
+              "line": 678,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:7:f:7",
+              "name": "run",
+              "file": "C:\\Python311\\Lib\\unittest\\suite.py",
+              "line": 122,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:7:f:8",
+              "name": "__call__",
+              "file": "C:\\Python311\\Lib\\unittest\\suite.py",
+              "line": 84,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:7:f:9",
+              "name": "run",
+              "file": "C:\\Python311\\Lib\\unittest\\suite.py",
+              "line": 122,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:7:f:10",
+              "name": "__call__",
+              "file": "C:\\Python311\\Lib\\unittest\\suite.py",
+              "line": 84,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:7:f:11",
+              "name": "run",
+              "file": "C:\\Python311\\Lib\\unittest\\suite.py",
+              "line": 122,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:7:f:12",
+              "name": "__call__",
+              "file": "C:\\Python311\\Lib\\unittest\\suite.py",
+              "line": 84,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:7:f:13",
+              "name": "run",
+              "file": "C:\\Python311\\Lib\\unittest\\runner.py",
+              "line": 217,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:7:f:14",
+              "name": "runTests",
+              "file": "C:\\Python311\\Lib\\unittest\\main.py",
+              "line": 274,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:7:f:15",
+              "name": "__init__",
+              "file": "C:\\Python311\\Lib\\unittest\\main.py",
+              "line": 102,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:7:f:16",
+              "name": "<module>",
+              "file": "C:\\Python311\\Lib\\unittest\\__main__.py",
+              "line": 18,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:7:f:17",
+              "name": "_run_code",
+              "file": "C:\\Python311\\Lib\\runpy.py",
+              "line": 88,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:7:f:18",
+              "name": "_run_module_as_main",
+              "file": "C:\\Python311\\Lib\\runpy.py",
+              "line": 198,
+              "truncated": false
+            }
+          ],
+          "truncated": false
+        },
+        "location": {
+          "file": "<workspace>\\checkout\\test_checkout.py",
+          "line": 8,
+          "source": [
+            {
+              "line": 6,
+              "text": "        orders = [{\"price\": 10, \"paid\": True}, {\"price\": 20, \"paid\": True},",
+              "truncated": false
+            },
+            {
+              "line": 7,
+              "text": "                  {\"price\": 100, \"paid\": False}]",
+              "truncated": false
+            },
+            {
+              "line": 8,
+              "text": "        self.assertEqual(average_price(orders), 15.0)",
+              "truncated": false
+            }
+          ],
+          "frame": "6a32ed79188ebeac:7:f:3"
+        },
+        "locals": {
+          "items": [
+            {
+              "name": "orders",
+              "value": "[{'price': 10, 'paid': True}, {'price': 20, 'paid': True}, {'price': 100, 'paid': False}]",
+              "type": "list",
+              "handle": "6a32ed79188ebeac:7:v:21",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "self",
+              "value": "<test_checkout.CheckoutTest testMethod=test_paid_average>",
+              "type": "CheckoutTest",
+              "handle": "6a32ed79188ebeac:7:v:28",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            }
+          ],
+          "start": 0,
+          "truncated": false,
+          "next_start": null,
+          "handle": "6a32ed79188ebeac:7:v:26"
+        }
+      }
+    },
+    {
+      "command": [
+        "note",
+        "The prices contain two paid orders, but count includes all three orders. The average is 10 instead of 15."
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "6a32ed79188ebeac",
+        "generation": 7,
+        "reason": "breakpoint",
+        "exit_code": null,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 105556,
+          "adapter": 99336,
+          "target": 95520
+        },
+        "python": "<workspace>\\.venv\\Scripts\\python.exe",
+        "recording": {
+          "id": "6a32ed79188ebeac",
+          "truncated": false,
+          "error": null
+        },
+        "note": "The prices contain two paid orders, but count includes all three orders. The average is 10 instead of 15.",
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "continue"
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "6a32ed79188ebeac",
+        "generation": 9,
+        "reason": "exception",
+        "exit_code": null,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 105556,
+          "adapter": 99336,
+          "target": 95520
+        },
+        "python": "<workspace>\\.venv\\Scripts\\python.exe",
+        "recording": {
+          "id": "6a32ed79188ebeac",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false,
+        "stack": {
+          "frames": [
+            {
+              "handle": "6a32ed79188ebeac:9:f:14",
+              "name": "runTests",
+              "file": "C:\\Python311\\Lib\\unittest\\main.py",
+              "line": 276,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:9:f:15",
+              "name": "__init__",
+              "file": "C:\\Python311\\Lib\\unittest\\main.py",
+              "line": 102,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:9:f:16",
+              "name": "<module>",
+              "file": "C:\\Python311\\Lib\\unittest\\__main__.py",
+              "line": 18,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:9:f:17",
+              "name": "_run_code",
+              "file": "C:\\Python311\\Lib\\runpy.py",
+              "line": 88,
+              "truncated": false
+            },
+            {
+              "handle": "6a32ed79188ebeac:9:f:18",
+              "name": "_run_module_as_main (Current frame)",
+              "file": "C:\\Python311\\Lib\\runpy.py",
+              "line": 198,
+              "truncated": false
+            }
+          ],
+          "truncated": false
+        },
+        "location": {
+          "file": "C:\\Python311\\Lib\\unittest\\main.py",
+          "line": 276,
+          "source": [
+            {
+              "line": 274,
+              "text": "        self.result = testRunner.run(self.test)",
+              "truncated": false
+            },
+            {
+              "line": 275,
+              "text": "        if self.exit:",
+              "truncated": false
+            },
+            {
+              "line": 276,
+              "text": "            sys.exit(not self.result.wasSuccessful())",
+              "truncated": false
+            },
+            {
+              "line": 277,
+              "text": "",
+              "truncated": false
+            },
+            {
+              "line": 278,
+              "text": "main = TestProgram",
+              "truncated": false
+            }
+          ],
+          "frame": "6a32ed79188ebeac:9:f:14"
+        },
+        "locals": {
+          "items": [
+            {
+              "name": "special variables",
+              "value": "",
+              "type": "",
+              "handle": "6a32ed79188ebeac:9:v:31",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "self",
+              "value": "<unittest.main.TestProgram object at 0x0000020FB3A4CAD0>",
+              "type": "TestProgram",
+              "handle": "6a32ed79188ebeac:9:v:32",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "testRunner",
+              "value": "<unittest.runner.TextTestRunner object at 0x0000020FB3B16A50>",
+              "type": "TextTestRunner",
+              "handle": "6a32ed79188ebeac:9:v:33",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            }
+          ],
+          "start": 0,
+          "truncated": false,
+          "next_start": null,
+          "handle": "6a32ed79188ebeac:9:v:29"
+        }
+      }
+    },
+    {
+      "command": [
+        "exceptions",
+        "off"
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "6a32ed79188ebeac",
+        "generation": 9,
+        "reason": "exception",
+        "exit_code": null,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 105556,
+          "adapter": 99336,
+          "target": 95520
+        },
+        "python": "<workspace>\\.venv\\Scripts\\python.exe",
+        "recording": {
+          "id": "6a32ed79188ebeac",
+          "truncated": false,
+          "error": null
+        },
+        "uncaught": false,
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "continue"
+      ],
+      "response": {
+        "ok": true,
+        "state": "exited",
+        "phase": "done",
+        "session": "6a32ed79188ebeac",
+        "generation": 11,
+        "reason": null,
+        "exit_code": 1,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 105556,
+          "adapter": 99336,
+          "target": 95520
+        },
+        "python": "<workspace>\\.venv\\Scripts\\python.exe",
+        "recording": {
+          "id": "6a32ed79188ebeac",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "output"
+      ],
+      "response": {
+        "ok": true,
+        "state": "exited",
+        "phase": "done",
+        "session": "6a32ed79188ebeac",
+        "generation": 12,
+        "reason": null,
+        "exit_code": 1,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 105556,
+          "adapter": 99336,
+          "target": 95520
+        },
+        "python": "<workspace>\\.venv\\Scripts\\python.exe",
+        "recording": {
+          "id": "6a32ed79188ebeac",
+          "truncated": false,
+          "error": null
+        },
+        "output": {
+          "stdout": {
+            "text": "",
+            "truncated": false,
+            "dropped_chars": 0
+          },
+          "stderr": {
+            "text": "======================================================================\nFAIL: test_paid_average (test_checkout.CheckoutTest.test_paid_average)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<workspace>\\checkout\\test_checkout.py\", line 8, in test_paid_average\n    self.assertEqual(average_price(orders), 15.0)\nAssertionError: 10.0 != 15.0\n\n----------------------------------------------------------------------\nRan 1 test in 11.271s\n\nFAILED (failures=1)\n",
+            "truncated": false,
+            "dropped_chars": 0
+          },
+          "adapter": {
+            "text": "",
+            "truncated": false,
+            "dropped_chars": 0
+          }
+        },
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "note",
+        "Fixed the divisor to count only paid prices. A fresh launch will verify the change."
+      ],
+      "response": {
+        "ok": true,
+        "state": "exited",
+        "phase": "done",
+        "session": "6a32ed79188ebeac",
+        "generation": 12,
+        "reason": null,
+        "exit_code": 1,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 105556,
+          "adapter": 99336,
+          "target": 95520
+        },
+        "python": "<workspace>\\.venv\\Scripts\\python.exe",
+        "recording": {
+          "id": "6a32ed79188ebeac",
+          "truncated": false,
+          "error": null
+        },
+        "note": "Fixed the divisor to count only paid prices. A fresh launch will verify the change.",
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "stop"
+      ],
+      "response": {
+        "ok": true,
+        "state": "exited",
+        "phase": "closed",
+        "session": "6a32ed79188ebeac",
+        "generation": 13,
+        "reason": null,
+        "exit_code": 1,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 105556,
+          "adapter": 99336,
+          "target": 95520
+        },
+        "python": "<workspace>\\.venv\\Scripts\\python.exe",
+        "recording": {
+          "id": "6a32ed79188ebeac",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "launch",
+        "--cwd",
+        "checkout",
+        "--module",
+        "--run",
+        "unittest",
+        "--",
+        "-q",
+        "test_checkout"
+      ],
+      "response": {
+        "ok": true,
+        "state": "exited",
+        "phase": "done",
+        "session": "b2a4c710341871ac",
+        "generation": 1,
+        "reason": null,
+        "exit_code": 0,
+        "thread": null,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 108884,
+          "adapter": 109064,
+          "target": 106992
+        },
+        "python": "<workspace>\\.venv\\Scripts\\python.exe",
+        "recording": {
+          "id": "b2a4c710341871ac",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "note",
+        "Verified: the same test now passes with average 15.0."
+      ],
+      "response": {
+        "ok": true,
+        "state": "exited",
+        "phase": "done",
+        "session": "b2a4c710341871ac",
+        "generation": 2,
+        "reason": null,
+        "exit_code": 0,
+        "thread": null,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 108884,
+          "adapter": 109064,
+          "target": 106992
+        },
+        "python": "<workspace>\\.venv\\Scripts\\python.exe",
+        "recording": {
+          "id": "b2a4c710341871ac",
+          "truncated": false,
+          "error": null
+        },
+        "note": "Verified: the same test now passes with average 15.0.",
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "stop"
+      ],
+      "response": {
+        "ok": true,
+        "state": "exited",
+        "phase": "closed",
+        "session": "b2a4c710341871ac",
+        "generation": 3,
+        "reason": null,
+        "exit_code": 0,
+        "thread": null,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 108884,
+          "adapter": 109064,
+          "target": 106992
+        },
+        "python": "<workspace>\\.venv\\Scripts\\python.exe",
+        "recording": {
+          "id": "b2a4c710341871ac",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "launch",
+        "--cwd",
+        "checkout",
+        "--python",
+        "<repo>\\.venv\\Scripts\\python.exe",
+        "--module",
+        "--run",
+        "--uncaught",
+        "--breakpoint",
+        "checkout/pricing.py:4",
+        "pytest",
+        "--",
+        "-q",
+        "test_checkout.py"
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "e741fca74b0acc48",
+        "generation": 1,
+        "reason": "breakpoint",
+        "exit_code": null,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 108700,
+          "adapter": 108444,
+          "target": 104296
+        },
+        "python": "<repo>\\.venv\\Scripts\\python.exe",
+        "recording": {
+          "id": "e741fca74b0acc48",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false,
+        "stack": {
+          "frames": [
+            {
+              "handle": "e741fca74b0acc48:1:f:2",
+              "name": "average_price",
+              "file": "<workspace>\\checkout\\pricing.py",
+              "line": 4,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:1:f:3",
+              "name": "test_paid_average",
+              "file": "<workspace>\\checkout\\test_checkout.py",
+              "line": 8,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:1:f:4",
+              "name": "_callTestMethod",
+              "file": "C:\\Python311\\Lib\\unittest\\case.py",
+              "line": 579,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:1:f:5",
+              "name": "run",
+              "file": "C:\\Python311\\Lib\\unittest\\case.py",
+              "line": 623,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:1:f:6",
+              "name": "__call__",
+              "file": "C:\\Python311\\Lib\\unittest\\case.py",
+              "line": 678,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:1:f:7",
+              "name": "runtest",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\_pytest\\unittest.py",
+              "line": 410,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:1:f:8",
+              "name": "pytest_runtest_call",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\_pytest\\runner.py",
+              "line": 184,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:1:f:9",
+              "name": "_multicall",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\pluggy\\_callers.py",
+              "line": 121,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:1:f:10",
+              "name": "_hookexec",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\pluggy\\_manager.py",
+              "line": 120,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:1:f:11",
+              "name": "__call__",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\pluggy\\_hooks.py",
+              "line": 512,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:1:f:12",
+              "name": "<lambda>",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\_pytest\\runner.py",
+              "line": 250,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:1:f:13",
+              "name": "from_call",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\_pytest\\runner.py",
+              "line": 361,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:1:f:14",
+              "name": "call_and_report",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\_pytest\\runner.py",
+              "line": 249,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:1:f:15",
+              "name": "runtestprotocol",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\_pytest\\runner.py",
+              "line": 139,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:1:f:16",
+              "name": "pytest_runtest_protocol",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\_pytest\\runner.py",
+              "line": 118,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:1:f:17",
+              "name": "_multicall",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\pluggy\\_callers.py",
+              "line": 121,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:1:f:18",
+              "name": "_hookexec",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\pluggy\\_manager.py",
+              "line": 120,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:1:f:19",
+              "name": "__call__",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\pluggy\\_hooks.py",
+              "line": 512,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:1:f:20",
+              "name": "pytest_runtestloop",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\_pytest\\main.py",
+              "line": 408,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:1:f:21",
+              "name": "_multicall",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\pluggy\\_callers.py",
+              "line": 121,
+              "truncated": false
+            }
+          ],
+          "truncated": true
+        },
+        "location": {
+          "file": "<workspace>\\checkout\\pricing.py",
+          "line": 4,
+          "source": [
+            {
+              "line": 2,
+              "text": "",
+              "truncated": false
+            },
+            {
+              "line": 3,
+              "text": "def average_price(orders):",
+              "truncated": false
+            },
+            {
+              "line": 4,
+              "text": "    prices = paid_prices(orders)",
+              "truncated": false
+            },
+            {
+              "line": 5,
+              "text": "    count = len(orders)",
+              "truncated": false
+            },
+            {
+              "line": 6,
+              "text": "    return sum(prices) / count",
+              "truncated": false
+            }
+          ],
+          "frame": "e741fca74b0acc48:1:f:2"
+        },
+        "locals": {
+          "items": [
+            {
+              "name": "orders",
+              "value": "[{'price': 10, 'paid': True}, {'price': 20, 'paid': True}, {'price': 100, 'paid': False}]",
+              "type": "list",
+              "handle": "e741fca74b0acc48:1:v:25",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            }
+          ],
+          "start": 0,
+          "truncated": false,
+          "next_start": null,
+          "handle": "e741fca74b0acc48:1:v:23"
+        }
+      }
+    },
+    {
+      "command": [
+        "step",
+        "into"
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "e741fca74b0acc48",
+        "generation": 3,
+        "reason": "step",
+        "exit_code": null,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 108700,
+          "adapter": 108444,
+          "target": 104296
+        },
+        "python": "<repo>\\.venv\\Scripts\\python.exe",
+        "recording": {
+          "id": "e741fca74b0acc48",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false,
+        "stack": {
+          "frames": [
+            {
+              "handle": "e741fca74b0acc48:3:f:26",
+              "name": "paid_prices",
+              "file": "<workspace>\\checkout\\orders.py",
+              "line": 2,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:3:f:2",
+              "name": "average_price",
+              "file": "<workspace>\\checkout\\pricing.py",
+              "line": 4,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:3:f:3",
+              "name": "test_paid_average",
+              "file": "<workspace>\\checkout\\test_checkout.py",
+              "line": 8,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:3:f:4",
+              "name": "_callTestMethod",
+              "file": "C:\\Python311\\Lib\\unittest\\case.py",
+              "line": 579,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:3:f:5",
+              "name": "run",
+              "file": "C:\\Python311\\Lib\\unittest\\case.py",
+              "line": 623,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:3:f:6",
+              "name": "__call__",
+              "file": "C:\\Python311\\Lib\\unittest\\case.py",
+              "line": 678,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:3:f:7",
+              "name": "runtest",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\_pytest\\unittest.py",
+              "line": 410,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:3:f:8",
+              "name": "pytest_runtest_call",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\_pytest\\runner.py",
+              "line": 184,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:3:f:9",
+              "name": "_multicall",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\pluggy\\_callers.py",
+              "line": 121,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:3:f:10",
+              "name": "_hookexec",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\pluggy\\_manager.py",
+              "line": 120,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:3:f:11",
+              "name": "__call__",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\pluggy\\_hooks.py",
+              "line": 512,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:3:f:12",
+              "name": "<lambda>",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\_pytest\\runner.py",
+              "line": 250,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:3:f:13",
+              "name": "from_call",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\_pytest\\runner.py",
+              "line": 361,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:3:f:14",
+              "name": "call_and_report",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\_pytest\\runner.py",
+              "line": 249,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:3:f:15",
+              "name": "runtestprotocol",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\_pytest\\runner.py",
+              "line": 139,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:3:f:16",
+              "name": "pytest_runtest_protocol",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\_pytest\\runner.py",
+              "line": 118,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:3:f:17",
+              "name": "_multicall",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\pluggy\\_callers.py",
+              "line": 121,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:3:f:18",
+              "name": "_hookexec",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\pluggy\\_manager.py",
+              "line": 120,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:3:f:19",
+              "name": "__call__",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\pluggy\\_hooks.py",
+              "line": 512,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:3:f:20",
+              "name": "pytest_runtestloop",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\_pytest\\main.py",
+              "line": 408,
+              "truncated": false
+            }
+          ],
+          "truncated": true
+        },
+        "location": {
+          "file": "<workspace>\\checkout\\orders.py",
+          "line": 2,
+          "source": [
+            {
+              "line": 1,
+              "text": "def paid_prices(orders):",
+              "truncated": false
+            },
+            {
+              "line": 2,
+              "text": "    return [order[\"price\"] for order in orders if order[\"paid\"]]",
+              "truncated": false
+            }
+          ],
+          "frame": "e741fca74b0acc48:3:f:26"
+        },
+        "locals": {
+          "items": [
+            {
+              "name": "orders",
+              "value": "[{'price': 10, 'paid': True}, {'price': 20, 'paid': True}, {'price': 100, 'paid': False}]",
+              "type": "list",
+              "handle": "e741fca74b0acc48:3:v:25",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            }
+          ],
+          "start": 0,
+          "truncated": false,
+          "next_start": null,
+          "handle": "e741fca74b0acc48:3:v:27"
+        }
+      }
+    },
+    {
+      "command": [
+        "break",
+        "set",
+        "checkout/pricing.py",
+        "6"
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "e741fca74b0acc48",
+        "generation": 3,
+        "reason": "step",
+        "exit_code": null,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 108700,
+          "adapter": 108444,
+          "target": 104296
+        },
+        "python": "<repo>\\.venv\\Scripts\\python.exe",
+        "recording": {
+          "id": "e741fca74b0acc48",
+          "truncated": false,
+          "error": null
+        },
+        "breakpoints": [
+          {
+            "line": 4,
+            "requested_line": 4,
+            "condition": null,
+            "verified": true,
+            "message": ""
+          },
+          {
+            "line": 6,
+            "requested_line": 6,
+            "condition": null,
+            "verified": true,
+            "message": ""
+          }
+        ],
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "step",
+        "out"
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "e741fca74b0acc48",
+        "generation": 5,
+        "reason": "step",
+        "exit_code": null,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 108700,
+          "adapter": 108444,
+          "target": 104296
+        },
+        "python": "<repo>\\.venv\\Scripts\\python.exe",
+        "recording": {
+          "id": "e741fca74b0acc48",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false,
+        "stack": {
+          "frames": [
+            {
+              "handle": "e741fca74b0acc48:5:f:2",
+              "name": "average_price",
+              "file": "<workspace>\\checkout\\pricing.py",
+              "line": 4,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:5:f:3",
+              "name": "test_paid_average",
+              "file": "<workspace>\\checkout\\test_checkout.py",
+              "line": 8,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:5:f:4",
+              "name": "_callTestMethod",
+              "file": "C:\\Python311\\Lib\\unittest\\case.py",
+              "line": 579,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:5:f:5",
+              "name": "run",
+              "file": "C:\\Python311\\Lib\\unittest\\case.py",
+              "line": 623,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:5:f:6",
+              "name": "__call__",
+              "file": "C:\\Python311\\Lib\\unittest\\case.py",
+              "line": 678,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:5:f:7",
+              "name": "runtest",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\_pytest\\unittest.py",
+              "line": 410,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:5:f:8",
+              "name": "pytest_runtest_call",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\_pytest\\runner.py",
+              "line": 184,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:5:f:9",
+              "name": "_multicall",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\pluggy\\_callers.py",
+              "line": 121,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:5:f:10",
+              "name": "_hookexec",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\pluggy\\_manager.py",
+              "line": 120,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:5:f:11",
+              "name": "__call__",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\pluggy\\_hooks.py",
+              "line": 512,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:5:f:12",
+              "name": "<lambda>",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\_pytest\\runner.py",
+              "line": 250,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:5:f:13",
+              "name": "from_call",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\_pytest\\runner.py",
+              "line": 361,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:5:f:14",
+              "name": "call_and_report",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\_pytest\\runner.py",
+              "line": 249,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:5:f:15",
+              "name": "runtestprotocol",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\_pytest\\runner.py",
+              "line": 139,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:5:f:16",
+              "name": "pytest_runtest_protocol",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\_pytest\\runner.py",
+              "line": 118,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:5:f:17",
+              "name": "_multicall",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\pluggy\\_callers.py",
+              "line": 121,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:5:f:18",
+              "name": "_hookexec",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\pluggy\\_manager.py",
+              "line": 120,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:5:f:19",
+              "name": "__call__",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\pluggy\\_hooks.py",
+              "line": 512,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:5:f:20",
+              "name": "pytest_runtestloop",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\_pytest\\main.py",
+              "line": 408,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:5:f:21",
+              "name": "_multicall",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\pluggy\\_callers.py",
+              "line": 121,
+              "truncated": false
+            }
+          ],
+          "truncated": true
+        },
+        "location": {
+          "file": "<workspace>\\checkout\\pricing.py",
+          "line": 4,
+          "source": [
+            {
+              "line": 2,
+              "text": "",
+              "truncated": false
+            },
+            {
+              "line": 3,
+              "text": "def average_price(orders):",
+              "truncated": false
+            },
+            {
+              "line": 4,
+              "text": "    prices = paid_prices(orders)",
+              "truncated": false
+            },
+            {
+              "line": 5,
+              "text": "    count = len(orders)",
+              "truncated": false
+            },
+            {
+              "line": 6,
+              "text": "    return sum(prices) / count",
+              "truncated": false
+            }
+          ],
+          "frame": "e741fca74b0acc48:5:f:2"
+        },
+        "locals": {
+          "items": [
+            {
+              "name": "orders",
+              "value": "[{'price': 10, 'paid': True}, {'price': 20, 'paid': True}, {'price': 100, 'paid': False}]",
+              "type": "list",
+              "handle": "e741fca74b0acc48:5:v:25",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            }
+          ],
+          "start": 0,
+          "truncated": false,
+          "next_start": null,
+          "handle": "e741fca74b0acc48:5:v:23"
+        }
+      }
+    },
+    {
+      "command": [
+        "continue"
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "e741fca74b0acc48",
+        "generation": 7,
+        "reason": "breakpoint",
+        "exit_code": null,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 108700,
+          "adapter": 108444,
+          "target": 104296
+        },
+        "python": "<repo>\\.venv\\Scripts\\python.exe",
+        "recording": {
+          "id": "e741fca74b0acc48",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false,
+        "stack": {
+          "frames": [
+            {
+              "handle": "e741fca74b0acc48:7:f:2",
+              "name": "average_price",
+              "file": "<workspace>\\checkout\\pricing.py",
+              "line": 6,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:7:f:3",
+              "name": "test_paid_average",
+              "file": "<workspace>\\checkout\\test_checkout.py",
+              "line": 8,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:7:f:4",
+              "name": "_callTestMethod",
+              "file": "C:\\Python311\\Lib\\unittest\\case.py",
+              "line": 579,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:7:f:5",
+              "name": "run",
+              "file": "C:\\Python311\\Lib\\unittest\\case.py",
+              "line": 623,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:7:f:6",
+              "name": "__call__",
+              "file": "C:\\Python311\\Lib\\unittest\\case.py",
+              "line": 678,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:7:f:7",
+              "name": "runtest",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\_pytest\\unittest.py",
+              "line": 410,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:7:f:8",
+              "name": "pytest_runtest_call",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\_pytest\\runner.py",
+              "line": 184,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:7:f:9",
+              "name": "_multicall",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\pluggy\\_callers.py",
+              "line": 121,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:7:f:10",
+              "name": "_hookexec",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\pluggy\\_manager.py",
+              "line": 120,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:7:f:11",
+              "name": "__call__",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\pluggy\\_hooks.py",
+              "line": 512,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:7:f:12",
+              "name": "<lambda>",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\_pytest\\runner.py",
+              "line": 250,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:7:f:13",
+              "name": "from_call",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\_pytest\\runner.py",
+              "line": 361,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:7:f:14",
+              "name": "call_and_report",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\_pytest\\runner.py",
+              "line": 249,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:7:f:15",
+              "name": "runtestprotocol",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\_pytest\\runner.py",
+              "line": 139,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:7:f:16",
+              "name": "pytest_runtest_protocol",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\_pytest\\runner.py",
+              "line": 118,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:7:f:17",
+              "name": "_multicall",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\pluggy\\_callers.py",
+              "line": 121,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:7:f:18",
+              "name": "_hookexec",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\pluggy\\_manager.py",
+              "line": 120,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:7:f:19",
+              "name": "__call__",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\pluggy\\_hooks.py",
+              "line": 512,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:7:f:20",
+              "name": "pytest_runtestloop",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\_pytest\\main.py",
+              "line": 408,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:7:f:21",
+              "name": "_multicall",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\pluggy\\_callers.py",
+              "line": 121,
+              "truncated": false
+            }
+          ],
+          "truncated": true
+        },
+        "location": {
+          "file": "<workspace>\\checkout\\pricing.py",
+          "line": 6,
+          "source": [
+            {
+              "line": 4,
+              "text": "    prices = paid_prices(orders)",
+              "truncated": false
+            },
+            {
+              "line": 5,
+              "text": "    count = len(orders)",
+              "truncated": false
+            },
+            {
+              "line": 6,
+              "text": "    return sum(prices) / count",
+              "truncated": false
+            }
+          ],
+          "frame": "e741fca74b0acc48:7:f:2"
+        },
+        "locals": {
+          "items": [
+            {
+              "name": "count",
+              "value": "3",
+              "type": "int",
+              "handle": null,
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "orders",
+              "value": "[{'price': 10, 'paid': True}, {'price': 20, 'paid': True}, {'price': 100, 'paid': False}]",
+              "type": "list",
+              "handle": "e741fca74b0acc48:7:v:25",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "prices",
+              "value": "[10, 20]",
+              "type": "list",
+              "handle": "e741fca74b0acc48:7:v:29",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            }
+          ],
+          "start": 0,
+          "truncated": false,
+          "next_start": null,
+          "handle": "e741fca74b0acc48:7:v:23"
+        }
+      }
+    },
+    {
+      "command": [
+        "inspect",
+        "--frame",
+        "e741fca74b0acc48:7:f:3"
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "e741fca74b0acc48",
+        "generation": 7,
+        "reason": "breakpoint",
+        "exit_code": null,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 108700,
+          "adapter": 108444,
+          "target": 104296
+        },
+        "python": "<repo>\\.venv\\Scripts\\python.exe",
+        "recording": {
+          "id": "e741fca74b0acc48",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false,
+        "stack": {
+          "frames": [
+            {
+              "handle": "e741fca74b0acc48:7:f:2",
+              "name": "average_price",
+              "file": "<workspace>\\checkout\\pricing.py",
+              "line": 6,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:7:f:3",
+              "name": "test_paid_average",
+              "file": "<workspace>\\checkout\\test_checkout.py",
+              "line": 8,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:7:f:4",
+              "name": "_callTestMethod",
+              "file": "C:\\Python311\\Lib\\unittest\\case.py",
+              "line": 579,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:7:f:5",
+              "name": "run",
+              "file": "C:\\Python311\\Lib\\unittest\\case.py",
+              "line": 623,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:7:f:6",
+              "name": "__call__",
+              "file": "C:\\Python311\\Lib\\unittest\\case.py",
+              "line": 678,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:7:f:7",
+              "name": "runtest",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\_pytest\\unittest.py",
+              "line": 410,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:7:f:8",
+              "name": "pytest_runtest_call",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\_pytest\\runner.py",
+              "line": 184,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:7:f:9",
+              "name": "_multicall",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\pluggy\\_callers.py",
+              "line": 121,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:7:f:10",
+              "name": "_hookexec",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\pluggy\\_manager.py",
+              "line": 120,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:7:f:11",
+              "name": "__call__",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\pluggy\\_hooks.py",
+              "line": 512,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:7:f:12",
+              "name": "<lambda>",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\_pytest\\runner.py",
+              "line": 250,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:7:f:13",
+              "name": "from_call",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\_pytest\\runner.py",
+              "line": 361,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:7:f:14",
+              "name": "call_and_report",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\_pytest\\runner.py",
+              "line": 249,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:7:f:15",
+              "name": "runtestprotocol",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\_pytest\\runner.py",
+              "line": 139,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:7:f:16",
+              "name": "pytest_runtest_protocol",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\_pytest\\runner.py",
+              "line": 118,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:7:f:17",
+              "name": "_multicall",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\pluggy\\_callers.py",
+              "line": 121,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:7:f:18",
+              "name": "_hookexec",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\pluggy\\_manager.py",
+              "line": 120,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:7:f:19",
+              "name": "__call__",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\pluggy\\_hooks.py",
+              "line": 512,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:7:f:20",
+              "name": "pytest_runtestloop",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\_pytest\\main.py",
+              "line": 408,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:7:f:21",
+              "name": "_multicall",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\pluggy\\_callers.py",
+              "line": 121,
+              "truncated": false
+            }
+          ],
+          "truncated": true
+        },
+        "location": {
+          "file": "<workspace>\\checkout\\test_checkout.py",
+          "line": 8,
+          "source": [
+            {
+              "line": 6,
+              "text": "        orders = [{\"price\": 10, \"paid\": True}, {\"price\": 20, \"paid\": True},",
+              "truncated": false
+            },
+            {
+              "line": 7,
+              "text": "                  {\"price\": 100, \"paid\": False}]",
+              "truncated": false
+            },
+            {
+              "line": 8,
+              "text": "        self.assertEqual(average_price(orders), 15.0)",
+              "truncated": false
+            }
+          ],
+          "frame": "e741fca74b0acc48:7:f:3"
+        },
+        "locals": {
+          "items": [
+            {
+              "name": "orders",
+              "value": "[{'price': 10, 'paid': True}, {'price': 20, 'paid': True}, {'price': 100, 'paid': False}]",
+              "type": "list",
+              "handle": "e741fca74b0acc48:7:v:25",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "self",
+              "value": "<test_checkout.CheckoutTest testMethod=test_paid_average>",
+              "type": "CheckoutTest",
+              "handle": "e741fca74b0acc48:7:v:32",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            }
+          ],
+          "start": 0,
+          "truncated": false,
+          "next_start": null,
+          "handle": "e741fca74b0acc48:7:v:30"
+        }
+      }
+    },
+    {
+      "command": [
+        "note",
+        "The prices contain two paid orders, but count includes all three orders. The average is 10 instead of 15."
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "e741fca74b0acc48",
+        "generation": 7,
+        "reason": "breakpoint",
+        "exit_code": null,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 108700,
+          "adapter": 108444,
+          "target": 104296
+        },
+        "python": "<repo>\\.venv\\Scripts\\python.exe",
+        "recording": {
+          "id": "e741fca74b0acc48",
+          "truncated": false,
+          "error": null
+        },
+        "note": "The prices contain two paid orders, but count includes all three orders. The average is 10 instead of 15.",
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "continue"
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "e741fca74b0acc48",
+        "generation": 9,
+        "reason": "exception",
+        "exit_code": null,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 108700,
+          "adapter": 108444,
+          "target": 104296
+        },
+        "python": "<repo>\\.venv\\Scripts\\python.exe",
+        "recording": {
+          "id": "e741fca74b0acc48",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false,
+        "stack": {
+          "frames": [
+            {
+              "handle": "e741fca74b0acc48:9:f:33",
+              "name": "<module>",
+              "file": "<repo>\\.venv\\Lib\\site-packages\\pytest\\__main__.py",
+              "line": 9,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:9:f:34",
+              "name": "_run_code",
+              "file": "C:\\Python311\\Lib\\runpy.py",
+              "line": 88,
+              "truncated": false
+            },
+            {
+              "handle": "e741fca74b0acc48:9:f:35",
+              "name": "_run_module_as_main (Current frame)",
+              "file": "C:\\Python311\\Lib\\runpy.py",
+              "line": 198,
+              "truncated": false
+            }
+          ],
+          "truncated": false
+        },
+        "location": {
+          "file": "<repo>\\.venv\\Lib\\site-packages\\pytest\\__main__.py",
+          "line": 9,
+          "source": [
+            {
+              "line": 7,
+              "text": "",
+              "truncated": false
+            },
+            {
+              "line": 8,
+              "text": "if __name__ == \"__main__\":",
+              "truncated": false
+            },
+            {
+              "line": 9,
+              "text": "    raise SystemExit(_console_main())",
+              "truncated": false
+            }
+          ],
+          "frame": "e741fca74b0acc48:9:f:33"
+        },
+        "locals": {
+          "items": [
+            {
+              "name": "special variables",
+              "value": "",
+              "type": "",
+              "handle": "e741fca74b0acc48:9:v:38",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "annotations",
+              "value": "_Feature((3, 7, 0, 'beta', 1), None, 16777216)",
+              "type": "_Feature",
+              "handle": "e741fca74b0acc48:9:v:39",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "cli",
+              "value": "<module 'debugpy.server.cli' from '<repo>\\\\.venv\\\\Lib\\\\site-packages\\\\debugpy\\\\launcher/../..\\\\debugpy/..\\\\debugpy\\\\server\\\\cli.py'>",
+              "type": "module",
+              "handle": "e741fca74b0acc48:9:v:40",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "debugpy",
+              "value": "<module 'debugpy' from '<repo>\\\\.venv\\\\Lib\\\\site-packages\\\\debugpy\\\\launcher/../..\\\\debugpy/..\\\\debugpy\\\\__init__.py'>",
+              "type": "module",
+              "handle": "e741fca74b0acc48:9:v:41",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "sys",
+              "value": "<module 'sys' (built-in)>",
+              "type": "module",
+              "handle": "e741fca74b0acc48:9:v:42",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "_console_main",
+              "value": "<function _console_main at 0x0000012FCBD59B20>",
+              "type": "function",
+              "handle": "e741fca74b0acc48:9:v:43",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            }
+          ],
+          "start": 0,
+          "truncated": false,
+          "next_start": null,
+          "handle": "e741fca74b0acc48:9:v:36"
+        }
+      }
+    },
+    {
+      "command": [
+        "exceptions",
+        "off"
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "e741fca74b0acc48",
+        "generation": 9,
+        "reason": "exception",
+        "exit_code": null,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 108700,
+          "adapter": 108444,
+          "target": 104296
+        },
+        "python": "<repo>\\.venv\\Scripts\\python.exe",
+        "recording": {
+          "id": "e741fca74b0acc48",
+          "truncated": false,
+          "error": null
+        },
+        "uncaught": false,
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "continue"
+      ],
+      "response": {
+        "ok": true,
+        "state": "exited",
+        "phase": "done",
+        "session": "e741fca74b0acc48",
+        "generation": 11,
+        "reason": null,
+        "exit_code": 1,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 108700,
+          "adapter": 108444,
+          "target": 104296
+        },
+        "python": "<repo>\\.venv\\Scripts\\python.exe",
+        "recording": {
+          "id": "e741fca74b0acc48",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "output"
+      ],
+      "response": {
+        "ok": true,
+        "state": "exited",
+        "phase": "done",
+        "session": "e741fca74b0acc48",
+        "generation": 12,
+        "reason": null,
+        "exit_code": 1,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 108700,
+          "adapter": 108444,
+          "target": 104296
+        },
+        "python": "<repo>\\.venv\\Scripts\\python.exe",
+        "recording": {
+          "id": "e741fca74b0acc48",
+          "truncated": false,
+          "error": null
+        },
+        "output": {
+          "stdout": {
+            "text": "F                                                                        [100%]\n================================== FAILURES ===================================\n_______________________ CheckoutTest.test_paid_average ________________________\n\nself = <test_checkout.CheckoutTest testMethod=test_paid_average>\n\n    def test_paid_average(self):\n        orders = [{\"price\": 10, \"paid\": True}, {\"price\": 20, \"paid\": True},\n                  {\"price\": 100, \"paid\": False}]\n>       self.assertEqual(average_price(orders), 15.0)\nE       AssertionError: 10.0 != 15.0\n\ntest_checkout.py:8: AssertionError\n=========================== short test summary info ===========================\nFAILED test_checkout.py::CheckoutTest::test_paid_average - AssertionError: 10...\n1 failed in 8.08s\n",
+            "truncated": false,
+            "dropped_chars": 0
+          },
+          "stderr": {
+            "text": "",
+            "truncated": false,
+            "dropped_chars": 0
+          },
+          "adapter": {
+            "text": "",
+            "truncated": false,
+            "dropped_chars": 0
+          }
+        },
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "note",
+        "Fixed the divisor to count only paid prices. A fresh launch will verify the change."
+      ],
+      "response": {
+        "ok": true,
+        "state": "exited",
+        "phase": "done",
+        "session": "e741fca74b0acc48",
+        "generation": 12,
+        "reason": null,
+        "exit_code": 1,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 108700,
+          "adapter": 108444,
+          "target": 104296
+        },
+        "python": "<repo>\\.venv\\Scripts\\python.exe",
+        "recording": {
+          "id": "e741fca74b0acc48",
+          "truncated": false,
+          "error": null
+        },
+        "note": "Fixed the divisor to count only paid prices. A fresh launch will verify the change.",
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "stop"
+      ],
+      "response": {
+        "ok": true,
+        "state": "exited",
+        "phase": "closed",
+        "session": "e741fca74b0acc48",
+        "generation": 13,
+        "reason": null,
+        "exit_code": 1,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 108700,
+          "adapter": 108444,
+          "target": 104296
+        },
+        "python": "<repo>\\.venv\\Scripts\\python.exe",
+        "recording": {
+          "id": "e741fca74b0acc48",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "launch",
+        "--cwd",
+        "checkout",
+        "--python",
+        "<repo>\\.venv\\Scripts\\python.exe",
+        "--module",
+        "--run",
+        "pytest",
+        "--",
+        "-q",
+        "test_checkout.py"
+      ],
+      "response": {
+        "ok": true,
+        "state": "exited",
+        "phase": "done",
+        "session": "01bd2aa1ef11ab64",
+        "generation": 1,
+        "reason": null,
+        "exit_code": 0,
+        "thread": null,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 109008,
+          "adapter": 109220,
+          "target": 49728
+        },
+        "python": "<repo>\\.venv\\Scripts\\python.exe",
+        "recording": {
+          "id": "01bd2aa1ef11ab64",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "note",
+        "Verified: the same test now passes with average 15.0."
+      ],
+      "response": {
+        "ok": true,
+        "state": "exited",
+        "phase": "done",
+        "session": "01bd2aa1ef11ab64",
+        "generation": 2,
+        "reason": null,
+        "exit_code": 0,
+        "thread": null,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 109008,
+          "adapter": 109220,
+          "target": 49728
+        },
+        "python": "<repo>\\.venv\\Scripts\\python.exe",
+        "recording": {
+          "id": "01bd2aa1ef11ab64",
+          "truncated": false,
+          "error": null
+        },
+        "note": "Verified: the same test now passes with average 15.0.",
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "stop"
+      ],
+      "response": {
+        "ok": true,
+        "state": "exited",
+        "phase": "closed",
+        "session": "01bd2aa1ef11ab64",
+        "generation": 3,
+        "reason": null,
+        "exit_code": 0,
+        "thread": null,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 109008,
+          "adapter": 109220,
+          "target": 49728
+        },
+        "python": "<repo>\\.venv\\Scripts\\python.exe",
+        "recording": {
+          "id": "01bd2aa1ef11ab64",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false
+      }
+    }
+  ]
+}

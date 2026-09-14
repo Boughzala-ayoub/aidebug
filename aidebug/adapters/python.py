@@ -11,7 +11,7 @@ def command(args):
 
 
 def configuration(args):
-    return {"type": ID, "program": args["script"], "args": args["args"], "cwd": args["cwd"],
+    return {"type": ID, "module" if args["module"] else "program": args["script"], "args": args["args"], "cwd": args["cwd"],
             "python": [args["python"]], "console": "internalConsole", "redirectOutput": True,
             "stopOnEntry": not args["run"], "justMyCode": False, "subProcess": False}
 

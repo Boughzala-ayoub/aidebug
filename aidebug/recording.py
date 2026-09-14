@@ -29,7 +29,8 @@ class Recording:
         self.full = False
         self.error = None
         self.sources = {}
-        self.append("session", session=session, program=args["script"], language=args["language"],
+        self.append("session", session=session, program=("-m " if args.get("module") else "") + args["script"],
+                    python=args.get("python"), language=args["language"],
                     target=args["target"], cwd=args["cwd"], helper=os.getpid(), version=1)
 
     def append(self, kind, **fields):

@@ -202,6 +202,9 @@ class DAP:
             while chunk := stream.read1(4096):
                 receive(chunk.decode("utf-8", "replace"))
         if self.process:
+            # Reap POSIX zombies while the helper remains available for status/stop.
+            if os.name != "nt":
+                threading.Thread(target=self.process.wait, daemon=True).start()
             stderr = (lambda text: capture("stderr", text)) if connect_back else diagnostics
             threading.Thread(target=drain, args=(self.process.stderr, stderr), daemon=True).start()
             if endpoint or connect_back:

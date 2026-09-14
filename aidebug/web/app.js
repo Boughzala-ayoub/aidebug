@@ -123,7 +123,7 @@ function label(event) {
   if (event.kind === 'session') return 'Session started';
   if (event.kind === 'command') {
     const a = event.arguments || {};
-    return {launch:'Launch program',continue:'Continue execution',inspect:'Inspect runtime values',variables:'Expand a value',
+    return {launch:'Launch program',continue:'Continue execution',pause:'Pause execution',inspect:'Inspect runtime values',variables:'Expand a value',
       status:'Check session status',output:'Read program output',stop:'Stop session',note:'Add an explanation',
       step:'Step ' + (a.kind || ''),break:(a.action === 'remove' ? 'Remove' : 'Set') + ' breakpoints',
       exceptions:'Exceptions ' + (a.mode || '')}[event.command] || event.command;

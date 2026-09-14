@@ -18,6 +18,13 @@ def clipped(value, limit=512):
     return value[:limit], len(value) > limit
 
 
+def source_breakpoints(lines, capabilities):
+    if any(condition is not None for condition in lines.values()) and not capabilities.get("supportsConditionalBreakpoints"):
+        raise DebugError("unsupported", "Adapter does not support conditional breakpoints")
+    return [{"line": line, **({"condition": condition} if condition is not None else {})}
+            for line, condition in sorted(lines.items())]
+
+
 class Session:
     def __init__(self):
         self.cv = threading.Condition(threading.RLock())
@@ -116,6 +123,8 @@ class Session:
                                     "target": self.target_pid}}
             if self.error:
                 result["error"] = self.error
+            if self.language == "python":
+                result["python"] = self.launch_args["python"]
             if self.recording:
                 result["recording"] = {"id": self.id, "truncated": self.recording.full, "error": self.recording.error}
             return result
@@ -194,7 +203,7 @@ class Session:
             dap.request("setExceptionBreakpoints", {"filters": filters}, deadline)
         for file, lines in list(self.breakpoints.items()):
             dap.request("setBreakpoints", {"source": {"path": file},
-                "breakpoints": [{"line": line} for line in lines]}, deadline)
+                "breakpoints": source_breakpoints(lines, capabilities)}, deadline)
         if capabilities.get("supportsConfigurationDoneRequest"):
             dap.request("configurationDone", {}, deadline)
         dap.wait(ticket, deadline)
@@ -240,6 +249,26 @@ class Session:
             except Exception as exc:
                 self.failure(str(exc))
         threading.Thread(target=execute, daemon=True).start()
+
+    def pause(self, deadline):
+        if self.state != "running" or self.phase != "ready":
+            raise DebugError("invalid_state", "Pause requires a configured running session")
+        try:
+            threads = self.request("threads", {}, deadline).get("threads", [])
+            if self.state != "running":
+                return False
+            ids = [thread["id"] for thread in threads]
+            if not ids:
+                raise DebugError("invalid_state", "Adapter has no thread to pause; retry status or stop")
+            thread = self.thread if self.thread in ids else ids[0]
+            self.request("pause", {"threadId": thread}, deadline)
+        except DebugError as exc:
+            if exc.code == "timeout":
+                return True
+            if self.state not in ("stopped", "exited"):
+                raise
+        # Only the stopped event establishes a stop, not the pause response.
+        return self.wait(deadline)
 
     def wait(self, deadline):
         with self.cv:
@@ -357,25 +386,29 @@ class Session:
         elif command in ("continue", "step"):
             self.resume("continue" if command == "continue" else {"into": "stepIn", "over": "next", "out": "stepOut"}[args["kind"]])
             timed_out = self.wait(deadline)
+        elif command == "pause":
+            timed_out = self.pause(deadline)
         elif command == "break":
             if self.phase != "ready" or self.state not in ("running", "stopped"):
                 raise DebugError("invalid_state", "Breakpoints require a configured live session")
             file = args["file"]
-            lines = set(self.breakpoints.get(file, []))
+            lines = dict(self.breakpoints.get(file, {}))
             if args["action"] == "set":
-                lines.update(args["lines"])
+                lines.update(dict.fromkeys(args["lines"], args["condition"]))
             elif args["lines"]:
-                lines.difference_update(args["lines"])
+                for line in args["lines"]:
+                    lines.pop(line, None)
             else:
                 lines.clear()
             if len(lines) > 100:
                 raise DebugError("invalid_request", "At most 100 breakpoints per file")
-            response = self.request("setBreakpoints", {"source": {"path": file},
-                "breakpoints": [{"line": line} for line in sorted(lines)]}, deadline)
-            self.breakpoints[file] = sorted(lines)
-            extra["breakpoints"] = [{"line": b.get("line"), "verified": b.get("verified", False),
+            requested = source_breakpoints(lines, self.capabilities)
+            response = self.request("setBreakpoints", {"source": {"path": file}, "breakpoints": requested}, deadline)
+            self.breakpoints[file] = lines
+            extra["breakpoints"] = [{"line": b.get("line"), "requested_line": request["line"],
+                                      "condition": request.get("condition"), "verified": b.get("verified", False),
                                       "message": clipped(b.get("message", ""))[0]}
-                                     for b in response.get("breakpoints", [])]
+                                     for request, b in zip(requested, response.get("breakpoints", []))]
         elif command == "exceptions":
             if self.phase != "ready" or self.state not in ("running", "stopped"):
                 raise DebugError("invalid_state", "Exception settings require a configured live session")
@@ -408,7 +441,7 @@ class Session:
         result = self.status()
         result.update(extra)
         result["timed_out"] = timed_out
-        if command in ("launch", "continue", "step", "status", "inspect") and self.state == "stopped":
+        if command in ("launch", "continue", "pause", "step", "status", "inspect") and self.state == "stopped":
             try:
                 result.update(self.inspect(deadline, args.get("frame"), args.get("limit", 20)))
             except DebugError as exc:

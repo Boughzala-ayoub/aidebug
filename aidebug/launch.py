@@ -13,17 +13,22 @@ def executable(value, label):
     found = shutil.which(value) if value else None
     if not found:
         raise DebugError("missing_dependency", f"{label} not found: {value}")
-    return str(Path(found).resolve())
+    # Keep virtual-environment symlinks: resolving bin/python loses sys.prefix on POSIX.
+    return os.path.abspath(found)
 
 
 def resolve(args):
     workspace = Path(args["workspace"])
     suffix = Path(args["script"]).suffix.lower()
     inferred = {".py": "python", ".js": "javascript", ".cjs": "javascript", ".mjs": "javascript", ".ts": "typescript"}
-    args["language"] = args["language"] or ("javascript" if args["target"] == "browser" else inferred.get(suffix))
+    args["language"] = args["language"] or ("python" if args["module"] else
+        "javascript" if args["target"] == "browser" else inferred.get(suffix))
     if not args["language"]:
         raise DebugError("invalid_request", "Specify --language python, javascript, typescript, or rust")
     args["language"] = {"js": "javascript", "ts": "typescript"}.get(args["language"], args["language"])
+    if args["module"] and (args["language"] != "python" or
+            len(args["script"]) > 256 or not all(part.isidentifier() for part in args["script"].split("."))):
+        raise DebugError("invalid_request", "--module requires a dotted Python module name and Python language")
     is_js = args["language"] in ("javascript", "typescript")
     args["target"] = args["target"] or ("node" if is_js else "process")
     if (is_js and args["target"] not in ("node", "browser")) or (not is_js and args["target"] != "process"):
@@ -39,14 +44,19 @@ def resolve(args):
             raise DebugError("invalid_request", "Browser launch requires an http(s) URL on localhost")
         if args["args"]:
             raise DebugError("invalid_request", "Browser URLs do not accept program arguments")
-    else:
+    elif not args["module"]:
         args["script"] = str((workspace / args["script"]).resolve())
         if not Path(args["script"]).is_file():
             raise DebugError("invalid_request", "Script or executable does not exist")
         if args["language"] == "rust" and Path(args["script"]).suffix == ".rs":
             raise DebugError("invalid_request", "Build Rust with debug symbols first; launch the executable, not the .rs source")
     if args["language"] == "python":
-        args["python"] = executable(args["python"] or sys.executable, "Python interpreter")
+        project_python = workspace / ".venv" / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
+        active_python = Path(os.environ["VIRTUAL_ENV"]) / ("Scripts/python.exe" if os.name == "nt" else "bin/python") if os.environ.get("VIRTUAL_ENV") else None
+        selected = args["python"] or (str(active_python) if active_python else str(project_python) if project_python.is_file() else sys.executable)
+        if not Path(selected).is_absolute() and ("/" in selected or "\\" in selected):
+            selected = str(workspace / selected)
+        args["python"] = executable(selected, "Python interpreter")
     else:
         default = (workspace / ".tools" / "js-debug" / "src" / "dapDebugServer.js" if is_js else
                    workspace / ".tools" / "codelldb" / "extension" / "adapter" / ("codelldb.exe" if os.name == "nt" else "codelldb"))
@@ -68,6 +78,8 @@ def resolve(args):
             if not args["browser"]:
                 raise DebugError("missing_dependency", "Chrome/Chromium/Edge not found; pass --browser EXE")
     args["breakpoints"] = {}
+    if args["condition"] is not None and not args["breakpoint"]:
+        raise DebugError("invalid_request", "Launch --condition requires --breakpoint")
     if len(args["breakpoint"]) > 100 or len(args["out_files"]) > 20:
         raise DebugError("invalid_request", "At most 100 launch breakpoints and 20 output globs")
     for value in args["breakpoint"]:
@@ -78,17 +90,17 @@ def resolve(args):
                 raise ValueError()
         except ValueError:
             raise DebugError("invalid_request", "Breakpoints use existing FILE:positive-LINE")
-        args["breakpoints"].setdefault(file, []).append(line)
+        args["breakpoints"].setdefault(file, {})[line] = args["condition"]
     if args["args"][:1] == ["--"]:
         args["args"] = args["args"][1:]
 
 
 def arguments(args):
     argv = ["--workspace", args["workspace"], "--timeout", str(args["timeout"]), "launch"]
-    for key in ("language", "target", "cwd", "python", "adapter", "node", "browser", "web_root"):
+    for key in ("language", "target", "cwd", "python", "adapter", "node", "browser", "web_root", "condition"):
         if args.get(key):
             argv += ["--" + key.replace("_", "-"), args[key]]
-    for flag in ("run", "uncaught", "headed"):
+    for flag in ("run", "uncaught", "headed", "module"):
         if args[flag]:
             argv.append("--" + flag)
     for pattern in args["out_files"]:

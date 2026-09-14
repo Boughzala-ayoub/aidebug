@@ -2,9 +2,11 @@
 
 `aidebug` lets a coding agent debug local Python, JavaScript, TypeScript, and Rust programs through one JSON CLI. Run a program, stop at a breakpoint or failure, inspect runtime values, and step through the code before changing it. JavaScript and TypeScript support both Node.js and browser UI code.
 
-Each invocation connects to the same background helper in the selected workspace. The helper owns the debug adapter, matches DAP responses by request sequence, and processes asynchronous events on reader threads. Python uses debugpy, JavaScript and TypeScript use Microsoft's js-debug, and Rust uses CodeLLDB. There is no expression evaluator or generic DAP passthrough.
+Each invocation connects to the same background helper in the selected workspace. The helper owns the debug adapter, matches DAP responses by request sequence, and processes asynchronous events on reader threads. Python uses debugpy, JavaScript and TypeScript use Microsoft's js-debug, and Rust uses CodeLLDB. There is no general expression evaluation command or generic DAP passthrough.
 
 The local session viewer shows the agent's debugging activity live and replays saved sessions after they end. Recording is automatic for new launches.
+
+Run `aidebug --help` for the agent usage loop, including inspection, handle expiry, and timeouts. [AGENTS.md](AGENTS.md) contains contributor rules.
 
 Install with Python 3.10 or newer:
 
@@ -22,7 +24,7 @@ Activate the environment or use the full executable path for the commands below.
 
 | Language and target | Required tools | Adapter selection |
 | --- | --- | --- |
-| Python script | Python and installed debugpy | Included with `pip install .` |
+| Python script or module | Python and installed debugpy | Included with `pip install .` |
 | JavaScript or TypeScript on Node | Node.js and the standalone js-debug DAP server | `--adapter PATH/TO/dapDebugServer.js` or `AIDEBUG_JS_DEBUG` |
 | JavaScript or TypeScript in a browser | The same Node/js-debug tools, Chrome, Chromium, or Edge, and your running local web server | Same JS adapter; optional `--browser EXE` |
 | Rust executable | CodeLLDB with its bundled LLDB libraries; Rust to build your program with debug symbols | `--adapter PATH/TO/codelldb.exe` or `AIDEBUG_CODELLDB` |
@@ -32,6 +34,57 @@ Download the standalone DAP archive from [js-debug releases](https://github.com/
 Download the matching platform archive from [CodeLLDB releases](https://github.com/vadimcn/codelldb/releases). The tested Windows archive is `codelldb-win32-x64.vsix` version 1.12.3. It is a ZIP file. Extract its entire contents under `.tools/codelldb`, retaining the `extension/adapter` and `extension/lldb` directories. The default Windows executable path is `.tools/codelldb/extension/adapter/codelldb.exe`. On other platforms, the executable is `codelldb` without the suffix.
 
 These `.tools` paths are relative to the selected workspace and are ignored by Git. Use an environment variable or `--adapter` for a shared installation. aidebug never downloads adapters, compiles code, starts a web server, or runs package scripts automatically. Missing tools return a JSON `missing_dependency` error before a session starts.
+
+## Debug a Python project or test
+
+`--module` treats the positional target as a Python module name, like `python -m`. Target arguments follow the name:
+
+```sh
+aidebug --workspace PATH/TO/PROJECT launch --module --run --breakpoint pricing.py:6 pytest -- -q test_checkout.py
+aidebug --workspace PATH/TO/PROJECT inspect
+aidebug --workspace PATH/TO/PROJECT continue
+aidebug --workspace PATH/TO/PROJECT output
+aidebug --workspace PATH/TO/PROJECT stop
+```
+
+Install pytest in the target environment first. For unittest, use `--module unittest -- -q test_checkout`. Script launches still work as before. A module name is resolved by the target interpreter from `--cwd`, which defaults to the workspace. Module launch does not import project code into the CLI or helper.
+
+Python selection uses explicit `--python`, then the environment named by `VIRTUAL_ENV`, then the workspace's `.venv`, then aidebug's own interpreter. Environments use `Scripts/python.exe` on Windows or `bin/python` on POSIX. An invalid activated environment returns an error instead of silently selecting another interpreter. Status and execution responses include the selected `python` path. Interpreter paths containing directories are relative to the workspace; bare executable names use PATH. Virtual-environment symlinks are preserved.
+
+Test runners catch assertion failures, so `--uncaught` alone does not stop at every failing test. Set a breakpoint on the assertion or the function it calls. The [three-file checkout fixture](examples/project/test_checkout.py) deliberately computes 10 instead of 15 because `pricing.py` counts all orders after `orders.py` filters unpaid ones. The project check copies it, inspects both frames, fixes the divisor, and reruns successfully. The original fixture remains buggy.
+
+With `--uncaught`, a failed test run can stop later at the runner's `SystemExit`, after the assertion has been caught. Use `exceptions off` and `continue` to collect its final exit code. That stop does not preserve the failing test's locals.
+
+To inspect a running program after a timeout:
+
+```sh
+aidebug --timeout 2 pause
+aidebug inspect
+aidebug --timeout 2 continue
+aidebug stop
+```
+
+Pause selects the previously stopped thread if it still exists, otherwise the first thread offered by the adapter. It waits for a stopped event and returns bounded stack and local values. A blocked native call may delay that event. An idle browser can defer suspension until its next JavaScript task. If the deadline expires, the response reports the current state with `timed_out: true`; use `status` or `stop`. Pause requires a configured running session and does not interrupt another CLI command already in progress.
+
+## Conditional breakpoints
+
+Use an adapter-native condition to stop at a particular loop iteration:
+
+```sh
+aidebug launch --run --breakpoint worker.py:12 --condition "i == 437" worker.py
+aidebug break set worker.py 12 --condition "i == 439"
+aidebug continue
+# Setting the line without a condition makes it unconditional.
+aidebug break set worker.py 12
+aidebug break remove worker.py 12
+aidebug stop
+```
+
+At launch, one `--condition` applies to every supplied `--breakpoint`. Conditions must be nonempty and at most 512 characters. The adapter must advertise conditional breakpoint support. Breakpoint responses include the condition, requested and actual lines, and verification result. JavaScript/TypeScript uses JavaScript expressions; Rust follows [CodeLLDB's expression rules](https://github.com/vadimcn/codelldb/blob/master/MANUAL.md#conditional-breakpoints). An expression error can cause an adapter to stop rather than skip the breakpoint.
+
+Conditions are an explicit opt-in to executing code in the target and can have side effects. General expression evaluation remains outside this version.
+
+Native source lines can map to several breakpoint locations. For example, Rust's `println!` can stop more than once within the same iteration. Inspect the values after each stop.
 
 ## Watch live or replay a session
 
@@ -117,11 +170,12 @@ At line 12, `known` is `41`. Stepping into `add_one` exposes its `value` argumen
 
 | Command | Behavior |
 | --- | --- |
-| `launch [OPTIONS] PROGRAM_OR_URL [ARGS...]` | Launch the requested script, executable, or local browser URL. Process targets stop at entry unless `--run` is present. Use a launch breakpoint for a browser. |
-| `break set FILE LINE [LINE...]` | Add file-and-line breakpoints. Report the adapter's actual line and verification result. |
+| `launch [OPTIONS] TARGET [ARGS...]` | Launch a script, executable, local browser URL, or Python module with `--module`. Process targets stop at entry unless `--run` is present. Use a launch breakpoint for a browser. |
+| `break set FILE LINE [LINE...] [--condition EXPR]` | Add or update breakpoints. Omitting the condition clears it on the supplied lines. Report requested and actual lines, condition, and verification result. |
 | `break remove FILE [LINE...]` | Remove the given lines, or all breakpoints for the file when no lines are supplied. |
 | `exceptions on` / `exceptions off` | Toggle uncaught Python/JS exceptions or Rust panics. Default is off unless launch includes `--uncaught`. Rust also stops on panics that the application later catches. |
 | `continue` | Resume until a stop, exit, failure, or deadline. |
+| `pause` | Request a stop in a configured running target and wait until stopped, exited, failed, or timed out. |
 | `step into` / `step over` / `step out` | Step in the thread that triggered the current stop. |
 | `inspect [--frame HANDLE] [--limit N]` | Return the stack, selected source location, and locals. Default frame is the top frame. |
 | `variables HANDLE [--start N] [--limit N]` | Expand children of a value or locals scope. |
@@ -139,9 +193,9 @@ aidebug --workspace /path/to/project --timeout 2 continue
 aidebug --workspace /path/to/project launch --cwd tests --python /path/to/python script.py --flag value
 ```
 
-The workspace defaults to the current directory. Script, breakpoint, adapter, and working-directory paths resolve relative to the workspace. Use the same `--workspace` on later invocations. Interpreter names resolve through `PATH`; an explicit interpreter path resolves from the CLI's current directory. Launch options must precede the program or URL.
+The workspace defaults to the current directory. Script, breakpoint, adapter, working-directory, and explicit relative interpreter paths resolve relative to the workspace. Use the same `--workspace` on later invocations. Bare interpreter names resolve through `PATH`. Launch options must precede the target name.
 
-Launch options common to the adapters are `--language`, `--cwd`, `--run`, `--uncaught`, and repeatable `--breakpoint FILE:LINE`. Python also accepts `--python EXE`. JS/TS accepts `--target node|browser`, `--node EXE`, and repeatable `--out-files GLOB`. Browser launches also accept `--browser EXE`, `--web-root DIR`, and `--headed`. Rust requires `--language rust`; Python, JavaScript, and TypeScript can be inferred from their source extensions. `js` and `ts` are accepted aliases.
+Launch options common to the adapters are `--language`, `--cwd`, `--run`, `--uncaught`, repeatable `--breakpoint FILE:LINE`, and `--condition EXPR`. Python also accepts `--python EXE` and `--module`. JS/TS accepts `--target node|browser`, `--node EXE`, and repeatable `--out-files GLOB`. Browser launches also accept `--browser EXE`, `--web-root DIR`, and `--headed`. Rust requires `--language rust`; Python, JavaScript, and TypeScript can be inferred from their source extensions. `--module` infers Python. `js` and `ts` are accepted aliases.
 
 Set initial breakpoints in the launch command to avoid racing a fast program:
 
@@ -238,7 +292,7 @@ States are `stopped`, `running`, `exited`, and `failed`. `running` with `phase: 
 
 Errors include an `error` object with a stable `code` and a readable `message`. Codes include `invalid_request`, `invalid_state`, `invalid_handle`, `no_session`, `session_exists`, `busy`, `timeout`, `adapter_failure`, and `control_failure`. Error responses from the live helper include its actual state.
 
-The command deadline defaults to 10 seconds and accepts 0.01 to 60 seconds. Launch, continue, and step wait until the next stop or exit. On a wait deadline they return `timed_out: true` with the current state and leave the session alive. Use `status`, `output`, or `stop` next. If there is insufficient time to inspect a new stop, `inspection_truncated: true` requests a fresh `inspect` call. Helper startup can add up to five seconds before the command begins. Process cleanup and local transport have separate bounded grace periods. Adapter initialization and execution-request acknowledgments have a 30-second ceiling; a stuck adapter becomes `failed` and remains stoppable.
+The command deadline defaults to 10 seconds and accepts 0.01 to 60 seconds. Launch, continue, step, and pause wait until the next stop or exit. On a wait deadline they return `timed_out: true` with the current state and leave the session alive. Use `status`, `output`, `pause`, or `stop` next. If there is insufficient time to inspect a new stop, `inspection_truncated: true` requests a fresh `inspect` call. Helper startup can add up to five seconds before the command begins. Process cleanup and local transport have separate bounded grace periods. Adapter initialization and resume-request acknowledgments have a 30-second ceiling; a stuck adapter becomes `failed` and remains stoppable. Pause requests use the command's deadline and can be inspected afterward even if their response arrives late.
 
 Responses are capped at 64 KiB. Inspection returns at most 20 frames, five source lines, and 20 variables by default. `--limit` accepts 1 to 30. Variable previews have a 512-character ceiling. Source lines have a 240-character ceiling. `truncated` marks shortened previews, omitted items, or a response section dropped to meet the total byte cap. Preview ellipses from debugpy also mark possible truncation. Use `next_start` for the next page. Each output channel retains its last 8,192 characters and reports `dropped_chars`. Output buffers last until `stop`.
 
@@ -288,7 +342,21 @@ Run the integration checks against the installed executable:
 .venv/bin/python checks/integration.py --cli .venv/bin/aidebug
 ```
 
-The checks launch separate CLI processes in a temporary workspace and use real debugpy. They cover breakpoints, all three steps, nested values, frame selection, arguments, working directory, interpreter, exceptions, deadlines, authentication, adapter failure, truncation, and process cleanup. `checks/results.json` records the actual commands and responses from the last successful run.
+The checks launch separate CLI processes in a temporary workspace and use real debugpy. They cover breakpoints, all three steps, nested values, frame selection, arguments, working directory, interpreter, exceptions, deadlines, pause/resume, authentication, adapter failure, truncation, and process cleanup. `checks/results.json` records the actual commands and responses from the last successful run.
+
+Verify module launch and a real multi-file test investigation:
+
+```sh
+# unittest needs no additional test dependency.
+.venv/Scripts/python checks/project.py --cli .venv/Scripts/aidebug.exe
+# Also verify pytest; this is a development dependency, not an aidebug runtime dependency.
+.venv/Scripts/python -m pip install pytest
+.venv/Scripts/python checks/project.py --cli .venv/Scripts/aidebug.exe --pytest-python .venv/Scripts/python.exe
+```
+
+Use `.venv/bin` paths on Linux/macOS. The check creates a separate workspace `.venv` without debugpy, adds a workspace-only dependency, verifies selection of a custom activated environment and explicit interpreter override, then diagnoses and repairs a temporary copy of the checkout fixture. [Project results](checks/project-results.json) preserve the commands and runtime evidence with workspace paths replaced by placeholders. The check installs nothing itself.
+
+[GitHub Actions](.github/workflows/checks.yml) installs the package and runs transport, recording, the average calculation check, Python integration, and both test-runner investigations on Ubuntu and Windows with Python 3.10 and 3.13. It needs no JS or Rust adapter downloads. The workflow runs on pushes and pull requests; no GitHub run is claimed until this repository is published and the job succeeds.
 
 For all other languages, install the adapters above, Node, Rust, a Chromium browser, and TypeScript. If your project already has TypeScript, pass its `lib/typescript.js` path. Otherwise install a local test compiler:
 
@@ -311,19 +379,23 @@ node checks/viewer.mjs --cli .venv/Scripts/aidebug.exe --puppeteer .tools/viewer
 
 Pass `--browser EXE` if Chrome, Chromium, or Edge is not found automatically. The check verifies the installed package's served assets in fresh headless browser contexts. It drives real CLI commands, live updates, nested values, source changes, exceptions, successful reruns, replay, viewer restart, access controls, and untrusted text rendering. It checks every view and open navigation at 320, 375, 600, 768, 850, 1024, 1141, and 1280 pixels. Results are saved to `checks/viewer-results.json`; screenshots are generated under `checks/artifacts/viewer`.
 
-Verified on Windows on 2026-09-14 with aidebug 0.3.0, Python 3.11.0, debugpy 1.8.21, Node 24.18.0, js-debug 1.117.0, CodeLLDB 1.12.3, and Rust 1.97.1:
+Verified on Windows on 2026-09-14 with aidebug 0.5.0, Python 3.11.0, debugpy 1.8.21, Node 24.18.0, js-debug 1.117.0, CodeLLDB 1.12.3, and Rust 1.97.1:
 
 | Check | Actual result |
 | --- | --- |
-| [Python integration transcript](checks/results.json) | 8 groups passed, 0 failed |
-| [Multi-language integration transcript](checks/multilanguage-results.json) | 8 groups passed, 0 failed |
+| [Python integration transcript](checks/results.json) | 9 groups passed, 0 failed, including conditional breakpoints |
+| [Multi-language integration transcript](checks/multilanguage-results.json) | 13 groups passed, 0 failed, including pause and conditional breakpoints in Node, browser TypeScript, and Rust |
+| [Project integration transcript](checks/project-results.json) | 3 groups passed: isolated interpreter selection, unittest investigation, pytest investigation |
 | `checks/transport.py` | Passed authentication, framing, response matching, events, output isolation, and cleanup |
 | `checks/recording.py` | Passed persistence, source versions, partial writes, bounds, path/cursor validation, and disk failure |
+| `checks/test_buggy.py` | Passed paid, mixed, zero-price, empty, and unpaid-only inputs |
 | [Viewer integration results](checks/viewer-results.json) | 6 groups passed; 72 screenshots across 9 views and 8 widths |
+
+Ubuntu under WSL also passed transport, recording, the average calculation check, 8 Python integration groups, and all 3 project groups with Python 3.14.4 and debugpy 1.8.21. [Linux results](checks/linux-results.json) include the actual output and transcripts. The earlier Linux run found and fixed an adapter-reaping bug: exited adapters now get reaped while the helper remains available. JS/TS, Rust, the viewer browser checks, and macOS still need verification on their respective non-Windows platforms.
 
 The original deliberately broken average calculation failed at line 4. Runtime inspection showed `prices = [10, 20]` and `count = 0`: subtracting paid orders from all orders counted unpaid orders. `examples/fixed.py` divides by the number of paid orders, rejects an empty set, and prints `15.0`. The integration check preserves the original failure in a temporary `exception.py` fixture and reruns the corrected example successfully.
 
-The existing `examples/buggy.py` has user edits: its divisor is repaired, but both sample orders are unpaid, so it raises the intended `ValueError`. Those edits and `checks/test_buggy.py` are preserved. That standalone check currently executes the unpaid example via `run_path` before its assertions, so it raises too; it is separate from the debugger integration suites. Inspect the successful corrected example with:
+Run `python checks/test_buggy.py` to verify paid, mixed, zero-priced, empty, and unpaid-only inputs. `examples/buggy.py` preserves the repaired divisor and puts its unpaid-only demonstration under a main guard, so importing it does not run the demonstration. Running that example directly still demonstrates the intended `ValueError`. Inspect the successful corrected example with:
 
 ```sh
 aidebug launch --uncaught examples/fixed.py
@@ -335,8 +407,10 @@ aidebug output
 aidebug stop
 ```
 
-Version 0.3 supports one local target and the thread that caused the stop. It has no stdin/interactive terminal support, arbitrary expression evaluation, variable mutation, pause command, remote attachment, worker/subprocess debugging, concurrent sessions per workspace, or thread-selection command. Additional js-debug child targets are rejected. Commands are serialized; overlapping commands receive `busy`. Set breakpoints with `launch --breakpoint` or after a process entry stop.
+Version 0.5 supports one local target and the thread that caused the stop. It has no stdin/interactive terminal support, arbitrary expression evaluation command, variable mutation, remote attachment, worker/subprocess debugging, concurrent sessions per workspace, or thread-selection command. Additional js-debug child targets are rejected. Commands are serialized; overlapping commands receive `busy`. Set breakpoints with `launch --breakpoint` or after a process entry stop.
 
-Inspection uses only DAP stack, scopes, and variable requests. Debugger object formatting can still invoke representation, property, or formatter code. Adapters materialize variable children before the CLI pages them, so response limits are not debuggee memory or CPU limits. The DAP transport rejects messages larger than 16 MiB. This debugger does not provide performance profiling, browser layout inspection, or network tracing. Killing a POSIX helper with `SIGKILL`, or a target deliberately escaping its process group, can leave descendants behind. Windows is the verified platform for this delivery; the POSIX paths require verification on their target OS. Browser profile files can remain after a helper crash; normal `stop` removes the owned profile with a bounded cleanup grace period.
+General expression evaluation remains outside this version because it can invoke arbitrary application code and mutate the state the agent is investigating. Conditional breakpoints are the explicit opt-in exception. Inspection stays on DAP variable requests. Formatter side effects remain possible, as described below.
+
+Inspection uses only DAP stack, scopes, and variable requests. Debugger object formatting can still invoke representation, property, or formatter code. Adapters materialize variable children before the CLI pages them, so response limits are not debuggee memory or CPU limits. The DAP transport rejects messages larger than 16 MiB. This debugger does not provide performance profiling, browser layout inspection, or network tracing. Killing a POSIX helper with `SIGKILL`, or a target deliberately escaping its process group, can leave descendants behind. Windows covers all supported adapters; Ubuntu WSL covers the Python CLI, transport, and recording checks. Other platform/adapter combinations remain unverified. Browser profile files can remain after a helper crash. If an OS file lock outlasts the cleanup grace period, `stop` returns `cleanup_failure` and preserves session metadata for retry. A Windows check encountered this transient condition; retrying `stop` after the lock cleared completed cleanup.
 
 Protocol implementation references checked during development: [debugpy](https://github.com/microsoft/debugpy), [debugpy launch settings](https://github.com/microsoft/debugpy/wiki/Debug-configuration-settings), [DAP overview](https://microsoft.github.io/debug-adapter-protocol/overview), [DAP specification](https://github.com/microsoft/debug-adapter-protocol/blob/main/specification.md), [js-debug](https://github.com/microsoft/vscode-js-debug), [js-debug launch settings](https://github.com/microsoft/vscode-js-debug/blob/main/OPTIONS.md), [js-debug standalone server](https://github.com/microsoft/vscode-js-debug/blob/main/src/dapDebugServer.ts), and [CodeLLDB manual](https://github.com/vadimcn/codelldb/blob/master/MANUAL.md).
