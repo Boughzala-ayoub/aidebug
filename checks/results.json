@@ -1,0 +1,3172 @@
+{
+  "passed": 8,
+  "failed": 0,
+  "seconds": 73.89,
+  "python": "3.11.0 (main, Oct 24 2022, 18:26:48) [MSC v.1933 64 bit (AMD64)]",
+  "debugpy": "1.8.21",
+  "aidebug": "0.3.0",
+  "platform": "win32",
+  "cli": "C:\\Users\\ayoub\\Videos\\claude\\aidebug\\.venv\\Scripts\\aidebug.exe",
+  "checks": [
+    "separate CLI calls: breakpoint add/remove, nested values, frame selection, all steps, args/cwd/interpreter, exit, expired handles",
+    "uncaught exception location/stack/values, exception toggle, fixed example exits with 15.0",
+    "running timeout preserves control; stop removes helper, adapter, target, and target child",
+    "invalid commands return JSON errors; stale state is safely removed",
+    "invalid authentication is rejected; adapter death reports failed and remains cleanable",
+    "large variable previews and target output are bounded with explicit truncation",
+    "launch timeout completes asynchronously; Windows helper death kills its job and stale metadata is removed",
+    "Windows debuggee inherits no visible console window"
+  ],
+  "transcript": [
+    {
+      "command": [
+        "launch",
+        "--cwd",
+        "work dir",
+        "--python",
+        "C:\\Users\\ayoub\\Videos\\claude\\aidebug\\.venv\\Scripts\\python.exe",
+        "walk.py",
+        "hello world",
+        "--flag"
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "da1e5c29d0743150",
+        "generation": 1,
+        "reason": "entry",
+        "exit_code": null,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 49352,
+          "adapter": 80160,
+          "target": 76208
+        },
+        "recording": {
+          "id": "da1e5c29d0743150",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false,
+        "stack": {
+          "frames": [
+            {
+              "handle": "da1e5c29d0743150:1:f:2",
+              "name": "<module>",
+              "file": "C:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-check-d8i2yrr6\\walk.py",
+              "line": 1,
+              "truncated": false
+            },
+            {
+              "handle": "da1e5c29d0743150:1:f:3",
+              "name": "_run_code",
+              "file": "C:\\Python311\\Lib\\runpy.py",
+              "line": 88,
+              "truncated": false
+            },
+            {
+              "handle": "da1e5c29d0743150:1:f:4",
+              "name": "_run_module_as_main",
+              "file": "C:\\Python311\\Lib\\runpy.py",
+              "line": 198,
+              "truncated": false
+            }
+          ],
+          "truncated": false
+        },
+        "location": {
+          "file": "C:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-check-d8i2yrr6\\walk.py",
+          "line": 1,
+          "source": [
+            {
+              "line": 1,
+              "text": "import os",
+              "truncated": false
+            },
+            {
+              "line": 2,
+              "text": "import sys",
+              "truncated": false
+            },
+            {
+              "line": 3,
+              "text": "",
+              "truncated": false
+            }
+          ],
+          "frame": "da1e5c29d0743150:1:f:2"
+        },
+        "locals": {
+          "items": [
+            {
+              "name": "special variables",
+              "value": "",
+              "type": "",
+              "handle": "da1e5c29d0743150:1:v:7",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            }
+          ],
+          "start": 0,
+          "truncated": false,
+          "next_start": null,
+          "handle": "da1e5c29d0743150:1:v:5"
+        }
+      }
+    },
+    {
+      "command": [
+        "launch",
+        "walk.py"
+      ],
+      "response": {
+        "ok": false,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "da1e5c29d0743150",
+        "generation": 1,
+        "reason": "entry",
+        "exit_code": null,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 49352,
+          "adapter": 80160,
+          "target": 76208
+        },
+        "recording": {
+          "id": "da1e5c29d0743150",
+          "truncated": false,
+          "error": null
+        },
+        "error": {
+          "code": "session_exists",
+          "message": "Stop this session before launching another program"
+        }
+      }
+    },
+    {
+      "command": [
+        "break",
+        "set",
+        "walk.py",
+        "12",
+        "13"
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "da1e5c29d0743150",
+        "generation": 1,
+        "reason": "entry",
+        "exit_code": null,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 49352,
+          "adapter": 80160,
+          "target": 76208
+        },
+        "recording": {
+          "id": "da1e5c29d0743150",
+          "truncated": false,
+          "error": null
+        },
+        "breakpoints": [
+          {
+            "line": 12,
+            "verified": true,
+            "message": ""
+          },
+          {
+            "line": 13,
+            "verified": true,
+            "message": ""
+          }
+        ],
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "break",
+        "remove",
+        "walk.py",
+        "13"
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "da1e5c29d0743150",
+        "generation": 1,
+        "reason": "entry",
+        "exit_code": null,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 49352,
+          "adapter": 80160,
+          "target": 76208
+        },
+        "recording": {
+          "id": "da1e5c29d0743150",
+          "truncated": false,
+          "error": null
+        },
+        "breakpoints": [
+          {
+            "line": 12,
+            "verified": true,
+            "message": ""
+          }
+        ],
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "continue"
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "da1e5c29d0743150",
+        "generation": 3,
+        "reason": "breakpoint",
+        "exit_code": null,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 49352,
+          "adapter": 80160,
+          "target": 76208
+        },
+        "recording": {
+          "id": "da1e5c29d0743150",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false,
+        "stack": {
+          "frames": [
+            {
+              "handle": "da1e5c29d0743150:3:f:2",
+              "name": "<module>",
+              "file": "C:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-check-d8i2yrr6\\walk.py",
+              "line": 12,
+              "truncated": false
+            },
+            {
+              "handle": "da1e5c29d0743150:3:f:3",
+              "name": "_run_code",
+              "file": "C:\\Python311\\Lib\\runpy.py",
+              "line": 88,
+              "truncated": false
+            },
+            {
+              "handle": "da1e5c29d0743150:3:f:4",
+              "name": "_run_module_as_main",
+              "file": "C:\\Python311\\Lib\\runpy.py",
+              "line": 198,
+              "truncated": false
+            }
+          ],
+          "truncated": false
+        },
+        "location": {
+          "file": "C:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-check-d8i2yrr6\\walk.py",
+          "line": 12,
+          "source": [
+            {
+              "line": 10,
+              "text": "known = 41",
+              "truncated": false
+            },
+            {
+              "line": 11,
+              "text": "nested = {\"items\": [3, 5, 8], \"label\": \"test\"}",
+              "truncated": false
+            },
+            {
+              "line": 12,
+              "text": "result = add_one(known)",
+              "truncated": false
+            },
+            {
+              "line": 13,
+              "text": "print(result, sys.argv[1:], os.getcwd())",
+              "truncated": false
+            }
+          ],
+          "frame": "da1e5c29d0743150:3:f:2"
+        },
+        "locals": {
+          "items": [
+            {
+              "name": "special variables",
+              "value": "",
+              "type": "",
+              "handle": "da1e5c29d0743150:3:v:8",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "function variables",
+              "value": "",
+              "type": "",
+              "handle": "da1e5c29d0743150:3:v:9",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "known",
+              "value": "41",
+              "type": "int",
+              "handle": null,
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "nested",
+              "value": "{'items': [3, 5, 8], 'label': 'test'}",
+              "type": "dict",
+              "handle": "da1e5c29d0743150:3:v:10",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "os",
+              "value": "<module 'os' from 'C:\\\\Python311\\\\Lib\\\\os.py'>",
+              "type": "module",
+              "handle": "da1e5c29d0743150:3:v:11",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "sys",
+              "value": "<module 'sys' (built-in)>",
+              "type": "module",
+              "handle": "da1e5c29d0743150:3:v:12",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            }
+          ],
+          "start": 0,
+          "truncated": false,
+          "next_start": null,
+          "handle": "da1e5c29d0743150:3:v:5"
+        }
+      }
+    },
+    {
+      "command": [
+        "inspect",
+        "--frame",
+        "da1e5c29d0743150:1:f:2"
+      ],
+      "response": {
+        "ok": false,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "da1e5c29d0743150",
+        "generation": 3,
+        "reason": "breakpoint",
+        "exit_code": null,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 49352,
+          "adapter": 80160,
+          "target": 76208
+        },
+        "recording": {
+          "id": "da1e5c29d0743150",
+          "truncated": false,
+          "error": null
+        },
+        "error": {
+          "code": "invalid_handle",
+          "message": "Unknown or expired handle; inspect the current stop again"
+        }
+      }
+    },
+    {
+      "command": [
+        "variables",
+        "da1e5c29d0743150:3:v:10"
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "da1e5c29d0743150",
+        "generation": 3,
+        "reason": "breakpoint",
+        "exit_code": null,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 49352,
+          "adapter": 80160,
+          "target": 76208
+        },
+        "recording": {
+          "id": "da1e5c29d0743150",
+          "truncated": false,
+          "error": null
+        },
+        "variables": {
+          "items": [
+            {
+              "name": "special variables",
+              "value": "",
+              "type": "",
+              "handle": "da1e5c29d0743150:3:v:13",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "function variables",
+              "value": "",
+              "type": "",
+              "handle": "da1e5c29d0743150:3:v:14",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "'items'",
+              "value": "[3, 5, 8]",
+              "type": "list",
+              "handle": "da1e5c29d0743150:3:v:15",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "'label'",
+              "value": "'test'",
+              "type": "str",
+              "handle": null,
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "len()",
+              "value": "2",
+              "type": "int",
+              "handle": null,
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            }
+          ],
+          "start": 0,
+          "truncated": false,
+          "next_start": null
+        },
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "variables",
+        "da1e5c29d0743150:3:v:15"
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "da1e5c29d0743150",
+        "generation": 3,
+        "reason": "breakpoint",
+        "exit_code": null,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 49352,
+          "adapter": 80160,
+          "target": 76208
+        },
+        "recording": {
+          "id": "da1e5c29d0743150",
+          "truncated": false,
+          "error": null
+        },
+        "variables": {
+          "items": [
+            {
+              "name": "special variables",
+              "value": "",
+              "type": "",
+              "handle": "da1e5c29d0743150:3:v:16",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "function variables",
+              "value": "",
+              "type": "",
+              "handle": "da1e5c29d0743150:3:v:17",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "0",
+              "value": "3",
+              "type": "int",
+              "handle": null,
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "1",
+              "value": "5",
+              "type": "int",
+              "handle": null,
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "2",
+              "value": "8",
+              "type": "int",
+              "handle": null,
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "len()",
+              "value": "3",
+              "type": "int",
+              "handle": null,
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            }
+          ],
+          "start": 0,
+          "truncated": false,
+          "next_start": null
+        },
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "variables",
+        "da1e5c29d0743150:3:v:10",
+        "--limit",
+        "1"
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "da1e5c29d0743150",
+        "generation": 3,
+        "reason": "breakpoint",
+        "exit_code": null,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 49352,
+          "adapter": 80160,
+          "target": 76208
+        },
+        "recording": {
+          "id": "da1e5c29d0743150",
+          "truncated": false,
+          "error": null
+        },
+        "variables": {
+          "items": [
+            {
+              "name": "special variables",
+              "value": "",
+              "type": "",
+              "handle": "da1e5c29d0743150:3:v:18",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            }
+          ],
+          "start": 0,
+          "truncated": true,
+          "next_start": 1
+        },
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "variables",
+        "da1e5c29d0743150:3:v:10",
+        "--start",
+        "1",
+        "--limit",
+        "1"
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "da1e5c29d0743150",
+        "generation": 3,
+        "reason": "breakpoint",
+        "exit_code": null,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 49352,
+          "adapter": 80160,
+          "target": 76208
+        },
+        "recording": {
+          "id": "da1e5c29d0743150",
+          "truncated": false,
+          "error": null
+        },
+        "variables": {
+          "items": [
+            {
+              "name": "function variables",
+              "value": "",
+              "type": "",
+              "handle": "da1e5c29d0743150:3:v:21",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            }
+          ],
+          "start": 1,
+          "truncated": true,
+          "next_start": 2
+        },
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "step",
+        "into"
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "da1e5c29d0743150",
+        "generation": 5,
+        "reason": "step",
+        "exit_code": null,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 49352,
+          "adapter": 80160,
+          "target": 76208
+        },
+        "recording": {
+          "id": "da1e5c29d0743150",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false,
+        "stack": {
+          "frames": [
+            {
+              "handle": "da1e5c29d0743150:5:f:22",
+              "name": "add_one",
+              "file": "C:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-check-d8i2yrr6\\walk.py",
+              "line": 6,
+              "truncated": false
+            },
+            {
+              "handle": "da1e5c29d0743150:5:f:2",
+              "name": "<module>",
+              "file": "C:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-check-d8i2yrr6\\walk.py",
+              "line": 12,
+              "truncated": false
+            },
+            {
+              "handle": "da1e5c29d0743150:5:f:3",
+              "name": "_run_code",
+              "file": "C:\\Python311\\Lib\\runpy.py",
+              "line": 88,
+              "truncated": false
+            },
+            {
+              "handle": "da1e5c29d0743150:5:f:4",
+              "name": "_run_module_as_main",
+              "file": "C:\\Python311\\Lib\\runpy.py",
+              "line": 198,
+              "truncated": false
+            }
+          ],
+          "truncated": false
+        },
+        "location": {
+          "file": "C:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-check-d8i2yrr6\\walk.py",
+          "line": 6,
+          "source": [
+            {
+              "line": 4,
+              "text": "",
+              "truncated": false
+            },
+            {
+              "line": 5,
+              "text": "def add_one(value):",
+              "truncated": false
+            },
+            {
+              "line": 6,
+              "text": "    answer = value + 1",
+              "truncated": false
+            },
+            {
+              "line": 7,
+              "text": "    return answer",
+              "truncated": false
+            },
+            {
+              "line": 8,
+              "text": "",
+              "truncated": false
+            }
+          ],
+          "frame": "da1e5c29d0743150:5:f:22"
+        },
+        "locals": {
+          "items": [
+            {
+              "name": "value",
+              "value": "41",
+              "type": "int",
+              "handle": null,
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            }
+          ],
+          "start": 0,
+          "truncated": false,
+          "next_start": null,
+          "handle": "da1e5c29d0743150:5:v:23"
+        }
+      }
+    },
+    {
+      "command": [
+        "inspect",
+        "--frame",
+        "da1e5c29d0743150:5:f:2"
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "da1e5c29d0743150",
+        "generation": 5,
+        "reason": "step",
+        "exit_code": null,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 49352,
+          "adapter": 80160,
+          "target": 76208
+        },
+        "recording": {
+          "id": "da1e5c29d0743150",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false,
+        "stack": {
+          "frames": [
+            {
+              "handle": "da1e5c29d0743150:5:f:22",
+              "name": "add_one",
+              "file": "C:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-check-d8i2yrr6\\walk.py",
+              "line": 6,
+              "truncated": false
+            },
+            {
+              "handle": "da1e5c29d0743150:5:f:2",
+              "name": "<module>",
+              "file": "C:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-check-d8i2yrr6\\walk.py",
+              "line": 12,
+              "truncated": false
+            },
+            {
+              "handle": "da1e5c29d0743150:5:f:3",
+              "name": "_run_code",
+              "file": "C:\\Python311\\Lib\\runpy.py",
+              "line": 88,
+              "truncated": false
+            },
+            {
+              "handle": "da1e5c29d0743150:5:f:4",
+              "name": "_run_module_as_main",
+              "file": "C:\\Python311\\Lib\\runpy.py",
+              "line": 198,
+              "truncated": false
+            }
+          ],
+          "truncated": false
+        },
+        "location": {
+          "file": "C:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-check-d8i2yrr6\\walk.py",
+          "line": 12,
+          "source": [
+            {
+              "line": 10,
+              "text": "known = 41",
+              "truncated": false
+            },
+            {
+              "line": 11,
+              "text": "nested = {\"items\": [3, 5, 8], \"label\": \"test\"}",
+              "truncated": false
+            },
+            {
+              "line": 12,
+              "text": "result = add_one(known)",
+              "truncated": false
+            },
+            {
+              "line": 13,
+              "text": "print(result, sys.argv[1:], os.getcwd())",
+              "truncated": false
+            }
+          ],
+          "frame": "da1e5c29d0743150:5:f:2"
+        },
+        "locals": {
+          "items": [
+            {
+              "name": "special variables",
+              "value": "",
+              "type": "",
+              "handle": "da1e5c29d0743150:5:v:17",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "function variables",
+              "value": "",
+              "type": "",
+              "handle": "da1e5c29d0743150:5:v:25",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "known",
+              "value": "41",
+              "type": "int",
+              "handle": null,
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "nested",
+              "value": "{'items': [3, 5, 8], 'label': 'test'}",
+              "type": "dict",
+              "handle": "da1e5c29d0743150:5:v:10",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "os",
+              "value": "<module 'os' from 'C:\\\\Python311\\\\Lib\\\\os.py'>",
+              "type": "module",
+              "handle": "da1e5c29d0743150:5:v:11",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "sys",
+              "value": "<module 'sys' (built-in)>",
+              "type": "module",
+              "handle": "da1e5c29d0743150:5:v:12",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            }
+          ],
+          "start": 0,
+          "truncated": false,
+          "next_start": null,
+          "handle": "da1e5c29d0743150:5:v:5"
+        }
+      }
+    },
+    {
+      "command": [
+        "variables",
+        "da1e5c29d0743150:3:v:10"
+      ],
+      "response": {
+        "ok": false,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "da1e5c29d0743150",
+        "generation": 5,
+        "reason": "step",
+        "exit_code": null,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 49352,
+          "adapter": 80160,
+          "target": 76208
+        },
+        "recording": {
+          "id": "da1e5c29d0743150",
+          "truncated": false,
+          "error": null
+        },
+        "error": {
+          "code": "invalid_handle",
+          "message": "Unknown or expired handle; inspect the current stop again"
+        }
+      }
+    },
+    {
+      "command": [
+        "step",
+        "over"
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "da1e5c29d0743150",
+        "generation": 7,
+        "reason": "step",
+        "exit_code": null,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 49352,
+          "adapter": 80160,
+          "target": 76208
+        },
+        "recording": {
+          "id": "da1e5c29d0743150",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false,
+        "stack": {
+          "frames": [
+            {
+              "handle": "da1e5c29d0743150:7:f:22",
+              "name": "add_one",
+              "file": "C:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-check-d8i2yrr6\\walk.py",
+              "line": 7,
+              "truncated": false
+            },
+            {
+              "handle": "da1e5c29d0743150:7:f:2",
+              "name": "<module>",
+              "file": "C:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-check-d8i2yrr6\\walk.py",
+              "line": 12,
+              "truncated": false
+            },
+            {
+              "handle": "da1e5c29d0743150:7:f:3",
+              "name": "_run_code",
+              "file": "C:\\Python311\\Lib\\runpy.py",
+              "line": 88,
+              "truncated": false
+            },
+            {
+              "handle": "da1e5c29d0743150:7:f:4",
+              "name": "_run_module_as_main",
+              "file": "C:\\Python311\\Lib\\runpy.py",
+              "line": 198,
+              "truncated": false
+            }
+          ],
+          "truncated": false
+        },
+        "location": {
+          "file": "C:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-check-d8i2yrr6\\walk.py",
+          "line": 7,
+          "source": [
+            {
+              "line": 5,
+              "text": "def add_one(value):",
+              "truncated": false
+            },
+            {
+              "line": 6,
+              "text": "    answer = value + 1",
+              "truncated": false
+            },
+            {
+              "line": 7,
+              "text": "    return answer",
+              "truncated": false
+            },
+            {
+              "line": 8,
+              "text": "",
+              "truncated": false
+            },
+            {
+              "line": 9,
+              "text": "",
+              "truncated": false
+            }
+          ],
+          "frame": "da1e5c29d0743150:7:f:22"
+        },
+        "locals": {
+          "items": [
+            {
+              "name": "answer",
+              "value": "42",
+              "type": "int",
+              "handle": null,
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "value",
+              "value": "41",
+              "type": "int",
+              "handle": null,
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            }
+          ],
+          "start": 0,
+          "truncated": false,
+          "next_start": null,
+          "handle": "da1e5c29d0743150:7:v:23"
+        }
+      }
+    },
+    {
+      "command": [
+        "step",
+        "out"
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "da1e5c29d0743150",
+        "generation": 9,
+        "reason": "step",
+        "exit_code": null,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 49352,
+          "adapter": 80160,
+          "target": 76208
+        },
+        "recording": {
+          "id": "da1e5c29d0743150",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false,
+        "stack": {
+          "frames": [
+            {
+              "handle": "da1e5c29d0743150:9:f:2",
+              "name": "<module>",
+              "file": "C:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-check-d8i2yrr6\\walk.py",
+              "line": 12,
+              "truncated": false
+            },
+            {
+              "handle": "da1e5c29d0743150:9:f:3",
+              "name": "_run_code",
+              "file": "C:\\Python311\\Lib\\runpy.py",
+              "line": 88,
+              "truncated": false
+            },
+            {
+              "handle": "da1e5c29d0743150:9:f:4",
+              "name": "_run_module_as_main",
+              "file": "C:\\Python311\\Lib\\runpy.py",
+              "line": 198,
+              "truncated": false
+            }
+          ],
+          "truncated": false
+        },
+        "location": {
+          "file": "C:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-check-d8i2yrr6\\walk.py",
+          "line": 12,
+          "source": [
+            {
+              "line": 10,
+              "text": "known = 41",
+              "truncated": false
+            },
+            {
+              "line": 11,
+              "text": "nested = {\"items\": [3, 5, 8], \"label\": \"test\"}",
+              "truncated": false
+            },
+            {
+              "line": 12,
+              "text": "result = add_one(known)",
+              "truncated": false
+            },
+            {
+              "line": 13,
+              "text": "print(result, sys.argv[1:], os.getcwd())",
+              "truncated": false
+            }
+          ],
+          "frame": "da1e5c29d0743150:9:f:2"
+        },
+        "locals": {
+          "items": [
+            {
+              "name": "special variables",
+              "value": "",
+              "type": "",
+              "handle": "da1e5c29d0743150:9:v:26",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "function variables",
+              "value": "",
+              "type": "",
+              "handle": "da1e5c29d0743150:9:v:27",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "known",
+              "value": "41",
+              "type": "int",
+              "handle": null,
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "nested",
+              "value": "{'items': [3, 5, 8], 'label': 'test'}",
+              "type": "dict",
+              "handle": "da1e5c29d0743150:9:v:10",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "os",
+              "value": "<module 'os' from 'C:\\\\Python311\\\\Lib\\\\os.py'>",
+              "type": "module",
+              "handle": "da1e5c29d0743150:9:v:11",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "sys",
+              "value": "<module 'sys' (built-in)>",
+              "type": "module",
+              "handle": "da1e5c29d0743150:9:v:12",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            }
+          ],
+          "start": 0,
+          "truncated": false,
+          "next_start": null,
+          "handle": "da1e5c29d0743150:9:v:5"
+        }
+      }
+    },
+    {
+      "command": [
+        "break",
+        "remove",
+        "walk.py"
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "da1e5c29d0743150",
+        "generation": 9,
+        "reason": "step",
+        "exit_code": null,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 49352,
+          "adapter": 80160,
+          "target": 76208
+        },
+        "recording": {
+          "id": "da1e5c29d0743150",
+          "truncated": false,
+          "error": null
+        },
+        "breakpoints": [],
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "continue"
+      ],
+      "response": {
+        "ok": true,
+        "state": "exited",
+        "phase": "done",
+        "session": "da1e5c29d0743150",
+        "generation": 11,
+        "reason": null,
+        "exit_code": 0,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 49352,
+          "adapter": 80160,
+          "target": 76208
+        },
+        "recording": {
+          "id": "da1e5c29d0743150",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "output"
+      ],
+      "response": {
+        "ok": true,
+        "state": "exited",
+        "phase": "done",
+        "session": "da1e5c29d0743150",
+        "generation": 12,
+        "reason": null,
+        "exit_code": 0,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 49352,
+          "adapter": 80160,
+          "target": 76208
+        },
+        "recording": {
+          "id": "da1e5c29d0743150",
+          "truncated": false,
+          "error": null
+        },
+        "output": {
+          "stdout": {
+            "text": "42 ['hello world', '--flag'] C:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-check-d8i2yrr6\\work dir\n",
+            "truncated": false,
+            "dropped_chars": 0
+          },
+          "stderr": {
+            "text": "",
+            "truncated": false,
+            "dropped_chars": 0
+          },
+          "adapter": {
+            "text": "",
+            "truncated": false,
+            "dropped_chars": 0
+          }
+        },
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "stop"
+      ],
+      "response": {
+        "ok": true,
+        "state": "exited",
+        "phase": "closed",
+        "session": "da1e5c29d0743150",
+        "generation": 13,
+        "reason": null,
+        "exit_code": 0,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 49352,
+          "adapter": 80160,
+          "target": 76208
+        },
+        "recording": {
+          "id": "da1e5c29d0743150",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "launch",
+        "--uncaught",
+        "exception.py"
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "a3d23e9f2befa38d",
+        "generation": 1,
+        "reason": "entry",
+        "exit_code": null,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 71308,
+          "adapter": 82312,
+          "target": 91596
+        },
+        "recording": {
+          "id": "a3d23e9f2befa38d",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false,
+        "stack": {
+          "frames": [
+            {
+              "handle": "a3d23e9f2befa38d:1:f:2",
+              "name": "<module>",
+              "file": "C:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-check-d8i2yrr6\\exception.py",
+              "line": 1,
+              "truncated": false
+            },
+            {
+              "handle": "a3d23e9f2befa38d:1:f:3",
+              "name": "_run_code",
+              "file": "C:\\Python311\\Lib\\runpy.py",
+              "line": 88,
+              "truncated": false
+            },
+            {
+              "handle": "a3d23e9f2befa38d:1:f:4",
+              "name": "_run_module_as_main",
+              "file": "C:\\Python311\\Lib\\runpy.py",
+              "line": 198,
+              "truncated": false
+            }
+          ],
+          "truncated": false
+        },
+        "location": {
+          "file": "C:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-check-d8i2yrr6\\exception.py",
+          "line": 1,
+          "source": [
+            {
+              "line": 1,
+              "text": "def average_price(orders):",
+              "truncated": false
+            },
+            {
+              "line": 2,
+              "text": "    prices = [order[\"price\"] for order in orders if order[\"paid\"]]",
+              "truncated": false
+            },
+            {
+              "line": 3,
+              "text": "    count = len(orders) - len(prices)",
+              "truncated": false
+            }
+          ],
+          "frame": "a3d23e9f2befa38d:1:f:2"
+        },
+        "locals": {
+          "items": [
+            {
+              "name": "special variables",
+              "value": "",
+              "type": "",
+              "handle": "a3d23e9f2befa38d:1:v:7",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            }
+          ],
+          "start": 0,
+          "truncated": false,
+          "next_start": null,
+          "handle": "a3d23e9f2befa38d:1:v:5"
+        }
+      }
+    },
+    {
+      "command": [
+        "continue"
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "a3d23e9f2befa38d",
+        "generation": 3,
+        "reason": "exception",
+        "exit_code": null,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 71308,
+          "adapter": 82312,
+          "target": 91596
+        },
+        "recording": {
+          "id": "a3d23e9f2befa38d",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false,
+        "stack": {
+          "frames": [
+            {
+              "handle": "a3d23e9f2befa38d:3:f:8",
+              "name": "average_price",
+              "file": "C:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-check-d8i2yrr6\\exception.py",
+              "line": 4,
+              "truncated": false
+            },
+            {
+              "handle": "a3d23e9f2befa38d:3:f:2",
+              "name": "<module>",
+              "file": "C:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-check-d8i2yrr6\\exception.py",
+              "line": 6,
+              "truncated": false
+            },
+            {
+              "handle": "a3d23e9f2befa38d:3:f:3",
+              "name": "_run_code",
+              "file": "C:\\Python311\\Lib\\runpy.py",
+              "line": 88,
+              "truncated": false
+            },
+            {
+              "handle": "a3d23e9f2befa38d:3:f:4",
+              "name": "_run_module_as_main (Current frame)",
+              "file": "C:\\Python311\\Lib\\runpy.py",
+              "line": 198,
+              "truncated": false
+            }
+          ],
+          "truncated": false
+        },
+        "location": {
+          "file": "C:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-check-d8i2yrr6\\exception.py",
+          "line": 4,
+          "source": [
+            {
+              "line": 2,
+              "text": "    prices = [order[\"price\"] for order in orders if order[\"paid\"]]",
+              "truncated": false
+            },
+            {
+              "line": 3,
+              "text": "    count = len(orders) - len(prices)",
+              "truncated": false
+            },
+            {
+              "line": 4,
+              "text": "    return sum(prices) / count",
+              "truncated": false
+            },
+            {
+              "line": 5,
+              "text": "orders = [{\"price\": 10, \"paid\": True}, {\"price\": 20, \"paid\": True}]",
+              "truncated": false
+            },
+            {
+              "line": 6,
+              "text": "print(average_price(orders))",
+              "truncated": false
+            }
+          ],
+          "frame": "a3d23e9f2befa38d:3:f:8"
+        },
+        "locals": {
+          "items": [
+            {
+              "name": "special variables",
+              "value": "",
+              "type": "",
+              "handle": "a3d23e9f2befa38d:3:v:11",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "count",
+              "value": "0",
+              "type": "int",
+              "handle": null,
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "orders",
+              "value": "[{'price': 10, 'paid': True}, {'price': 20, 'paid': True}]",
+              "type": "list",
+              "handle": "a3d23e9f2befa38d:3:v:12",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "prices",
+              "value": "[10, 20]",
+              "type": "list",
+              "handle": "a3d23e9f2befa38d:3:v:13",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            }
+          ],
+          "start": 0,
+          "truncated": false,
+          "next_start": null,
+          "handle": "a3d23e9f2befa38d:3:v:9"
+        }
+      }
+    },
+    {
+      "command": [
+        "exceptions",
+        "off"
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "a3d23e9f2befa38d",
+        "generation": 3,
+        "reason": "exception",
+        "exit_code": null,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 71308,
+          "adapter": 82312,
+          "target": 91596
+        },
+        "recording": {
+          "id": "a3d23e9f2befa38d",
+          "truncated": false,
+          "error": null
+        },
+        "uncaught": false,
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "continue"
+      ],
+      "response": {
+        "ok": true,
+        "state": "exited",
+        "phase": "done",
+        "session": "a3d23e9f2befa38d",
+        "generation": 5,
+        "reason": null,
+        "exit_code": 1,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 71308,
+          "adapter": 82312,
+          "target": 91596
+        },
+        "recording": {
+          "id": "a3d23e9f2befa38d",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "stop"
+      ],
+      "response": {
+        "ok": true,
+        "state": "exited",
+        "phase": "closed",
+        "session": "a3d23e9f2befa38d",
+        "generation": 7,
+        "reason": null,
+        "exit_code": 1,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 71308,
+          "adapter": 82312,
+          "target": 91596
+        },
+        "recording": {
+          "id": "a3d23e9f2befa38d",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "launch",
+        "--run",
+        "--uncaught",
+        "fixed.py"
+      ],
+      "response": {
+        "ok": true,
+        "state": "exited",
+        "phase": "done",
+        "session": "dc26ea12a16dedb7",
+        "generation": 1,
+        "reason": null,
+        "exit_code": 0,
+        "thread": null,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 84936,
+          "adapter": 94564,
+          "target": 91708
+        },
+        "recording": {
+          "id": "dc26ea12a16dedb7",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "output"
+      ],
+      "response": {
+        "ok": true,
+        "state": "exited",
+        "phase": "done",
+        "session": "dc26ea12a16dedb7",
+        "generation": 2,
+        "reason": null,
+        "exit_code": 0,
+        "thread": null,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 84936,
+          "adapter": 94564,
+          "target": 91708
+        },
+        "recording": {
+          "id": "dc26ea12a16dedb7",
+          "truncated": false,
+          "error": null
+        },
+        "output": {
+          "stdout": {
+            "text": "15.0\n",
+            "truncated": false,
+            "dropped_chars": 0
+          },
+          "stderr": {
+            "text": "",
+            "truncated": false,
+            "dropped_chars": 0
+          },
+          "adapter": {
+            "text": "",
+            "truncated": false,
+            "dropped_chars": 0
+          }
+        },
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "stop"
+      ],
+      "response": {
+        "ok": true,
+        "state": "exited",
+        "phase": "closed",
+        "session": "dc26ea12a16dedb7",
+        "generation": 3,
+        "reason": null,
+        "exit_code": 0,
+        "thread": null,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 84936,
+          "adapter": 94564,
+          "target": 91708
+        },
+        "recording": {
+          "id": "dc26ea12a16dedb7",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "launch",
+        "running.py"
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "d9fa356ae995e648",
+        "generation": 1,
+        "reason": "entry",
+        "exit_code": null,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 42344,
+          "adapter": 90132,
+          "target": 92316
+        },
+        "recording": {
+          "id": "d9fa356ae995e648",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false,
+        "stack": {
+          "frames": [
+            {
+              "handle": "d9fa356ae995e648:1:f:2",
+              "name": "<module>",
+              "file": "C:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-check-d8i2yrr6\\running.py",
+              "line": 1,
+              "truncated": false
+            },
+            {
+              "handle": "d9fa356ae995e648:1:f:3",
+              "name": "_run_code",
+              "file": "C:\\Python311\\Lib\\runpy.py",
+              "line": 88,
+              "truncated": false
+            },
+            {
+              "handle": "d9fa356ae995e648:1:f:4",
+              "name": "_run_module_as_main",
+              "file": "C:\\Python311\\Lib\\runpy.py",
+              "line": 198,
+              "truncated": false
+            }
+          ],
+          "truncated": false
+        },
+        "location": {
+          "file": "C:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-check-d8i2yrr6\\running.py",
+          "line": 1,
+          "source": [
+            {
+              "line": 1,
+              "text": "import subprocess",
+              "truncated": false
+            },
+            {
+              "line": 2,
+              "text": "import sys",
+              "truncated": false
+            },
+            {
+              "line": 3,
+              "text": "import time",
+              "truncated": false
+            }
+          ],
+          "frame": "d9fa356ae995e648:1:f:2"
+        },
+        "locals": {
+          "items": [
+            {
+              "name": "special variables",
+              "value": "",
+              "type": "",
+              "handle": "d9fa356ae995e648:1:v:7",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            }
+          ],
+          "start": 0,
+          "truncated": false,
+          "next_start": null,
+          "handle": "d9fa356ae995e648:1:v:5"
+        }
+      }
+    },
+    {
+      "command": [
+        "continue"
+      ],
+      "response": {
+        "ok": true,
+        "state": "running",
+        "phase": "ready",
+        "session": "d9fa356ae995e648",
+        "generation": 2,
+        "reason": null,
+        "exit_code": null,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 42344,
+          "adapter": 90132,
+          "target": 92316
+        },
+        "recording": {
+          "id": "d9fa356ae995e648",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": true
+      }
+    },
+    {
+      "command": [
+        "status"
+      ],
+      "response": {
+        "ok": true,
+        "state": "running",
+        "phase": "ready",
+        "session": "d9fa356ae995e648",
+        "generation": 2,
+        "reason": null,
+        "exit_code": null,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 42344,
+          "adapter": 90132,
+          "target": 92316
+        },
+        "recording": {
+          "id": "d9fa356ae995e648",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "step",
+        "over"
+      ],
+      "response": {
+        "ok": false,
+        "state": "running",
+        "phase": "ready",
+        "session": "d9fa356ae995e648",
+        "generation": 2,
+        "reason": null,
+        "exit_code": null,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 42344,
+          "adapter": 90132,
+          "target": 92316
+        },
+        "recording": {
+          "id": "d9fa356ae995e648",
+          "truncated": false,
+          "error": null
+        },
+        "error": {
+          "code": "invalid_state",
+          "message": "Execution command requires a stopped session"
+        }
+      }
+    },
+    {
+      "command": [
+        "output"
+      ],
+      "response": {
+        "ok": true,
+        "state": "running",
+        "phase": "ready",
+        "session": "d9fa356ae995e648",
+        "generation": 2,
+        "reason": null,
+        "exit_code": null,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 42344,
+          "adapter": 90132,
+          "target": 92316
+        },
+        "recording": {
+          "id": "d9fa356ae995e648",
+          "truncated": false,
+          "error": null
+        },
+        "output": {
+          "stdout": {
+            "text": "child 14292\n",
+            "truncated": false,
+            "dropped_chars": 0
+          },
+          "stderr": {
+            "text": "",
+            "truncated": false,
+            "dropped_chars": 0
+          },
+          "adapter": {
+            "text": "",
+            "truncated": false,
+            "dropped_chars": 0
+          }
+        },
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "stop"
+      ],
+      "response": {
+        "ok": true,
+        "state": "exited",
+        "phase": "closed",
+        "session": "d9fa356ae995e648",
+        "generation": 5,
+        "reason": null,
+        "exit_code": 0,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 42344,
+          "adapter": 90132,
+          "target": 92316
+        },
+        "recording": {
+          "id": "d9fa356ae995e648",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "wat"
+      ],
+      "response": {
+        "ok": false,
+        "state": "unknown",
+        "error": {
+          "code": "invalid_request",
+          "message": "argument command: invalid choice: 'wat' (choose from 'launch', 'break', 'exceptions', 'continue', 'step', 'inspect', 'variables', 'status', 'output', 'stop', 'note', 'view')"
+        }
+      }
+    },
+    {
+      "command": [
+        "--timeout",
+        "nan",
+        "status"
+      ],
+      "response": {
+        "ok": false,
+        "state": "unknown",
+        "error": {
+          "code": "invalid_request",
+          "message": "Timeout must be between 0.01 and 60 seconds"
+        }
+      }
+    },
+    {
+      "command": [
+        "break",
+        "set",
+        "walk.py",
+        "0"
+      ],
+      "response": {
+        "ok": false,
+        "state": "unknown",
+        "error": {
+          "code": "invalid_request",
+          "message": "argument lines: must be positive"
+        }
+      }
+    },
+    {
+      "command": [
+        "launch",
+        "missing.py"
+      ],
+      "response": {
+        "ok": false,
+        "state": "unknown",
+        "error": {
+          "code": "invalid_request",
+          "message": "Script or executable does not exist"
+        }
+      }
+    },
+    {
+      "command": [
+        "variables",
+        "fake",
+        "--limit",
+        "500"
+      ],
+      "response": {
+        "ok": false,
+        "state": "unknown",
+        "error": {
+          "code": "invalid_request",
+          "message": "Limit must be 1..30 and start must be nonnegative"
+        }
+      }
+    },
+    {
+      "command": [
+        "status"
+      ],
+      "response": {
+        "ok": false,
+        "state": "unknown",
+        "error": {
+          "code": "no_session",
+          "message": "No live session; launch a program first"
+        }
+      }
+    },
+    {
+      "command": [
+        "stop"
+      ],
+      "response": {
+        "ok": true,
+        "state": "exited",
+        "phase": "closed",
+        "stale_state_removed": true
+      }
+    },
+    {
+      "command": [
+        "launch",
+        "walk.py"
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "76fa31ed3e174d62",
+        "generation": 1,
+        "reason": "entry",
+        "exit_code": null,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 66752,
+          "adapter": 89752,
+          "target": 77380
+        },
+        "recording": {
+          "id": "76fa31ed3e174d62",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false,
+        "stack": {
+          "frames": [
+            {
+              "handle": "76fa31ed3e174d62:1:f:2",
+              "name": "<module>",
+              "file": "C:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-check-d8i2yrr6\\walk.py",
+              "line": 1,
+              "truncated": false
+            },
+            {
+              "handle": "76fa31ed3e174d62:1:f:3",
+              "name": "_run_code",
+              "file": "C:\\Python311\\Lib\\runpy.py",
+              "line": 88,
+              "truncated": false
+            },
+            {
+              "handle": "76fa31ed3e174d62:1:f:4",
+              "name": "_run_module_as_main",
+              "file": "C:\\Python311\\Lib\\runpy.py",
+              "line": 198,
+              "truncated": false
+            }
+          ],
+          "truncated": false
+        },
+        "location": {
+          "file": "C:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-check-d8i2yrr6\\walk.py",
+          "line": 1,
+          "source": [
+            {
+              "line": 1,
+              "text": "import os",
+              "truncated": false
+            },
+            {
+              "line": 2,
+              "text": "import sys",
+              "truncated": false
+            },
+            {
+              "line": 3,
+              "text": "",
+              "truncated": false
+            }
+          ],
+          "frame": "76fa31ed3e174d62:1:f:2"
+        },
+        "locals": {
+          "items": [
+            {
+              "name": "special variables",
+              "value": "",
+              "type": "",
+              "handle": "76fa31ed3e174d62:1:v:7",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            }
+          ],
+          "start": 0,
+          "truncated": false,
+          "next_start": null,
+          "handle": "76fa31ed3e174d62:1:v:5"
+        }
+      }
+    },
+    {
+      "command": [
+        "status"
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "76fa31ed3e174d62",
+        "generation": 1,
+        "reason": "entry",
+        "exit_code": null,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 66752,
+          "adapter": 89752,
+          "target": 77380
+        },
+        "recording": {
+          "id": "76fa31ed3e174d62",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false,
+        "stack": {
+          "frames": [
+            {
+              "handle": "76fa31ed3e174d62:1:f:2",
+              "name": "<module>",
+              "file": "C:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-check-d8i2yrr6\\walk.py",
+              "line": 1,
+              "truncated": false
+            },
+            {
+              "handle": "76fa31ed3e174d62:1:f:3",
+              "name": "_run_code",
+              "file": "C:\\Python311\\Lib\\runpy.py",
+              "line": 88,
+              "truncated": false
+            },
+            {
+              "handle": "76fa31ed3e174d62:1:f:4",
+              "name": "_run_module_as_main",
+              "file": "C:\\Python311\\Lib\\runpy.py",
+              "line": 198,
+              "truncated": false
+            }
+          ],
+          "truncated": false
+        },
+        "location": {
+          "file": "C:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-check-d8i2yrr6\\walk.py",
+          "line": 1,
+          "source": [
+            {
+              "line": 1,
+              "text": "import os",
+              "truncated": false
+            },
+            {
+              "line": 2,
+              "text": "import sys",
+              "truncated": false
+            },
+            {
+              "line": 3,
+              "text": "",
+              "truncated": false
+            }
+          ],
+          "frame": "76fa31ed3e174d62:1:f:2"
+        },
+        "locals": {
+          "items": [
+            {
+              "name": "special variables",
+              "value": "",
+              "type": "",
+              "handle": "76fa31ed3e174d62:1:v:8",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            }
+          ],
+          "start": 0,
+          "truncated": false,
+          "next_start": null,
+          "handle": "76fa31ed3e174d62:1:v:5"
+        }
+      }
+    },
+    {
+      "command": [
+        "status"
+      ],
+      "response": {
+        "ok": false,
+        "state": "failed",
+        "phase": "done",
+        "session": "76fa31ed3e174d62",
+        "generation": 2,
+        "reason": "entry",
+        "exit_code": null,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 66752,
+          "adapter": 89752,
+          "target": 77380
+        },
+        "error": {
+          "code": "adapter_failure",
+          "message": "Debug adapter disconnected"
+        },
+        "recording": {
+          "id": "76fa31ed3e174d62",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "stop"
+      ],
+      "response": {
+        "ok": true,
+        "state": "exited",
+        "phase": "closed",
+        "session": "76fa31ed3e174d62",
+        "generation": 3,
+        "reason": "entry",
+        "exit_code": null,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 66752,
+          "adapter": 89752,
+          "target": 77380
+        },
+        "error": {
+          "code": "adapter_failure",
+          "message": "Debug adapter disconnected"
+        },
+        "recording": {
+          "id": "76fa31ed3e174d62",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "launch",
+        "large.py"
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "73f63d58243111f3",
+        "generation": 1,
+        "reason": "entry",
+        "exit_code": null,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 45040,
+          "adapter": 8040,
+          "target": 93912
+        },
+        "recording": {
+          "id": "73f63d58243111f3",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false,
+        "stack": {
+          "frames": [
+            {
+              "handle": "73f63d58243111f3:1:f:2",
+              "name": "<module>",
+              "file": "C:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-check-d8i2yrr6\\large.py",
+              "line": 1,
+              "truncated": false
+            },
+            {
+              "handle": "73f63d58243111f3:1:f:3",
+              "name": "_run_code",
+              "file": "C:\\Python311\\Lib\\runpy.py",
+              "line": 88,
+              "truncated": false
+            },
+            {
+              "handle": "73f63d58243111f3:1:f:4",
+              "name": "_run_module_as_main",
+              "file": "C:\\Python311\\Lib\\runpy.py",
+              "line": 198,
+              "truncated": false
+            }
+          ],
+          "truncated": false
+        },
+        "location": {
+          "file": "C:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-check-d8i2yrr6\\large.py",
+          "line": 1,
+          "source": [
+            {
+              "line": 1,
+              "text": "big = 'x' * 20000",
+              "truncated": false
+            },
+            {
+              "line": 2,
+              "text": "print('z' * 30000)",
+              "truncated": false
+            },
+            {
+              "line": 3,
+              "text": "print(len(big))",
+              "truncated": false
+            }
+          ],
+          "frame": "73f63d58243111f3:1:f:2"
+        },
+        "locals": {
+          "items": [
+            {
+              "name": "special variables",
+              "value": "",
+              "type": "",
+              "handle": "73f63d58243111f3:1:v:7",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            }
+          ],
+          "start": 0,
+          "truncated": false,
+          "next_start": null,
+          "handle": "73f63d58243111f3:1:v:5"
+        }
+      }
+    },
+    {
+      "command": [
+        "break",
+        "set",
+        "large.py",
+        "3"
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "73f63d58243111f3",
+        "generation": 1,
+        "reason": "entry",
+        "exit_code": null,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 45040,
+          "adapter": 8040,
+          "target": 93912
+        },
+        "recording": {
+          "id": "73f63d58243111f3",
+          "truncated": false,
+          "error": null
+        },
+        "breakpoints": [
+          {
+            "line": 3,
+            "verified": true,
+            "message": ""
+          }
+        ],
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "continue"
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "73f63d58243111f3",
+        "generation": 3,
+        "reason": "breakpoint",
+        "exit_code": null,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 45040,
+          "adapter": 8040,
+          "target": 93912
+        },
+        "recording": {
+          "id": "73f63d58243111f3",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false,
+        "stack": {
+          "frames": [
+            {
+              "handle": "73f63d58243111f3:3:f:2",
+              "name": "<module>",
+              "file": "C:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-check-d8i2yrr6\\large.py",
+              "line": 3,
+              "truncated": false
+            },
+            {
+              "handle": "73f63d58243111f3:3:f:3",
+              "name": "_run_code",
+              "file": "C:\\Python311\\Lib\\runpy.py",
+              "line": 88,
+              "truncated": false
+            },
+            {
+              "handle": "73f63d58243111f3:3:f:4",
+              "name": "_run_module_as_main",
+              "file": "C:\\Python311\\Lib\\runpy.py",
+              "line": 198,
+              "truncated": false
+            }
+          ],
+          "truncated": false
+        },
+        "location": {
+          "file": "C:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-check-d8i2yrr6\\large.py",
+          "line": 3,
+          "source": [
+            {
+              "line": 1,
+              "text": "big = 'x' * 20000",
+              "truncated": false
+            },
+            {
+              "line": 2,
+              "text": "print('z' * 30000)",
+              "truncated": false
+            },
+            {
+              "line": 3,
+              "text": "print(len(big))",
+              "truncated": false
+            }
+          ],
+          "frame": "73f63d58243111f3:3:f:2"
+        },
+        "locals": {
+          "items": [
+            {
+              "name": "special variables",
+              "value": "",
+              "type": "",
+              "handle": "73f63d58243111f3:3:v:8",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "big",
+              "value": "'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+              "type": "str",
+              "handle": null,
+              "named": null,
+              "indexed": null,
+              "truncated": true
+            }
+          ],
+          "start": 0,
+          "truncated": false,
+          "next_start": null,
+          "handle": "73f63d58243111f3:3:v:5"
+        }
+      }
+    },
+    {
+      "command": [
+        "output"
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "73f63d58243111f3",
+        "generation": 3,
+        "reason": "breakpoint",
+        "exit_code": null,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 45040,
+          "adapter": 8040,
+          "target": 93912
+        },
+        "recording": {
+          "id": "73f63d58243111f3",
+          "truncated": false,
+          "error": null
+        },
+        "output": {
+          "stdout": {
+            "text": "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz\n",
+            "truncated": true,
+            "dropped_chars": 21809
+          },
+          "stderr": {
+            "text": "",
+            "truncated": false,
+            "dropped_chars": 0
+          },
+          "adapter": {
+            "text": "",
+            "truncated": false,
+            "dropped_chars": 0
+          }
+        },
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "stop"
+      ],
+      "response": {
+        "ok": true,
+        "state": "exited",
+        "phase": "closed",
+        "session": "73f63d58243111f3",
+        "generation": 6,
+        "reason": "breakpoint",
+        "exit_code": 0,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 45040,
+          "adapter": 8040,
+          "target": 93912
+        },
+        "recording": {
+          "id": "73f63d58243111f3",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "launch",
+        "running.py"
+      ],
+      "response": {
+        "ok": true,
+        "state": "running",
+        "phase": "initializing",
+        "session": "69ebf48fdc3c8e36",
+        "generation": 0,
+        "reason": null,
+        "exit_code": null,
+        "thread": null,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 85308,
+          "adapter": 94228,
+          "target": null
+        },
+        "recording": {
+          "id": "69ebf48fdc3c8e36",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": true
+      }
+    },
+    {
+      "command": [
+        "status"
+      ],
+      "response": {
+        "ok": true,
+        "state": "running",
+        "phase": "initializing",
+        "session": "69ebf48fdc3c8e36",
+        "generation": 0,
+        "reason": null,
+        "exit_code": null,
+        "thread": null,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 85308,
+          "adapter": 94228,
+          "target": null
+        },
+        "recording": {
+          "id": "69ebf48fdc3c8e36",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "status"
+      ],
+      "response": {
+        "ok": true,
+        "state": "running",
+        "phase": "initializing",
+        "session": "69ebf48fdc3c8e36",
+        "generation": 0,
+        "reason": null,
+        "exit_code": null,
+        "thread": null,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 85308,
+          "adapter": 94228,
+          "target": null
+        },
+        "recording": {
+          "id": "69ebf48fdc3c8e36",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "status"
+      ],
+      "response": {
+        "ok": true,
+        "state": "running",
+        "phase": "initializing",
+        "session": "69ebf48fdc3c8e36",
+        "generation": 0,
+        "reason": null,
+        "exit_code": null,
+        "thread": null,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 85308,
+          "adapter": 94228,
+          "target": null
+        },
+        "recording": {
+          "id": "69ebf48fdc3c8e36",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "status"
+      ],
+      "response": {
+        "ok": true,
+        "state": "running",
+        "phase": "initializing",
+        "session": "69ebf48fdc3c8e36",
+        "generation": 0,
+        "reason": null,
+        "exit_code": null,
+        "thread": null,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 85308,
+          "adapter": 94228,
+          "target": null
+        },
+        "recording": {
+          "id": "69ebf48fdc3c8e36",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "status"
+      ],
+      "response": {
+        "ok": true,
+        "state": "running",
+        "phase": "ready",
+        "session": "69ebf48fdc3c8e36",
+        "generation": 0,
+        "reason": null,
+        "exit_code": null,
+        "thread": null,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 85308,
+          "adapter": 94228,
+          "target": 83940
+        },
+        "recording": {
+          "id": "69ebf48fdc3c8e36",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "status"
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "69ebf48fdc3c8e36",
+        "generation": 1,
+        "reason": "entry",
+        "exit_code": null,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 85308,
+          "adapter": 94228,
+          "target": 83940
+        },
+        "recording": {
+          "id": "69ebf48fdc3c8e36",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false,
+        "stack": {
+          "frames": [
+            {
+              "handle": "69ebf48fdc3c8e36:1:f:2",
+              "name": "<module>",
+              "file": "C:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-check-d8i2yrr6\\running.py",
+              "line": 1,
+              "truncated": false
+            },
+            {
+              "handle": "69ebf48fdc3c8e36:1:f:3",
+              "name": "_run_code",
+              "file": "C:\\Python311\\Lib\\runpy.py",
+              "line": 88,
+              "truncated": false
+            },
+            {
+              "handle": "69ebf48fdc3c8e36:1:f:4",
+              "name": "_run_module_as_main",
+              "file": "C:\\Python311\\Lib\\runpy.py",
+              "line": 198,
+              "truncated": false
+            }
+          ],
+          "truncated": false
+        },
+        "location": {
+          "file": "C:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-check-d8i2yrr6\\running.py",
+          "line": 1,
+          "source": [
+            {
+              "line": 1,
+              "text": "import subprocess",
+              "truncated": false
+            },
+            {
+              "line": 2,
+              "text": "import sys",
+              "truncated": false
+            },
+            {
+              "line": 3,
+              "text": "import time",
+              "truncated": false
+            }
+          ],
+          "frame": "69ebf48fdc3c8e36:1:f:2"
+        },
+        "locals": {
+          "items": [
+            {
+              "name": "special variables",
+              "value": "",
+              "type": "",
+              "handle": "69ebf48fdc3c8e36:1:v:7",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            }
+          ],
+          "start": 0,
+          "truncated": false,
+          "next_start": null,
+          "handle": "69ebf48fdc3c8e36:1:v:5"
+        }
+      }
+    },
+    {
+      "command": [
+        "status"
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "69ebf48fdc3c8e36",
+        "generation": 1,
+        "reason": "entry",
+        "exit_code": null,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 85308,
+          "adapter": 94228,
+          "target": 83940
+        },
+        "recording": {
+          "id": "69ebf48fdc3c8e36",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false,
+        "stack": {
+          "frames": [
+            {
+              "handle": "69ebf48fdc3c8e36:1:f:2",
+              "name": "<module>",
+              "file": "C:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-check-d8i2yrr6\\running.py",
+              "line": 1,
+              "truncated": false
+            },
+            {
+              "handle": "69ebf48fdc3c8e36:1:f:3",
+              "name": "_run_code",
+              "file": "C:\\Python311\\Lib\\runpy.py",
+              "line": 88,
+              "truncated": false
+            },
+            {
+              "handle": "69ebf48fdc3c8e36:1:f:4",
+              "name": "_run_module_as_main",
+              "file": "C:\\Python311\\Lib\\runpy.py",
+              "line": 198,
+              "truncated": false
+            }
+          ],
+          "truncated": false
+        },
+        "location": {
+          "file": "C:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-check-d8i2yrr6\\running.py",
+          "line": 1,
+          "source": [
+            {
+              "line": 1,
+              "text": "import subprocess",
+              "truncated": false
+            },
+            {
+              "line": 2,
+              "text": "import sys",
+              "truncated": false
+            },
+            {
+              "line": 3,
+              "text": "import time",
+              "truncated": false
+            }
+          ],
+          "frame": "69ebf48fdc3c8e36:1:f:2"
+        },
+        "locals": {
+          "items": [
+            {
+              "name": "special variables",
+              "value": "",
+              "type": "",
+              "handle": "69ebf48fdc3c8e36:1:v:8",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            }
+          ],
+          "start": 0,
+          "truncated": false,
+          "next_start": null,
+          "handle": "69ebf48fdc3c8e36:1:v:5"
+        }
+      }
+    },
+    {
+      "command": [
+        "stop"
+      ],
+      "response": {
+        "ok": true,
+        "state": "exited",
+        "phase": "closed",
+        "stale_state_removed": true
+      }
+    },
+    {
+      "command": [
+        "launch",
+        "--run",
+        "console.py"
+      ],
+      "response": {
+        "ok": true,
+        "state": "exited",
+        "phase": "done",
+        "session": "dcc37b4f35ef5a45",
+        "generation": 1,
+        "reason": null,
+        "exit_code": 0,
+        "thread": null,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 7204,
+          "adapter": 87268,
+          "target": 77468
+        },
+        "recording": {
+          "id": "dcc37b4f35ef5a45",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "output"
+      ],
+      "response": {
+        "ok": true,
+        "state": "exited",
+        "phase": "done",
+        "session": "dcc37b4f35ef5a45",
+        "generation": 2,
+        "reason": null,
+        "exit_code": 0,
+        "thread": null,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 7204,
+          "adapter": 87268,
+          "target": 77468
+        },
+        "recording": {
+          "id": "dcc37b4f35ef5a45",
+          "truncated": false,
+          "error": null
+        },
+        "output": {
+          "stdout": {
+            "text": "False\n",
+            "truncated": false,
+            "dropped_chars": 0
+          },
+          "stderr": {
+            "text": "",
+            "truncated": false,
+            "dropped_chars": 0
+          },
+          "adapter": {
+            "text": "",
+            "truncated": false,
+            "dropped_chars": 0
+          }
+        },
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "stop"
+      ],
+      "response": {
+        "ok": true,
+        "state": "exited",
+        "phase": "closed",
+        "session": "dcc37b4f35ef5a45",
+        "generation": 3,
+        "reason": null,
+        "exit_code": 0,
+        "thread": null,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 7204,
+          "adapter": 87268,
+          "target": 77468
+        },
+        "recording": {
+          "id": "dcc37b4f35ef5a45",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false
+      }
+    }
+  ]
+}

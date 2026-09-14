@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>aidebug · Session viewer</title>
+  <link rel="stylesheet" href="/style.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="aidebug session viewer"><span class="mark" aria-hidden="true">a/</span><strong>aidebug</strong><span class="brand-label">Session viewer</span></a>
+    <div class="top-actions"><span id="connection" role="status">Connecting…</span><button id="menu" aria-expanded="false" aria-controls="sidebar">Activity</button></div>
+  </header>
+  <div id="notice" class="notice" role="status" hidden></div>
+  <div class="shell">
+    <aside id="sidebar">
+      <div class="sidebar-heading"><h2>Recordings</h2><span id="record-count" class="counter">0</span></div>
+      <div id="sessions" class="sessions"></div>
+      <div class="sidebar-heading activity-heading"><h2>Agent activity</h2><span id="activity-count" class="counter">0</span></div>
+      <p class="sidebar-hint">Commands and the evidence they returned.</p>
+      <ol id="timeline" class="timeline" aria-label="Recorded debugging activity"></ol>
+      <p class="sidebar-footer">Observation only. The agent keeps control.</p>
+    </aside>
+    <main>
+      <section id="empty" class="empty">
+        <span class="empty-mark" aria-hidden="true">[&nbsp;↳&nbsp;]</span>
+        <h1>See the investigation unfold.</h1>
+        <p>Launch a program with aidebug. Its commands, stops, and inspected values will appear here as the agent works.</p>
+        <code>aidebug launch --uncaught your_program.py</code>
+        <p class="muted">Recordings stay available after the session ends. This viewer never resumes or changes your program.</p>
+      </section>
+      <section id="workspace" hidden>
+        <div class="session-heading">
+          <div><div class="session-meta"><span id="language" class="tag"></span><span id="session-date"></span></div><h1 id="program"></h1><p id="program-path" class="path"></p></div>
+          <div class="session-status"><span id="state" class="state">Waiting</span><span id="mode">Recorded session</span></div>
+        </div>
+        <div class="playback" aria-label="Replay controls">
+          <div class="transport"><button id="previous" aria-label="Previous observation">‹</button><button id="play" class="primary">Play replay</button><button id="next" aria-label="Next observation">›</button></div>
+          <div class="scrubber"><label for="position"><span id="position-label">Observation 0 of 0</span><span id="elapsed">0.0s</span></label><input id="position" type="range" min="0" max="0" value="0" aria-label="Replay position"></div>
+          <div class="playback-options"><select id="speed" aria-label="Replay speed"><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option></select><button id="follow">Follow live</button></div>
+        </div>
+        <div id="annotation" class="annotation" hidden><span>Agent note</span><p id="note-text"></p></div>
+        <div id="observation-error" class="observation-error" hidden></div>
+        <div class="workbench">
+          <section class="panel source-panel">
+            <div class="panel-heading"><div class="tabs" aria-label="Source views"><button class="active" data-tab="source" aria-pressed="true">Source</button><button data-tab="changes" aria-pressed="false">Changes</button><button data-tab="details" aria-pressed="false">Command</button></div><span id="line-label" class="muted"></span></div>
+            <div id="source-view"><div id="source-file" class="file-heading"></div><div id="code" class="code" aria-label="Recorded source code"></div><p id="source-hint" class="panel-hint"></p></div>
+            <div id="changes-view" hidden><div class="file-heading">Source changes observed during this session</div><div id="changes" class="changes"></div></div>
+            <div id="details-view" hidden><div class="file-heading">Selected observation</div><pre id="details" class="details"></pre></div>
+          </section>
+          <section class="panel variables-panel">
+            <div class="panel-heading"><h2>Runtime values</h2><span id="value-count" class="counter">0</span></div>
+            <p id="values-hint" class="panel-hint">Values inspected by the agent.</p><div id="variables" class="variables"></div>
+          </section>
+          <section class="panel output-panel">
+            <div class="panel-heading"><h2>Program output</h2><select id="output-channel" aria-label="Output channel"><option value="stdout">stdout</option><option value="stderr">stderr</option><option value="adapter">Adapter</option></select></div><pre id="output" class="output"></pre><p id="output-hint" class="panel-hint"></p>
+          </section>
+          <section class="panel stack-panel">
+            <div class="panel-heading"><h2>Call stack</h2><span id="stack-count" class="counter">0</span></div><ol id="stack" class="stack"></ol>
+          </section>
+        </div>
+        <footer class="workspace-footer"><span id="recording-info"></span><span>Recorded observations, not time-travel execution.</span></footer>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

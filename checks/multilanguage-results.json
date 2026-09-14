@@ -1,0 +1,4421 @@
+{
+  "passed": 8,
+  "failed": 0,
+  "seconds": 55.08,
+  "groups": [
+    "invalid language/target combinations, remote browser URL, source binary, adapter and breakpoint return JSON without a session",
+    "javascript: real breakpoint, nested values, all steps, handle expiry, output and cleanup",
+    "typescript: real breakpoint, nested values, all steps, handle expiry, output and cleanup",
+    "JavaScript uncaught exception and exception toggle",
+    "Node deadline preserves control and stop removes its actual target PID",
+    "headless browser clicks Save and stops in original TypeScript handler with quantity=2, price=21, total=42",
+    "Rust debug-symbol breakpoint, nested array, all steps, output, exit and cleanup",
+    "Rust panic filter, failing caller locals, stderr and nonzero exit"
+  ],
+  "transcript": [
+    {
+      "command": [
+        "launch",
+        "--language",
+        "python",
+        "--target",
+        "browser",
+        "http://localhost:1"
+      ],
+      "response": {
+        "ok": false,
+        "state": "unknown",
+        "error": {
+          "code": "invalid_request",
+          "message": "Node/browser targets require JavaScript or TypeScript"
+        }
+      }
+    },
+    {
+      "command": [
+        "launch",
+        "--target",
+        "browser",
+        "https://example.com"
+      ],
+      "response": {
+        "ok": false,
+        "state": "unknown",
+        "error": {
+          "code": "invalid_request",
+          "message": "Browser launch requires an http(s) URL on localhost"
+        }
+      }
+    },
+    {
+      "command": [
+        "launch",
+        "--language",
+        "rust",
+        "walk.rs"
+      ],
+      "response": {
+        "ok": false,
+        "state": "unknown",
+        "error": {
+          "code": "invalid_request",
+          "message": "Build Rust with debug symbols first; launch the executable, not the .rs source"
+        }
+      }
+    },
+    {
+      "command": [
+        "launch",
+        "--headed",
+        "walk.js"
+      ],
+      "response": {
+        "ok": false,
+        "state": "unknown",
+        "error": {
+          "code": "invalid_request",
+          "message": "--headed requires --target browser"
+        }
+      }
+    },
+    {
+      "command": [
+        "launch",
+        "--adapter",
+        "missing.js",
+        "walk.js"
+      ],
+      "response": {
+        "ok": false,
+        "state": "unknown",
+        "error": {
+          "code": "missing_dependency",
+          "message": "Adapter not found. Pass --adapter PATH or install it under .tools; see README.md"
+        }
+      }
+    },
+    {
+      "command": [
+        "launch",
+        "--adapter",
+        "C:\\Users\\ayoub\\Videos\\claude\\aidebug\\.tools\\js-debug\\src\\dapDebugServer.js",
+        "--breakpoint",
+        "walk.js:0",
+        "walk.js"
+      ],
+      "response": {
+        "ok": false,
+        "state": "unknown",
+        "error": {
+          "code": "invalid_request",
+          "message": "Breakpoints use existing FILE:positive-LINE"
+        }
+      }
+    },
+    {
+      "command": [
+        "launch",
+        "--language",
+        "javascript",
+        "--adapter",
+        "C:\\Users\\ayoub\\Videos\\claude\\aidebug\\.tools\\js-debug\\src\\dapDebugServer.js",
+        "--run",
+        "--breakpoint",
+        "walk.js:8",
+        "walk.js"
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "e9ed205cd98acabf",
+        "generation": 1,
+        "reason": "breakpoint",
+        "exit_code": null,
+        "thread": 0,
+        "language": "javascript",
+        "target": "node",
+        "processes": {
+          "helper": 74512,
+          "adapter": 84524,
+          "target": null
+        },
+        "recording": {
+          "id": "e9ed205cd98acabf",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false,
+        "stack": {
+          "frames": [
+            {
+              "handle": "e9ed205cd98acabf:1:f:0",
+              "name": "<anonymous>",
+              "file": "c:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-languages-4lr70wc0\\walk.js",
+              "line": 8,
+              "truncated": false
+            },
+            {
+              "handle": "e9ed205cd98acabf:1:f:1",
+              "name": "<anonymous>",
+              "file": "<node_internals>/internal/modules/cjs/loader",
+              "line": 1871,
+              "truncated": false
+            },
+            {
+              "handle": "e9ed205cd98acabf:1:f:2",
+              "name": "<anonymous>",
+              "file": "<node_internals>/internal/modules/cjs/loader",
+              "line": 2002,
+              "truncated": false
+            },
+            {
+              "handle": "e9ed205cd98acabf:1:f:3",
+              "name": "<anonymous>",
+              "file": "<node_internals>/internal/modules/cjs/loader",
+              "line": 1594,
+              "truncated": false
+            },
+            {
+              "handle": "e9ed205cd98acabf:1:f:4",
+              "name": "<anonymous>",
+              "file": "<node_internals>/internal/modules/cjs/loader",
+              "line": 1396,
+              "truncated": false
+            },
+            {
+              "handle": "e9ed205cd98acabf:1:f:5",
+              "name": "wrapModuleLoad",
+              "file": "<node_internals>/internal/modules/cjs/loader",
+              "line": 255,
+              "truncated": false
+            },
+            {
+              "handle": "e9ed205cd98acabf:1:f:6",
+              "name": "function Module(id = '', parent) {.executeUserEntryPoint",
+              "file": "<node_internals>/internal/modules/run_main",
+              "line": 154,
+              "truncated": false
+            },
+            {
+              "handle": "e9ed205cd98acabf:1:f:7",
+              "name": "<anonymous>",
+              "file": "<node_internals>/internal/main/run_main_module",
+              "line": 33,
+              "truncated": false
+            }
+          ],
+          "truncated": false
+        },
+        "location": {
+          "file": "c:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-languages-4lr70wc0\\walk.js",
+          "line": 8,
+          "source": [
+            {
+              "line": 6,
+              "text": "const known = 41;",
+              "truncated": false
+            },
+            {
+              "line": 7,
+              "text": "const nested = { items: [3, 5, 8], label: \"test\" };",
+              "truncated": false
+            },
+            {
+              "line": 8,
+              "text": "const result = addOne(known);",
+              "truncated": false
+            },
+            {
+              "line": 9,
+              "text": "console.log(result, process.argv.slice(2));",
+              "truncated": false
+            }
+          ],
+          "frame": "e9ed205cd98acabf:1:f:0"
+        },
+        "locals": {
+          "items": [
+            {
+              "name": "__dirname",
+              "value": "'C:\\\\Users\\\\ayoub\\\\AppData\\\\Local\\\\Temp\\\\aidebug-languages-4lr70wc0'",
+              "type": "string",
+              "handle": null,
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "__filename",
+              "value": "'C:\\\\Users\\\\ayoub\\\\AppData\\\\Local\\\\Temp\\\\aidebug-languages-4lr70wc0\\\\walk.js'",
+              "type": "string",
+              "handle": null,
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "addOne",
+              "value": "\u0192 addOne(value) {\n  const answer = value + 1;\n  return answer;\n}",
+              "type": "Function",
+              "handle": "e9ed205cd98acabf:1:v:8",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "exports",
+              "value": "{}",
+              "type": "Object",
+              "handle": "e9ed205cd98acabf:1:v:3",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "known",
+              "value": "41",
+              "type": "number",
+              "handle": null,
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "module",
+              "value": "Module {id: '.', path: 'C:\\\\Users\\\\ayoub\\\\AppData\\\\Local\\\\Temp\\\\aidebug-languages-4lr70wc0', exports: {\u2026}, filename: 'C:\\\\Users\\\\ayoub\\\\AppData\\\\Local\\\\Temp\\\\aidebug-languages-4lr70wc0\\\\walk.js', loaded: false, \u2026}",
+              "type": "Module",
+              "handle": "e9ed205cd98acabf:1:v:5",
+              "named": null,
+              "indexed": null,
+              "truncated": true
+            },
+            {
+              "name": "nested",
+              "value": "{items: Array(3), label: 'test'}",
+              "type": "Object",
+              "handle": "e9ed205cd98acabf:1:v:10",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "require",
+              "value": "\u0192 require(path) {\r\n    return mod.require(path);\r\n  }",
+              "type": "Function",
+              "handle": "e9ed205cd98acabf:1:v:4",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "this",
+              "value": "Object",
+              "type": "Object",
+              "handle": "e9ed205cd98acabf:1:v:11",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            }
+          ],
+          "start": 0,
+          "truncated": false,
+          "next_start": null,
+          "handle": "e9ed205cd98acabf:1:v:1"
+        }
+      }
+    },
+    {
+      "command": [
+        "variables",
+        "e9ed205cd98acabf:1:v:10"
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "e9ed205cd98acabf",
+        "generation": 1,
+        "reason": "breakpoint",
+        "exit_code": null,
+        "thread": 0,
+        "language": "javascript",
+        "target": "node",
+        "processes": {
+          "helper": 74512,
+          "adapter": 84524,
+          "target": null
+        },
+        "recording": {
+          "id": "e9ed205cd98acabf",
+          "truncated": false,
+          "error": null
+        },
+        "variables": {
+          "items": [
+            {
+              "name": "items",
+              "value": "(3) [3, 5, 8]",
+              "type": "Array",
+              "handle": "e9ed205cd98acabf:1:v:14",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "label",
+              "value": "'test'",
+              "type": "string",
+              "handle": null,
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "[[Prototype]]",
+              "value": "Object",
+              "type": "Object",
+              "handle": "e9ed205cd98acabf:1:v:16",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            }
+          ],
+          "start": 0,
+          "truncated": false,
+          "next_start": null
+        },
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "step",
+        "into"
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "e9ed205cd98acabf",
+        "generation": 3,
+        "reason": "step",
+        "exit_code": null,
+        "thread": 0,
+        "language": "javascript",
+        "target": "node",
+        "processes": {
+          "helper": 74512,
+          "adapter": 84524,
+          "target": null
+        },
+        "recording": {
+          "id": "e9ed205cd98acabf",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false,
+        "stack": {
+          "frames": [
+            {
+              "handle": "e9ed205cd98acabf:3:f:8",
+              "name": "global.addOne",
+              "file": "c:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-languages-4lr70wc0\\walk.js",
+              "line": 2,
+              "truncated": false
+            },
+            {
+              "handle": "e9ed205cd98acabf:3:f:9",
+              "name": "<anonymous>",
+              "file": "c:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-languages-4lr70wc0\\walk.js",
+              "line": 8,
+              "truncated": false
+            },
+            {
+              "handle": "e9ed205cd98acabf:3:f:10",
+              "name": "<anonymous>",
+              "file": "<node_internals>/internal/modules/cjs/loader",
+              "line": 1871,
+              "truncated": false
+            },
+            {
+              "handle": "e9ed205cd98acabf:3:f:11",
+              "name": "<anonymous>",
+              "file": "<node_internals>/internal/modules/cjs/loader",
+              "line": 2002,
+              "truncated": false
+            },
+            {
+              "handle": "e9ed205cd98acabf:3:f:12",
+              "name": "<anonymous>",
+              "file": "<node_internals>/internal/modules/cjs/loader",
+              "line": 1594,
+              "truncated": false
+            },
+            {
+              "handle": "e9ed205cd98acabf:3:f:13",
+              "name": "<anonymous>",
+              "file": "<node_internals>/internal/modules/cjs/loader",
+              "line": 1396,
+              "truncated": false
+            },
+            {
+              "handle": "e9ed205cd98acabf:3:f:14",
+              "name": "wrapModuleLoad",
+              "file": "<node_internals>/internal/modules/cjs/loader",
+              "line": 255,
+              "truncated": false
+            },
+            {
+              "handle": "e9ed205cd98acabf:3:f:15",
+              "name": "function Module(id = '', parent) {.executeUserEntryPoint",
+              "file": "<node_internals>/internal/modules/run_main",
+              "line": 154,
+              "truncated": false
+            },
+            {
+              "handle": "e9ed205cd98acabf:3:f:16",
+              "name": "<anonymous>",
+              "file": "<node_internals>/internal/main/run_main_module",
+              "line": 33,
+              "truncated": false
+            }
+          ],
+          "truncated": false
+        },
+        "location": {
+          "file": "c:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-languages-4lr70wc0\\walk.js",
+          "line": 2,
+          "source": [
+            {
+              "line": 1,
+              "text": "function addOne(value) {",
+              "truncated": false
+            },
+            {
+              "line": 2,
+              "text": "  const answer = value + 1;",
+              "truncated": false
+            },
+            {
+              "line": 3,
+              "text": "  return answer;",
+              "truncated": false
+            },
+            {
+              "line": 4,
+              "text": "}",
+              "truncated": false
+            }
+          ],
+          "frame": "e9ed205cd98acabf:3:f:8"
+        },
+        "locals": {
+          "items": [
+            {
+              "name": "this",
+              "value": "global",
+              "type": "global",
+              "handle": "e9ed205cd98acabf:3:v:20",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "value",
+              "value": "41",
+              "type": "number",
+              "handle": null,
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            }
+          ],
+          "start": 0,
+          "truncated": false,
+          "next_start": null,
+          "handle": "e9ed205cd98acabf:3:v:17"
+        }
+      }
+    },
+    {
+      "command": [
+        "inspect",
+        "--frame",
+        "e9ed205cd98acabf:1:f:0"
+      ],
+      "response": {
+        "ok": false,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "e9ed205cd98acabf",
+        "generation": 3,
+        "reason": "step",
+        "exit_code": null,
+        "thread": 0,
+        "language": "javascript",
+        "target": "node",
+        "processes": {
+          "helper": 74512,
+          "adapter": 84524,
+          "target": null
+        },
+        "recording": {
+          "id": "e9ed205cd98acabf",
+          "truncated": false,
+          "error": null
+        },
+        "error": {
+          "code": "invalid_handle",
+          "message": "Unknown or expired handle; inspect the current stop again"
+        }
+      }
+    },
+    {
+      "command": [
+        "step",
+        "over"
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "e9ed205cd98acabf",
+        "generation": 5,
+        "reason": "step",
+        "exit_code": null,
+        "thread": 0,
+        "language": "javascript",
+        "target": "node",
+        "processes": {
+          "helper": 74512,
+          "adapter": 84524,
+          "target": null
+        },
+        "recording": {
+          "id": "e9ed205cd98acabf",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false,
+        "stack": {
+          "frames": [
+            {
+              "handle": "e9ed205cd98acabf:5:f:17",
+              "name": "global.addOne",
+              "file": "c:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-languages-4lr70wc0\\walk.js",
+              "line": 3,
+              "truncated": false
+            },
+            {
+              "handle": "e9ed205cd98acabf:5:f:18",
+              "name": "<anonymous>",
+              "file": "c:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-languages-4lr70wc0\\walk.js",
+              "line": 8,
+              "truncated": false
+            },
+            {
+              "handle": "e9ed205cd98acabf:5:f:19",
+              "name": "<anonymous>",
+              "file": "<node_internals>/internal/modules/cjs/loader",
+              "line": 1871,
+              "truncated": false
+            },
+            {
+              "handle": "e9ed205cd98acabf:5:f:20",
+              "name": "<anonymous>",
+              "file": "<node_internals>/internal/modules/cjs/loader",
+              "line": 2002,
+              "truncated": false
+            },
+            {
+              "handle": "e9ed205cd98acabf:5:f:21",
+              "name": "<anonymous>",
+              "file": "<node_internals>/internal/modules/cjs/loader",
+              "line": 1594,
+              "truncated": false
+            },
+            {
+              "handle": "e9ed205cd98acabf:5:f:22",
+              "name": "<anonymous>",
+              "file": "<node_internals>/internal/modules/cjs/loader",
+              "line": 1396,
+              "truncated": false
+            },
+            {
+              "handle": "e9ed205cd98acabf:5:f:23",
+              "name": "wrapModuleLoad",
+              "file": "<node_internals>/internal/modules/cjs/loader",
+              "line": 255,
+              "truncated": false
+            },
+            {
+              "handle": "e9ed205cd98acabf:5:f:24",
+              "name": "function Module(id = '', parent) {.executeUserEntryPoint",
+              "file": "<node_internals>/internal/modules/run_main",
+              "line": 154,
+              "truncated": false
+            },
+            {
+              "handle": "e9ed205cd98acabf:5:f:25",
+              "name": "<anonymous>",
+              "file": "<node_internals>/internal/main/run_main_module",
+              "line": 33,
+              "truncated": false
+            }
+          ],
+          "truncated": false
+        },
+        "location": {
+          "file": "c:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-languages-4lr70wc0\\walk.js",
+          "line": 3,
+          "source": [
+            {
+              "line": 1,
+              "text": "function addOne(value) {",
+              "truncated": false
+            },
+            {
+              "line": 2,
+              "text": "  const answer = value + 1;",
+              "truncated": false
+            },
+            {
+              "line": 3,
+              "text": "  return answer;",
+              "truncated": false
+            },
+            {
+              "line": 4,
+              "text": "}",
+              "truncated": false
+            },
+            {
+              "line": 5,
+              "text": "",
+              "truncated": false
+            }
+          ],
+          "frame": "e9ed205cd98acabf:5:f:17"
+        },
+        "locals": {
+          "items": [
+            {
+              "name": "answer",
+              "value": "42",
+              "type": "number",
+              "handle": null,
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "Return value",
+              "value": "42",
+              "type": "number",
+              "handle": null,
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "this",
+              "value": "global",
+              "type": "global",
+              "handle": "e9ed205cd98acabf:5:v:25",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "value",
+              "value": "41",
+              "type": "number",
+              "handle": null,
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            }
+          ],
+          "start": 0,
+          "truncated": false,
+          "next_start": null,
+          "handle": "e9ed205cd98acabf:5:v:21"
+        }
+      }
+    },
+    {
+      "command": [
+        "step",
+        "out"
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "e9ed205cd98acabf",
+        "generation": 7,
+        "reason": "step",
+        "exit_code": null,
+        "thread": 0,
+        "language": "javascript",
+        "target": "node",
+        "processes": {
+          "helper": 74512,
+          "adapter": 84524,
+          "target": null
+        },
+        "recording": {
+          "id": "e9ed205cd98acabf",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false,
+        "stack": {
+          "frames": [
+            {
+              "handle": "e9ed205cd98acabf:7:f:26",
+              "name": "<anonymous>",
+              "file": "c:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-languages-4lr70wc0\\walk.js",
+              "line": 9,
+              "truncated": false
+            },
+            {
+              "handle": "e9ed205cd98acabf:7:f:27",
+              "name": "<anonymous>",
+              "file": "<node_internals>/internal/modules/cjs/loader",
+              "line": 1871,
+              "truncated": false
+            },
+            {
+              "handle": "e9ed205cd98acabf:7:f:28",
+              "name": "<anonymous>",
+              "file": "<node_internals>/internal/modules/cjs/loader",
+              "line": 2002,
+              "truncated": false
+            },
+            {
+              "handle": "e9ed205cd98acabf:7:f:29",
+              "name": "<anonymous>",
+              "file": "<node_internals>/internal/modules/cjs/loader",
+              "line": 1594,
+              "truncated": false
+            },
+            {
+              "handle": "e9ed205cd98acabf:7:f:30",
+              "name": "<anonymous>",
+              "file": "<node_internals>/internal/modules/cjs/loader",
+              "line": 1396,
+              "truncated": false
+            },
+            {
+              "handle": "e9ed205cd98acabf:7:f:31",
+              "name": "wrapModuleLoad",
+              "file": "<node_internals>/internal/modules/cjs/loader",
+              "line": 255,
+              "truncated": false
+            },
+            {
+              "handle": "e9ed205cd98acabf:7:f:32",
+              "name": "function Module(id = '', parent) {.executeUserEntryPoint",
+              "file": "<node_internals>/internal/modules/run_main",
+              "line": 154,
+              "truncated": false
+            },
+            {
+              "handle": "e9ed205cd98acabf:7:f:33",
+              "name": "<anonymous>",
+              "file": "<node_internals>/internal/main/run_main_module",
+              "line": 33,
+              "truncated": false
+            }
+          ],
+          "truncated": false
+        },
+        "location": {
+          "file": "c:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-languages-4lr70wc0\\walk.js",
+          "line": 9,
+          "source": [
+            {
+              "line": 7,
+              "text": "const nested = { items: [3, 5, 8], label: \"test\" };",
+              "truncated": false
+            },
+            {
+              "line": 8,
+              "text": "const result = addOne(known);",
+              "truncated": false
+            },
+            {
+              "line": 9,
+              "text": "console.log(result, process.argv.slice(2));",
+              "truncated": false
+            }
+          ],
+          "frame": "e9ed205cd98acabf:7:f:26"
+        },
+        "locals": {
+          "items": [
+            {
+              "name": "__dirname",
+              "value": "'C:\\\\Users\\\\ayoub\\\\AppData\\\\Local\\\\Temp\\\\aidebug-languages-4lr70wc0'",
+              "type": "string",
+              "handle": null,
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "__filename",
+              "value": "'C:\\\\Users\\\\ayoub\\\\AppData\\\\Local\\\\Temp\\\\aidebug-languages-4lr70wc0\\\\walk.js'",
+              "type": "string",
+              "handle": null,
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "addOne",
+              "value": "\u0192 addOne(value) {\n  const answer = value + 1;\n  return answer;\n}",
+              "type": "Function",
+              "handle": "e9ed205cd98acabf:7:v:34",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "exports",
+              "value": "{}",
+              "type": "Object",
+              "handle": "e9ed205cd98acabf:7:v:29",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "known",
+              "value": "41",
+              "type": "number",
+              "handle": null,
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "module",
+              "value": "Module {id: '.', path: 'C:\\\\Users\\\\ayoub\\\\AppData\\\\Local\\\\Temp\\\\aidebug-languages-4lr70wc0', exports: {\u2026}, filename: 'C:\\\\Users\\\\ayoub\\\\AppData\\\\Local\\\\Temp\\\\aidebug-languages-4lr70wc0\\\\walk.js', loaded: false, \u2026}",
+              "type": "Module",
+              "handle": "e9ed205cd98acabf:7:v:31",
+              "named": null,
+              "indexed": null,
+              "truncated": true
+            },
+            {
+              "name": "nested",
+              "value": "{items: Array(3), label: 'test'}",
+              "type": "Object",
+              "handle": "e9ed205cd98acabf:7:v:36",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "require",
+              "value": "\u0192 require(path) {\r\n    return mod.require(path);\r\n  }",
+              "type": "Function",
+              "handle": "e9ed205cd98acabf:7:v:30",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "result",
+              "value": "42",
+              "type": "number",
+              "handle": null,
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "this",
+              "value": "Object",
+              "type": "Object",
+              "handle": "e9ed205cd98acabf:7:v:38",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            }
+          ],
+          "start": 0,
+          "truncated": false,
+          "next_start": null,
+          "handle": "e9ed205cd98acabf:7:v:27"
+        }
+      }
+    },
+    {
+      "command": [
+        "break",
+        "remove",
+        "walk.js"
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "e9ed205cd98acabf",
+        "generation": 7,
+        "reason": "step",
+        "exit_code": null,
+        "thread": 0,
+        "language": "javascript",
+        "target": "node",
+        "processes": {
+          "helper": 74512,
+          "adapter": 84524,
+          "target": null
+        },
+        "recording": {
+          "id": "e9ed205cd98acabf",
+          "truncated": false,
+          "error": null
+        },
+        "breakpoints": [],
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "continue"
+      ],
+      "response": {
+        "ok": true,
+        "state": "exited",
+        "phase": "done",
+        "session": "e9ed205cd98acabf",
+        "generation": 9,
+        "reason": null,
+        "exit_code": null,
+        "thread": 0,
+        "language": "javascript",
+        "target": "node",
+        "processes": {
+          "helper": 74512,
+          "adapter": 84524,
+          "target": null
+        },
+        "recording": {
+          "id": "e9ed205cd98acabf",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "output"
+      ],
+      "response": {
+        "ok": true,
+        "state": "exited",
+        "phase": "done",
+        "session": "e9ed205cd98acabf",
+        "generation": 10,
+        "reason": null,
+        "exit_code": null,
+        "thread": 0,
+        "language": "javascript",
+        "target": "node",
+        "processes": {
+          "helper": 74512,
+          "adapter": 84524,
+          "target": null
+        },
+        "recording": {
+          "id": "e9ed205cd98acabf",
+          "truncated": false,
+          "error": null
+        },
+        "output": {
+          "stdout": {
+            "text": "C:\\Program Files\\nodejs\\node.exe .\\walk.js\n42 []\n",
+            "truncated": false,
+            "dropped_chars": 0
+          },
+          "stderr": {
+            "text": "Debugger attached.\r\nWaiting for the debugger to disconnect...\r\n",
+            "truncated": false,
+            "dropped_chars": 0
+          },
+          "adapter": {
+            "text": "Debug server listening at \\\\.\\pipe\\aidebug-e9ed205cd98acabf-39589c0a8a1455b38e90d13eba9fa75f\n",
+            "truncated": false,
+            "dropped_chars": 0
+          }
+        },
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "stop"
+      ],
+      "response": {
+        "ok": true,
+        "state": "exited",
+        "phase": "closed",
+        "session": "e9ed205cd98acabf",
+        "generation": 11,
+        "reason": null,
+        "exit_code": null,
+        "thread": 0,
+        "language": "javascript",
+        "target": "node",
+        "processes": {
+          "helper": 74512,
+          "adapter": 84524,
+          "target": null
+        },
+        "recording": {
+          "id": "e9ed205cd98acabf",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "launch",
+        "--language",
+        "typescript",
+        "--adapter",
+        "C:\\Users\\ayoub\\Videos\\claude\\aidebug\\.tools\\js-debug\\src\\dapDebugServer.js",
+        "--run",
+        "--breakpoint",
+        "ts-walk.ts:8",
+        "ts-walk.js"
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "b1dbb62d053c9e17",
+        "generation": 1,
+        "reason": "breakpoint",
+        "exit_code": null,
+        "thread": 0,
+        "language": "typescript",
+        "target": "node",
+        "processes": {
+          "helper": 50020,
+          "adapter": 84204,
+          "target": null
+        },
+        "recording": {
+          "id": "b1dbb62d053c9e17",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false,
+        "stack": {
+          "frames": [
+            {
+              "handle": "b1dbb62d053c9e17:1:f:0",
+              "name": "<anonymous>",
+              "file": "c:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-languages-4lr70wc0\\ts-walk.ts",
+              "line": 8,
+              "truncated": false
+            },
+            {
+              "handle": "b1dbb62d053c9e17:1:f:1",
+              "name": "<anonymous>",
+              "file": "<node_internals>/internal/modules/cjs/loader",
+              "line": 1871,
+              "truncated": false
+            },
+            {
+              "handle": "b1dbb62d053c9e17:1:f:2",
+              "name": "<anonymous>",
+              "file": "<node_internals>/internal/modules/cjs/loader",
+              "line": 2002,
+              "truncated": false
+            },
+            {
+              "handle": "b1dbb62d053c9e17:1:f:3",
+              "name": "<anonymous>",
+              "file": "<node_internals>/internal/modules/cjs/loader",
+              "line": 1594,
+              "truncated": false
+            },
+            {
+              "handle": "b1dbb62d053c9e17:1:f:4",
+              "name": "<anonymous>",
+              "file": "<node_internals>/internal/modules/cjs/loader",
+              "line": 1396,
+              "truncated": false
+            },
+            {
+              "handle": "b1dbb62d053c9e17:1:f:5",
+              "name": "wrapModuleLoad",
+              "file": "<node_internals>/internal/modules/cjs/loader",
+              "line": 255,
+              "truncated": false
+            },
+            {
+              "handle": "b1dbb62d053c9e17:1:f:6",
+              "name": "function Module(id = '', parent) {.executeUserEntryPoint",
+              "file": "<node_internals>/internal/modules/run_main",
+              "line": 154,
+              "truncated": false
+            },
+            {
+              "handle": "b1dbb62d053c9e17:1:f:7",
+              "name": "<anonymous>",
+              "file": "<node_internals>/internal/main/run_main_module",
+              "line": 33,
+              "truncated": false
+            }
+          ],
+          "truncated": false
+        },
+        "location": {
+          "file": "c:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-languages-4lr70wc0\\ts-walk.ts",
+          "line": 8,
+          "source": [
+            {
+              "line": 6,
+              "text": "const known: number = 41;",
+              "truncated": false
+            },
+            {
+              "line": 7,
+              "text": "const nested = { items: [3, 5, 8], label: \"test\" };",
+              "truncated": false
+            },
+            {
+              "line": 8,
+              "text": "const result = addOne(known);",
+              "truncated": false
+            },
+            {
+              "line": 9,
+              "text": "console.log(result, nested.label);",
+              "truncated": false
+            }
+          ],
+          "frame": "b1dbb62d053c9e17:1:f:0"
+        },
+        "locals": {
+          "items": [
+            {
+              "name": "__dirname",
+              "value": "'C:\\\\Users\\\\ayoub\\\\AppData\\\\Local\\\\Temp\\\\aidebug-languages-4lr70wc0'",
+              "type": "string",
+              "handle": null,
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "__filename",
+              "value": "'C:\\\\Users\\\\ayoub\\\\AppData\\\\Local\\\\Temp\\\\aidebug-languages-4lr70wc0\\\\ts-walk.js'",
+              "type": "string",
+              "handle": null,
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "addOne",
+              "value": "\u0192 addOne(value) {\n    const answer = value + 1;\n    return answer;\n}",
+              "type": "Function",
+              "handle": "b1dbb62d053c9e17:1:v:8",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "exports",
+              "value": "{}",
+              "type": "Object",
+              "handle": "b1dbb62d053c9e17:1:v:3",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "known",
+              "value": "41",
+              "type": "number",
+              "handle": null,
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "module",
+              "value": "Module {id: '.', path: 'C:\\\\Users\\\\ayoub\\\\AppData\\\\Local\\\\Temp\\\\aidebug-languages-4lr70wc0', exports: {\u2026}, filename: 'C:\\\\Users\\\\ayoub\\\\AppData\\\\Local\\\\Temp\\\\aidebug-languages-4lr70wc0\\\\ts-walk.js', loaded: false, \u2026}",
+              "type": "Module",
+              "handle": "b1dbb62d053c9e17:1:v:5",
+              "named": null,
+              "indexed": null,
+              "truncated": true
+            },
+            {
+              "name": "nested",
+              "value": "{items: Array(3), label: 'test'}",
+              "type": "Object",
+              "handle": "b1dbb62d053c9e17:1:v:10",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "require",
+              "value": "\u0192 require(path) {\r\n    return mod.require(path);\r\n  }",
+              "type": "Function",
+              "handle": "b1dbb62d053c9e17:1:v:4",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "this",
+              "value": "Object",
+              "type": "Object",
+              "handle": "b1dbb62d053c9e17:1:v:11",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            }
+          ],
+          "start": 0,
+          "truncated": false,
+          "next_start": null,
+          "handle": "b1dbb62d053c9e17:1:v:1"
+        }
+      }
+    },
+    {
+      "command": [
+        "variables",
+        "b1dbb62d053c9e17:1:v:10"
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "b1dbb62d053c9e17",
+        "generation": 1,
+        "reason": "breakpoint",
+        "exit_code": null,
+        "thread": 0,
+        "language": "typescript",
+        "target": "node",
+        "processes": {
+          "helper": 50020,
+          "adapter": 84204,
+          "target": null
+        },
+        "recording": {
+          "id": "b1dbb62d053c9e17",
+          "truncated": false,
+          "error": null
+        },
+        "variables": {
+          "items": [
+            {
+              "name": "items",
+              "value": "(3) [3, 5, 8]",
+              "type": "Array",
+              "handle": "b1dbb62d053c9e17:1:v:14",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "label",
+              "value": "'test'",
+              "type": "string",
+              "handle": null,
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "[[Prototype]]",
+              "value": "Object",
+              "type": "Object",
+              "handle": "b1dbb62d053c9e17:1:v:16",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            }
+          ],
+          "start": 0,
+          "truncated": false,
+          "next_start": null
+        },
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "step",
+        "into"
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "b1dbb62d053c9e17",
+        "generation": 3,
+        "reason": "step",
+        "exit_code": null,
+        "thread": 0,
+        "language": "typescript",
+        "target": "node",
+        "processes": {
+          "helper": 50020,
+          "adapter": 84204,
+          "target": null
+        },
+        "recording": {
+          "id": "b1dbb62d053c9e17",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false,
+        "stack": {
+          "frames": [
+            {
+              "handle": "b1dbb62d053c9e17:3:f:8",
+              "name": "addOne",
+              "file": "c:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-languages-4lr70wc0\\ts-walk.ts",
+              "line": 2,
+              "truncated": false
+            },
+            {
+              "handle": "b1dbb62d053c9e17:3:f:9",
+              "name": "<anonymous>",
+              "file": "c:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-languages-4lr70wc0\\ts-walk.ts",
+              "line": 8,
+              "truncated": false
+            },
+            {
+              "handle": "b1dbb62d053c9e17:3:f:10",
+              "name": "<anonymous>",
+              "file": "<node_internals>/internal/modules/cjs/loader",
+              "line": 1871,
+              "truncated": false
+            },
+            {
+              "handle": "b1dbb62d053c9e17:3:f:11",
+              "name": "<anonymous>",
+              "file": "<node_internals>/internal/modules/cjs/loader",
+              "line": 2002,
+              "truncated": false
+            },
+            {
+              "handle": "b1dbb62d053c9e17:3:f:12",
+              "name": "<anonymous>",
+              "file": "<node_internals>/internal/modules/cjs/loader",
+              "line": 1594,
+              "truncated": false
+            },
+            {
+              "handle": "b1dbb62d053c9e17:3:f:13",
+              "name": "<anonymous>",
+              "file": "<node_internals>/internal/modules/cjs/loader",
+              "line": 1396,
+              "truncated": false
+            },
+            {
+              "handle": "b1dbb62d053c9e17:3:f:14",
+              "name": "wrapModuleLoad",
+              "file": "<node_internals>/internal/modules/cjs/loader",
+              "line": 255,
+              "truncated": false
+            },
+            {
+              "handle": "b1dbb62d053c9e17:3:f:15",
+              "name": "function Module(id = '', parent) {.executeUserEntryPoint",
+              "file": "<node_internals>/internal/modules/run_main",
+              "line": 154,
+              "truncated": false
+            },
+            {
+              "handle": "b1dbb62d053c9e17:3:f:16",
+              "name": "<anonymous>",
+              "file": "<node_internals>/internal/main/run_main_module",
+              "line": 33,
+              "truncated": false
+            }
+          ],
+          "truncated": false
+        },
+        "location": {
+          "file": "c:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-languages-4lr70wc0\\ts-walk.ts",
+          "line": 2,
+          "source": [
+            {
+              "line": 1,
+              "text": "function addOne(value: number): number {",
+              "truncated": false
+            },
+            {
+              "line": 2,
+              "text": "  const answer = value + 1;",
+              "truncated": false
+            },
+            {
+              "line": 3,
+              "text": "  return answer;",
+              "truncated": false
+            },
+            {
+              "line": 4,
+              "text": "}",
+              "truncated": false
+            }
+          ],
+          "frame": "b1dbb62d053c9e17:3:f:8"
+        },
+        "locals": {
+          "items": [
+            {
+              "name": "this",
+              "value": "undefined",
+              "type": "undefined",
+              "handle": null,
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "value",
+              "value": "41",
+              "type": "number",
+              "handle": null,
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            }
+          ],
+          "start": 0,
+          "truncated": false,
+          "next_start": null,
+          "handle": "b1dbb62d053c9e17:3:v:17"
+        }
+      }
+    },
+    {
+      "command": [
+        "inspect",
+        "--frame",
+        "b1dbb62d053c9e17:1:f:0"
+      ],
+      "response": {
+        "ok": false,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "b1dbb62d053c9e17",
+        "generation": 3,
+        "reason": "step",
+        "exit_code": null,
+        "thread": 0,
+        "language": "typescript",
+        "target": "node",
+        "processes": {
+          "helper": 50020,
+          "adapter": 84204,
+          "target": null
+        },
+        "recording": {
+          "id": "b1dbb62d053c9e17",
+          "truncated": false,
+          "error": null
+        },
+        "error": {
+          "code": "invalid_handle",
+          "message": "Unknown or expired handle; inspect the current stop again"
+        }
+      }
+    },
+    {
+      "command": [
+        "step",
+        "over"
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "b1dbb62d053c9e17",
+        "generation": 5,
+        "reason": "step",
+        "exit_code": null,
+        "thread": 0,
+        "language": "typescript",
+        "target": "node",
+        "processes": {
+          "helper": 50020,
+          "adapter": 84204,
+          "target": null
+        },
+        "recording": {
+          "id": "b1dbb62d053c9e17",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false,
+        "stack": {
+          "frames": [
+            {
+              "handle": "b1dbb62d053c9e17:5:f:17",
+              "name": "addOne",
+              "file": "c:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-languages-4lr70wc0\\ts-walk.ts",
+              "line": 3,
+              "truncated": false
+            },
+            {
+              "handle": "b1dbb62d053c9e17:5:f:18",
+              "name": "<anonymous>",
+              "file": "c:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-languages-4lr70wc0\\ts-walk.ts",
+              "line": 8,
+              "truncated": false
+            },
+            {
+              "handle": "b1dbb62d053c9e17:5:f:19",
+              "name": "<anonymous>",
+              "file": "<node_internals>/internal/modules/cjs/loader",
+              "line": 1871,
+              "truncated": false
+            },
+            {
+              "handle": "b1dbb62d053c9e17:5:f:20",
+              "name": "<anonymous>",
+              "file": "<node_internals>/internal/modules/cjs/loader",
+              "line": 2002,
+              "truncated": false
+            },
+            {
+              "handle": "b1dbb62d053c9e17:5:f:21",
+              "name": "<anonymous>",
+              "file": "<node_internals>/internal/modules/cjs/loader",
+              "line": 1594,
+              "truncated": false
+            },
+            {
+              "handle": "b1dbb62d053c9e17:5:f:22",
+              "name": "<anonymous>",
+              "file": "<node_internals>/internal/modules/cjs/loader",
+              "line": 1396,
+              "truncated": false
+            },
+            {
+              "handle": "b1dbb62d053c9e17:5:f:23",
+              "name": "wrapModuleLoad",
+              "file": "<node_internals>/internal/modules/cjs/loader",
+              "line": 255,
+              "truncated": false
+            },
+            {
+              "handle": "b1dbb62d053c9e17:5:f:24",
+              "name": "function Module(id = '', parent) {.executeUserEntryPoint",
+              "file": "<node_internals>/internal/modules/run_main",
+              "line": 154,
+              "truncated": false
+            },
+            {
+              "handle": "b1dbb62d053c9e17:5:f:25",
+              "name": "<anonymous>",
+              "file": "<node_internals>/internal/main/run_main_module",
+              "line": 33,
+              "truncated": false
+            }
+          ],
+          "truncated": false
+        },
+        "location": {
+          "file": "c:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-languages-4lr70wc0\\ts-walk.ts",
+          "line": 3,
+          "source": [
+            {
+              "line": 1,
+              "text": "function addOne(value: number): number {",
+              "truncated": false
+            },
+            {
+              "line": 2,
+              "text": "  const answer = value + 1;",
+              "truncated": false
+            },
+            {
+              "line": 3,
+              "text": "  return answer;",
+              "truncated": false
+            },
+            {
+              "line": 4,
+              "text": "}",
+              "truncated": false
+            },
+            {
+              "line": 5,
+              "text": "",
+              "truncated": false
+            }
+          ],
+          "frame": "b1dbb62d053c9e17:5:f:17"
+        },
+        "locals": {
+          "items": [
+            {
+              "name": "answer",
+              "value": "42",
+              "type": "number",
+              "handle": null,
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "Return value",
+              "value": "42",
+              "type": "number",
+              "handle": null,
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "this",
+              "value": "undefined",
+              "type": "undefined",
+              "handle": null,
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "value",
+              "value": "41",
+              "type": "number",
+              "handle": null,
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            }
+          ],
+          "start": 0,
+          "truncated": false,
+          "next_start": null,
+          "handle": "b1dbb62d053c9e17:5:v:21"
+        }
+      }
+    },
+    {
+      "command": [
+        "step",
+        "out"
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "b1dbb62d053c9e17",
+        "generation": 7,
+        "reason": "step",
+        "exit_code": null,
+        "thread": 0,
+        "language": "typescript",
+        "target": "node",
+        "processes": {
+          "helper": 50020,
+          "adapter": 84204,
+          "target": null
+        },
+        "recording": {
+          "id": "b1dbb62d053c9e17",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false,
+        "stack": {
+          "frames": [
+            {
+              "handle": "b1dbb62d053c9e17:7:f:26",
+              "name": "<anonymous>",
+              "file": "c:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-languages-4lr70wc0\\ts-walk.ts",
+              "line": 9,
+              "truncated": false
+            },
+            {
+              "handle": "b1dbb62d053c9e17:7:f:27",
+              "name": "<anonymous>",
+              "file": "<node_internals>/internal/modules/cjs/loader",
+              "line": 1871,
+              "truncated": false
+            },
+            {
+              "handle": "b1dbb62d053c9e17:7:f:28",
+              "name": "<anonymous>",
+              "file": "<node_internals>/internal/modules/cjs/loader",
+              "line": 2002,
+              "truncated": false
+            },
+            {
+              "handle": "b1dbb62d053c9e17:7:f:29",
+              "name": "<anonymous>",
+              "file": "<node_internals>/internal/modules/cjs/loader",
+              "line": 1594,
+              "truncated": false
+            },
+            {
+              "handle": "b1dbb62d053c9e17:7:f:30",
+              "name": "<anonymous>",
+              "file": "<node_internals>/internal/modules/cjs/loader",
+              "line": 1396,
+              "truncated": false
+            },
+            {
+              "handle": "b1dbb62d053c9e17:7:f:31",
+              "name": "wrapModuleLoad",
+              "file": "<node_internals>/internal/modules/cjs/loader",
+              "line": 255,
+              "truncated": false
+            },
+            {
+              "handle": "b1dbb62d053c9e17:7:f:32",
+              "name": "function Module(id = '', parent) {.executeUserEntryPoint",
+              "file": "<node_internals>/internal/modules/run_main",
+              "line": 154,
+              "truncated": false
+            },
+            {
+              "handle": "b1dbb62d053c9e17:7:f:33",
+              "name": "<anonymous>",
+              "file": "<node_internals>/internal/main/run_main_module",
+              "line": 33,
+              "truncated": false
+            }
+          ],
+          "truncated": false
+        },
+        "location": {
+          "file": "c:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-languages-4lr70wc0\\ts-walk.ts",
+          "line": 9,
+          "source": [
+            {
+              "line": 7,
+              "text": "const nested = { items: [3, 5, 8], label: \"test\" };",
+              "truncated": false
+            },
+            {
+              "line": 8,
+              "text": "const result = addOne(known);",
+              "truncated": false
+            },
+            {
+              "line": 9,
+              "text": "console.log(result, nested.label);",
+              "truncated": false
+            }
+          ],
+          "frame": "b1dbb62d053c9e17:7:f:26"
+        },
+        "locals": {
+          "items": [
+            {
+              "name": "__dirname",
+              "value": "'C:\\\\Users\\\\ayoub\\\\AppData\\\\Local\\\\Temp\\\\aidebug-languages-4lr70wc0'",
+              "type": "string",
+              "handle": null,
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "__filename",
+              "value": "'C:\\\\Users\\\\ayoub\\\\AppData\\\\Local\\\\Temp\\\\aidebug-languages-4lr70wc0\\\\ts-walk.js'",
+              "type": "string",
+              "handle": null,
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "addOne",
+              "value": "\u0192 addOne(value) {\n    const answer = value + 1;\n    return answer;\n}",
+              "type": "Function",
+              "handle": "b1dbb62d053c9e17:7:v:34",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "exports",
+              "value": "{}",
+              "type": "Object",
+              "handle": "b1dbb62d053c9e17:7:v:29",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "known",
+              "value": "41",
+              "type": "number",
+              "handle": null,
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "module",
+              "value": "Module {id: '.', path: 'C:\\\\Users\\\\ayoub\\\\AppData\\\\Local\\\\Temp\\\\aidebug-languages-4lr70wc0', exports: {\u2026}, filename: 'C:\\\\Users\\\\ayoub\\\\AppData\\\\Local\\\\Temp\\\\aidebug-languages-4lr70wc0\\\\ts-walk.js', loaded: false, \u2026}",
+              "type": "Module",
+              "handle": "b1dbb62d053c9e17:7:v:31",
+              "named": null,
+              "indexed": null,
+              "truncated": true
+            },
+            {
+              "name": "nested",
+              "value": "{items: Array(3), label: 'test'}",
+              "type": "Object",
+              "handle": "b1dbb62d053c9e17:7:v:36",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "require",
+              "value": "\u0192 require(path) {\r\n    return mod.require(path);\r\n  }",
+              "type": "Function",
+              "handle": "b1dbb62d053c9e17:7:v:30",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "result",
+              "value": "42",
+              "type": "number",
+              "handle": null,
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "this",
+              "value": "Object",
+              "type": "Object",
+              "handle": "b1dbb62d053c9e17:7:v:38",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            }
+          ],
+          "start": 0,
+          "truncated": false,
+          "next_start": null,
+          "handle": "b1dbb62d053c9e17:7:v:27"
+        }
+      }
+    },
+    {
+      "command": [
+        "break",
+        "remove",
+        "ts-walk.ts"
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "b1dbb62d053c9e17",
+        "generation": 7,
+        "reason": "step",
+        "exit_code": null,
+        "thread": 0,
+        "language": "typescript",
+        "target": "node",
+        "processes": {
+          "helper": 50020,
+          "adapter": 84204,
+          "target": null
+        },
+        "recording": {
+          "id": "b1dbb62d053c9e17",
+          "truncated": false,
+          "error": null
+        },
+        "breakpoints": [],
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "continue"
+      ],
+      "response": {
+        "ok": true,
+        "state": "exited",
+        "phase": "done",
+        "session": "b1dbb62d053c9e17",
+        "generation": 9,
+        "reason": null,
+        "exit_code": null,
+        "thread": 0,
+        "language": "typescript",
+        "target": "node",
+        "processes": {
+          "helper": 50020,
+          "adapter": 84204,
+          "target": null
+        },
+        "recording": {
+          "id": "b1dbb62d053c9e17",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "output"
+      ],
+      "response": {
+        "ok": true,
+        "state": "exited",
+        "phase": "done",
+        "session": "b1dbb62d053c9e17",
+        "generation": 10,
+        "reason": null,
+        "exit_code": null,
+        "thread": 0,
+        "language": "typescript",
+        "target": "node",
+        "processes": {
+          "helper": 50020,
+          "adapter": 84204,
+          "target": null
+        },
+        "recording": {
+          "id": "b1dbb62d053c9e17",
+          "truncated": false,
+          "error": null
+        },
+        "output": {
+          "stdout": {
+            "text": "C:\\Program Files\\nodejs\\node.exe .\\ts-walk.js\n42 test\n",
+            "truncated": false,
+            "dropped_chars": 0
+          },
+          "stderr": {
+            "text": "Debugger attached.\r\nWaiting for the debugger to disconnect...\r\n",
+            "truncated": false,
+            "dropped_chars": 0
+          },
+          "adapter": {
+            "text": "Debug server listening at \\\\.\\pipe\\aidebug-b1dbb62d053c9e17-14656f2b980ec5ead62e762f05646075\n",
+            "truncated": false,
+            "dropped_chars": 0
+          }
+        },
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "stop"
+      ],
+      "response": {
+        "ok": true,
+        "state": "exited",
+        "phase": "closed",
+        "session": "b1dbb62d053c9e17",
+        "generation": 11,
+        "reason": null,
+        "exit_code": null,
+        "thread": 0,
+        "language": "typescript",
+        "target": "node",
+        "processes": {
+          "helper": 50020,
+          "adapter": 84204,
+          "target": null
+        },
+        "recording": {
+          "id": "b1dbb62d053c9e17",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "launch",
+        "--adapter",
+        "C:\\Users\\ayoub\\Videos\\claude\\aidebug\\.tools\\js-debug\\src\\dapDebugServer.js",
+        "--run",
+        "--uncaught",
+        "error.js"
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "6d00771f495e8f65",
+        "generation": 1,
+        "reason": "exception",
+        "exit_code": null,
+        "thread": 0,
+        "language": "javascript",
+        "target": "node",
+        "processes": {
+          "helper": 82276,
+          "adapter": 94296,
+          "target": null
+        },
+        "recording": {
+          "id": "6d00771f495e8f65",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false,
+        "stack": {
+          "frames": [
+            {
+              "handle": "6d00771f495e8f65:1:f:0",
+              "name": "global.fail",
+              "file": "c:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-languages-4lr70wc0\\error.js",
+              "line": 3,
+              "truncated": false
+            },
+            {
+              "handle": "6d00771f495e8f65:1:f:1",
+              "name": "<anonymous>",
+              "file": "c:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-languages-4lr70wc0\\error.js",
+              "line": 5,
+              "truncated": false
+            },
+            {
+              "handle": "6d00771f495e8f65:1:f:2",
+              "name": "<anonymous>",
+              "file": "<node_internals>/internal/modules/cjs/loader",
+              "line": 1871,
+              "truncated": false
+            },
+            {
+              "handle": "6d00771f495e8f65:1:f:3",
+              "name": "<anonymous>",
+              "file": "<node_internals>/internal/modules/cjs/loader",
+              "line": 2002,
+              "truncated": false
+            },
+            {
+              "handle": "6d00771f495e8f65:1:f:4",
+              "name": "<anonymous>",
+              "file": "<node_internals>/internal/modules/cjs/loader",
+              "line": 1594,
+              "truncated": false
+            },
+            {
+              "handle": "6d00771f495e8f65:1:f:5",
+              "name": "<anonymous>",
+              "file": "<node_internals>/internal/modules/cjs/loader",
+              "line": 1396,
+              "truncated": false
+            },
+            {
+              "handle": "6d00771f495e8f65:1:f:6",
+              "name": "wrapModuleLoad",
+              "file": "<node_internals>/internal/modules/cjs/loader",
+              "line": 255,
+              "truncated": false
+            },
+            {
+              "handle": "6d00771f495e8f65:1:f:7",
+              "name": "function Module(id = '', parent) {.executeUserEntryPoint",
+              "file": "<node_internals>/internal/modules/run_main",
+              "line": 154,
+              "truncated": false
+            },
+            {
+              "handle": "6d00771f495e8f65:1:f:8",
+              "name": "<anonymous>",
+              "file": "<node_internals>/internal/main/run_main_module",
+              "line": 33,
+              "truncated": false
+            }
+          ],
+          "truncated": false
+        },
+        "location": {
+          "file": "c:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-languages-4lr70wc0\\error.js",
+          "line": 3,
+          "source": [
+            {
+              "line": 1,
+              "text": "function fail() {",
+              "truncated": false
+            },
+            {
+              "line": 2,
+              "text": "  const divisor = 0;",
+              "truncated": false
+            },
+            {
+              "line": 3,
+              "text": "  throw new Error(\"bad divisor\");",
+              "truncated": false
+            },
+            {
+              "line": 4,
+              "text": "}",
+              "truncated": false
+            },
+            {
+              "line": 5,
+              "text": "fail();",
+              "truncated": false
+            }
+          ],
+          "frame": "6d00771f495e8f65:1:f:0"
+        },
+        "locals": {
+          "items": [
+            {
+              "name": "divisor",
+              "value": "0",
+              "type": "number",
+              "handle": null,
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "this",
+              "value": "global",
+              "type": "global",
+              "handle": "6d00771f495e8f65:1:v:4",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            }
+          ],
+          "start": 0,
+          "truncated": false,
+          "next_start": null,
+          "handle": "6d00771f495e8f65:1:v:1"
+        }
+      }
+    },
+    {
+      "command": [
+        "exceptions",
+        "off"
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "6d00771f495e8f65",
+        "generation": 1,
+        "reason": "exception",
+        "exit_code": null,
+        "thread": 0,
+        "language": "javascript",
+        "target": "node",
+        "processes": {
+          "helper": 82276,
+          "adapter": 94296,
+          "target": null
+        },
+        "recording": {
+          "id": "6d00771f495e8f65",
+          "truncated": false,
+          "error": null
+        },
+        "uncaught": false,
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "continue"
+      ],
+      "response": {
+        "ok": true,
+        "state": "exited",
+        "phase": "done",
+        "session": "6d00771f495e8f65",
+        "generation": 3,
+        "reason": null,
+        "exit_code": null,
+        "thread": 0,
+        "language": "javascript",
+        "target": "node",
+        "processes": {
+          "helper": 82276,
+          "adapter": 94296,
+          "target": null
+        },
+        "recording": {
+          "id": "6d00771f495e8f65",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "stop"
+      ],
+      "response": {
+        "ok": true,
+        "state": "exited",
+        "phase": "closed",
+        "session": "6d00771f495e8f65",
+        "generation": 5,
+        "reason": null,
+        "exit_code": null,
+        "thread": 0,
+        "language": "javascript",
+        "target": "node",
+        "processes": {
+          "helper": 82276,
+          "adapter": 94296,
+          "target": null
+        },
+        "recording": {
+          "id": "6d00771f495e8f65",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "launch",
+        "--adapter",
+        "C:\\Users\\ayoub\\Videos\\claude\\aidebug\\.tools\\js-debug\\src\\dapDebugServer.js",
+        "--run",
+        "running.js"
+      ],
+      "response": {
+        "ok": true,
+        "state": "running",
+        "phase": "ready",
+        "session": "5e1f8e1d5b32239c",
+        "generation": 0,
+        "reason": null,
+        "exit_code": null,
+        "thread": null,
+        "language": "javascript",
+        "target": "node",
+        "processes": {
+          "helper": 60688,
+          "adapter": 90540,
+          "target": null
+        },
+        "recording": {
+          "id": "5e1f8e1d5b32239c",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": true
+      }
+    },
+    {
+      "command": [
+        "output"
+      ],
+      "response": {
+        "ok": true,
+        "state": "running",
+        "phase": "ready",
+        "session": "5e1f8e1d5b32239c",
+        "generation": 0,
+        "reason": null,
+        "exit_code": null,
+        "thread": null,
+        "language": "javascript",
+        "target": "node",
+        "processes": {
+          "helper": 60688,
+          "adapter": 90540,
+          "target": null
+        },
+        "recording": {
+          "id": "5e1f8e1d5b32239c",
+          "truncated": false,
+          "error": null
+        },
+        "output": {
+          "stdout": {
+            "text": "C:\\Program Files\\nodejs\\node.exe .\\running.js\npid 23540\n",
+            "truncated": false,
+            "dropped_chars": 0
+          },
+          "stderr": {
+            "text": "Debugger attached.\r\n",
+            "truncated": false,
+            "dropped_chars": 0
+          },
+          "adapter": {
+            "text": "Debug server listening at \\\\.\\pipe\\aidebug-5e1f8e1d5b32239c-9027c63572642d37606df4fabfbc5377\n",
+            "truncated": false,
+            "dropped_chars": 0
+          }
+        },
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "stop"
+      ],
+      "response": {
+        "ok": true,
+        "state": "exited",
+        "phase": "closed",
+        "session": "5e1f8e1d5b32239c",
+        "generation": 2,
+        "reason": null,
+        "exit_code": null,
+        "thread": null,
+        "language": "javascript",
+        "target": "node",
+        "processes": {
+          "helper": 60688,
+          "adapter": 90540,
+          "target": null
+        },
+        "recording": {
+          "id": "5e1f8e1d5b32239c",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "launch",
+        "--language",
+        "typescript",
+        "--target",
+        "browser",
+        "--adapter",
+        "C:\\Users\\ayoub\\Videos\\claude\\aidebug\\.tools\\js-debug\\src\\dapDebugServer.js",
+        "--breakpoint",
+        "ui.ts:4",
+        "http://127.0.0.1:50135/index.html"
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "ab55f5be81af3e38",
+        "generation": 1,
+        "reason": "breakpoint",
+        "exit_code": null,
+        "thread": 0,
+        "language": "typescript",
+        "target": "browser",
+        "processes": {
+          "helper": 73812,
+          "adapter": 91024,
+          "target": null
+        },
+        "recording": {
+          "id": "ab55f5be81af3e38",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false,
+        "stack": {
+          "frames": [
+            {
+              "handle": "ab55f5be81af3e38:1:f:0",
+              "name": "button#save.save",
+              "file": "c:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-languages-4lr70wc0\\ui.ts",
+              "line": 4,
+              "truncated": false
+            },
+            {
+              "handle": "ab55f5be81af3e38:1:f:1",
+              "name": "<anonymous>",
+              "file": "c:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-languages-4lr70wc0\\ui.ts",
+              "line": 9,
+              "truncated": false
+            }
+          ],
+          "truncated": false
+        },
+        "location": {
+          "file": "c:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-languages-4lr70wc0\\ui.ts",
+          "line": 4,
+          "source": [
+            {
+              "line": 2,
+              "text": "  const quantity: number = Number((document.getElementById(\"quantity\") as HTMLInputElement).value);",
+              "truncated": false
+            },
+            {
+              "line": 3,
+              "text": "  const price: number = 21;",
+              "truncated": false
+            },
+            {
+              "line": 4,
+              "text": "  const total: number = quantity * price;",
+              "truncated": false
+            },
+            {
+              "line": 5,
+              "text": "  document.getElementById(\"result\")!.textContent = String(total);",
+              "truncated": false
+            },
+            {
+              "line": 6,
+              "text": "  console.log(\"UI total\", total);",
+              "truncated": false
+            }
+          ],
+          "frame": "ab55f5be81af3e38:1:f:0"
+        },
+        "locals": {
+          "items": [
+            {
+              "name": "price",
+              "value": "21",
+              "type": "number",
+              "handle": null,
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "quantity",
+              "value": "2",
+              "type": "number",
+              "handle": null,
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "this",
+              "value": "<button id=\"save\">...</button>",
+              "type": "object",
+              "handle": "ab55f5be81af3e38:1:v:5",
+              "named": null,
+              "indexed": null,
+              "truncated": true
+            }
+          ],
+          "start": 0,
+          "truncated": false,
+          "next_start": null,
+          "handle": "ab55f5be81af3e38:1:v:1"
+        }
+      }
+    },
+    {
+      "command": [
+        "step",
+        "over"
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "ab55f5be81af3e38",
+        "generation": 3,
+        "reason": "step",
+        "exit_code": null,
+        "thread": 0,
+        "language": "typescript",
+        "target": "browser",
+        "processes": {
+          "helper": 73812,
+          "adapter": 91024,
+          "target": null
+        },
+        "recording": {
+          "id": "ab55f5be81af3e38",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false,
+        "stack": {
+          "frames": [
+            {
+              "handle": "ab55f5be81af3e38:3:f:2",
+              "name": "button#save.save",
+              "file": "c:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-languages-4lr70wc0\\ui.ts",
+              "line": 5,
+              "truncated": false
+            },
+            {
+              "handle": "ab55f5be81af3e38:3:f:3",
+              "name": "<anonymous>",
+              "file": "c:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-languages-4lr70wc0\\ui.ts",
+              "line": 9,
+              "truncated": false
+            }
+          ],
+          "truncated": false
+        },
+        "location": {
+          "file": "c:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-languages-4lr70wc0\\ui.ts",
+          "line": 5,
+          "source": [
+            {
+              "line": 3,
+              "text": "  const price: number = 21;",
+              "truncated": false
+            },
+            {
+              "line": 4,
+              "text": "  const total: number = quantity * price;",
+              "truncated": false
+            },
+            {
+              "line": 5,
+              "text": "  document.getElementById(\"result\")!.textContent = String(total);",
+              "truncated": false
+            },
+            {
+              "line": 6,
+              "text": "  console.log(\"UI total\", total);",
+              "truncated": false
+            },
+            {
+              "line": 7,
+              "text": "}",
+              "truncated": false
+            }
+          ],
+          "frame": "ab55f5be81af3e38:3:f:2"
+        },
+        "locals": {
+          "items": [
+            {
+              "name": "price",
+              "value": "21",
+              "type": "number",
+              "handle": null,
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "quantity",
+              "value": "2",
+              "type": "number",
+              "handle": null,
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "this",
+              "value": "<button id=\"save\">...</button>",
+              "type": "object",
+              "handle": "ab55f5be81af3e38:3:v:11",
+              "named": null,
+              "indexed": null,
+              "truncated": true
+            },
+            {
+              "name": "total",
+              "value": "42",
+              "type": "number",
+              "handle": null,
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            }
+          ],
+          "start": 0,
+          "truncated": false,
+          "next_start": null,
+          "handle": "ab55f5be81af3e38:3:v:6"
+        }
+      }
+    },
+    {
+      "command": [
+        "continue"
+      ],
+      "response": {
+        "ok": true,
+        "state": "running",
+        "phase": "ready",
+        "session": "ab55f5be81af3e38",
+        "generation": 4,
+        "reason": null,
+        "exit_code": null,
+        "thread": 0,
+        "language": "typescript",
+        "target": "browser",
+        "processes": {
+          "helper": 73812,
+          "adapter": 91024,
+          "target": null
+        },
+        "recording": {
+          "id": "ab55f5be81af3e38",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": true
+      }
+    },
+    {
+      "command": [
+        "output"
+      ],
+      "response": {
+        "ok": true,
+        "state": "running",
+        "phase": "ready",
+        "session": "ab55f5be81af3e38",
+        "generation": 4,
+        "reason": null,
+        "exit_code": null,
+        "thread": 0,
+        "language": "typescript",
+        "target": "browser",
+        "processes": {
+          "helper": 73812,
+          "adapter": 91024,
+          "target": null
+        },
+        "recording": {
+          "id": "ab55f5be81af3e38",
+          "truncated": false,
+          "error": null
+        },
+        "output": {
+          "stdout": {
+            "text": "UI total 42\n",
+            "truncated": false,
+            "dropped_chars": 0
+          },
+          "stderr": {
+            "text": "",
+            "truncated": false,
+            "dropped_chars": 0
+          },
+          "adapter": {
+            "text": "Debug server listening at \\\\.\\pipe\\aidebug-ab55f5be81af3e38-e2cd4a10fc09da98f0cb62aff6610d6b\n(node:91024) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.\n(Use `node --trace-deprecation ...` to show where the warning was created)\n",
+            "truncated": false,
+            "dropped_chars": 0
+          }
+        },
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "stop"
+      ],
+      "response": {
+        "ok": true,
+        "state": "exited",
+        "phase": "closed",
+        "session": "ab55f5be81af3e38",
+        "generation": 6,
+        "reason": null,
+        "exit_code": null,
+        "thread": 0,
+        "language": "typescript",
+        "target": "browser",
+        "processes": {
+          "helper": 73812,
+          "adapter": 91024,
+          "target": null
+        },
+        "recording": {
+          "id": "ab55f5be81af3e38",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "launch",
+        "--language",
+        "rust",
+        "--adapter",
+        "C:\\Users\\ayoub\\Videos\\claude\\aidebug\\.tools\\codelldb\\extension\\adapter\\codelldb.exe",
+        "--run",
+        "--breakpoint",
+        "walk.rs:10",
+        "C:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-languages-4lr70wc0\\walk.exe"
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "417130fbd88527e1",
+        "generation": 1,
+        "reason": "breakpoint",
+        "exit_code": null,
+        "thread": 30156,
+        "language": "rust",
+        "target": "process",
+        "processes": {
+          "helper": 84096,
+          "adapter": 25248,
+          "target": null
+        },
+        "recording": {
+          "id": "417130fbd88527e1",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false,
+        "stack": {
+          "frames": [
+            {
+              "handle": "417130fbd88527e1:1:f:1001",
+              "name": "walk::main",
+              "file": "C:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-languages-4lr70wc0\\walk.rs",
+              "line": 10,
+              "truncated": false
+            },
+            {
+              "handle": "417130fbd88527e1:1:f:1002",
+              "name": "core::ops::function::FnOnce::call_once<void (*)(),tuple$<> >",
+              "file": "",
+              "line": 230,
+              "truncated": false
+            },
+            {
+              "handle": "417130fbd88527e1:1:f:1003",
+              "name": "std::sys::backtrace::__rust_begin_short_backtrace<void (*)(),tuple$<> >",
+              "file": "",
+              "line": 22,
+              "truncated": false
+            },
+            {
+              "handle": "417130fbd88527e1:1:f:1004",
+              "name": "std::rt::lang_start::closure$0<tuple$<> >",
+              "file": "",
+              "line": 41,
+              "truncated": false
+            },
+            {
+              "handle": "417130fbd88527e1:1:f:1005",
+              "name": "core::ops::function::impls::impl$2::call_once",
+              "file": "",
+              "line": 42,
+              "truncated": false
+            },
+            {
+              "handle": "417130fbd88527e1:1:f:1006",
+              "name": "std::panicking::catch_unwind::do_call",
+              "file": "",
+              "line": 40,
+              "truncated": false
+            },
+            {
+              "handle": "417130fbd88527e1:1:f:1007",
+              "name": "std::panicking::catch_unwind",
+              "file": "",
+              "line": 40,
+              "truncated": false
+            },
+            {
+              "handle": "417130fbd88527e1:1:f:1008",
+              "name": "std::panic::catch_unwind",
+              "file": "",
+              "line": 40,
+              "truncated": false
+            },
+            {
+              "handle": "417130fbd88527e1:1:f:1009",
+              "name": "std::rt::lang_start_internal::closure$0",
+              "file": "",
+              "line": 40,
+              "truncated": false
+            },
+            {
+              "handle": "417130fbd88527e1:1:f:1010",
+              "name": "std::panicking::catch_unwind::do_call",
+              "file": "",
+              "line": 11,
+              "truncated": false
+            },
+            {
+              "handle": "417130fbd88527e1:1:f:1011",
+              "name": "std::panicking::catch_unwind",
+              "file": "",
+              "line": 11,
+              "truncated": false
+            },
+            {
+              "handle": "417130fbd88527e1:1:f:1012",
+              "name": "std::panic::catch_unwind",
+              "file": "",
+              "line": 11,
+              "truncated": false
+            },
+            {
+              "handle": "417130fbd88527e1:1:f:1013",
+              "name": "std::rt::lang_start_internal",
+              "file": "",
+              "line": 11,
+              "truncated": false
+            },
+            {
+              "handle": "417130fbd88527e1:1:f:1014",
+              "name": "std::rt::lang_start::<()>",
+              "file": "",
+              "line": 16,
+              "truncated": false
+            },
+            {
+              "handle": "417130fbd88527e1:1:f:1015",
+              "name": "main",
+              "file": "",
+              "line": 9,
+              "truncated": false
+            },
+            {
+              "handle": "417130fbd88527e1:1:f:1016",
+              "name": "invoke_main",
+              "file": "",
+              "line": 184,
+              "truncated": false
+            },
+            {
+              "handle": "417130fbd88527e1:1:f:1017",
+              "name": "__scrt_common_main_seh",
+              "file": "",
+              "line": 175,
+              "truncated": false
+            },
+            {
+              "handle": "417130fbd88527e1:1:f:1018",
+              "name": "BaseThreadInitThunk",
+              "file": "",
+              "line": 11,
+              "truncated": false
+            },
+            {
+              "handle": "417130fbd88527e1:1:f:1019",
+              "name": "RtlUserThreadStart",
+              "file": "",
+              "line": 15,
+              "truncated": false
+            }
+          ],
+          "truncated": false
+        },
+        "location": {
+          "file": "C:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-languages-4lr70wc0\\walk.rs",
+          "line": 10,
+          "source": [
+            {
+              "line": 8,
+              "text": "    let known = 41;",
+              "truncated": false
+            },
+            {
+              "line": 9,
+              "text": "    let nested = [3, 5, 8];",
+              "truncated": false
+            },
+            {
+              "line": 10,
+              "text": "    let result = add_one(known);",
+              "truncated": false
+            },
+            {
+              "line": 11,
+              "text": "    println!(\"{} {:?}\", result, nested);",
+              "truncated": false
+            },
+            {
+              "line": 12,
+              "text": "}",
+              "truncated": false
+            }
+          ],
+          "frame": "417130fbd88527e1:1:f:1001"
+        },
+        "locals": {
+          "items": [
+            {
+              "name": "known",
+              "value": "41",
+              "type": "int",
+              "handle": null,
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "nested",
+              "value": "{3, 5, 8}",
+              "type": "int[3]",
+              "handle": "417130fbd88527e1:1:v:1024",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            }
+          ],
+          "start": 0,
+          "truncated": false,
+          "next_start": null,
+          "handle": "417130fbd88527e1:1:v:1020"
+        }
+      }
+    },
+    {
+      "command": [
+        "variables",
+        "417130fbd88527e1:1:v:1024"
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "417130fbd88527e1",
+        "generation": 1,
+        "reason": "breakpoint",
+        "exit_code": null,
+        "thread": 30156,
+        "language": "rust",
+        "target": "process",
+        "processes": {
+          "helper": 84096,
+          "adapter": 25248,
+          "target": null
+        },
+        "recording": {
+          "id": "417130fbd88527e1",
+          "truncated": false,
+          "error": null
+        },
+        "variables": {
+          "items": [
+            {
+              "name": "[0]",
+              "value": "3",
+              "type": "int",
+              "handle": null,
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "[1]",
+              "value": "5",
+              "type": "int",
+              "handle": null,
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "[2]",
+              "value": "8",
+              "type": "int",
+              "handle": null,
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "[raw]",
+              "value": "int[3]",
+              "type": "",
+              "handle": "417130fbd88527e1:1:v:1025",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            }
+          ],
+          "start": 0,
+          "truncated": false,
+          "next_start": null
+        },
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "step",
+        "into"
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "417130fbd88527e1",
+        "generation": 3,
+        "reason": "step",
+        "exit_code": null,
+        "thread": 30156,
+        "language": "rust",
+        "target": "process",
+        "processes": {
+          "helper": 84096,
+          "adapter": 25248,
+          "target": null
+        },
+        "recording": {
+          "id": "417130fbd88527e1",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false,
+        "stack": {
+          "frames": [
+            {
+              "handle": "417130fbd88527e1:3:f:1001",
+              "name": "walk::add_one",
+              "file": "C:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-languages-4lr70wc0\\walk.rs",
+              "line": 3,
+              "truncated": false
+            },
+            {
+              "handle": "417130fbd88527e1:3:f:1002",
+              "name": "walk::main",
+              "file": "C:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-languages-4lr70wc0\\walk.rs",
+              "line": 10,
+              "truncated": false
+            },
+            {
+              "handle": "417130fbd88527e1:3:f:1003",
+              "name": "core::ops::function::FnOnce::call_once<void (*)(),tuple$<> >",
+              "file": "",
+              "line": 230,
+              "truncated": false
+            },
+            {
+              "handle": "417130fbd88527e1:3:f:1004",
+              "name": "std::sys::backtrace::__rust_begin_short_backtrace<void (*)(),tuple$<> >",
+              "file": "",
+              "line": 22,
+              "truncated": false
+            },
+            {
+              "handle": "417130fbd88527e1:3:f:1005",
+              "name": "std::rt::lang_start::closure$0<tuple$<> >",
+              "file": "",
+              "line": 41,
+              "truncated": false
+            },
+            {
+              "handle": "417130fbd88527e1:3:f:1006",
+              "name": "core::ops::function::impls::impl$2::call_once",
+              "file": "",
+              "line": 42,
+              "truncated": false
+            },
+            {
+              "handle": "417130fbd88527e1:3:f:1007",
+              "name": "std::panicking::catch_unwind::do_call",
+              "file": "",
+              "line": 40,
+              "truncated": false
+            },
+            {
+              "handle": "417130fbd88527e1:3:f:1008",
+              "name": "std::panicking::catch_unwind",
+              "file": "",
+              "line": 40,
+              "truncated": false
+            },
+            {
+              "handle": "417130fbd88527e1:3:f:1009",
+              "name": "std::panic::catch_unwind",
+              "file": "",
+              "line": 40,
+              "truncated": false
+            },
+            {
+              "handle": "417130fbd88527e1:3:f:1010",
+              "name": "std::rt::lang_start_internal::closure$0",
+              "file": "",
+              "line": 40,
+              "truncated": false
+            },
+            {
+              "handle": "417130fbd88527e1:3:f:1011",
+              "name": "std::panicking::catch_unwind::do_call",
+              "file": "",
+              "line": 11,
+              "truncated": false
+            },
+            {
+              "handle": "417130fbd88527e1:3:f:1012",
+              "name": "std::panicking::catch_unwind",
+              "file": "",
+              "line": 11,
+              "truncated": false
+            },
+            {
+              "handle": "417130fbd88527e1:3:f:1013",
+              "name": "std::panic::catch_unwind",
+              "file": "",
+              "line": 11,
+              "truncated": false
+            },
+            {
+              "handle": "417130fbd88527e1:3:f:1014",
+              "name": "std::rt::lang_start_internal",
+              "file": "",
+              "line": 11,
+              "truncated": false
+            },
+            {
+              "handle": "417130fbd88527e1:3:f:1015",
+              "name": "std::rt::lang_start::<()>",
+              "file": "",
+              "line": 16,
+              "truncated": false
+            },
+            {
+              "handle": "417130fbd88527e1:3:f:1016",
+              "name": "main",
+              "file": "",
+              "line": 9,
+              "truncated": false
+            },
+            {
+              "handle": "417130fbd88527e1:3:f:1017",
+              "name": "invoke_main",
+              "file": "",
+              "line": 184,
+              "truncated": false
+            },
+            {
+              "handle": "417130fbd88527e1:3:f:1018",
+              "name": "__scrt_common_main_seh",
+              "file": "",
+              "line": 175,
+              "truncated": false
+            },
+            {
+              "handle": "417130fbd88527e1:3:f:1019",
+              "name": "BaseThreadInitThunk",
+              "file": "",
+              "line": 11,
+              "truncated": false
+            },
+            {
+              "handle": "417130fbd88527e1:3:f:1026",
+              "name": "RtlUserThreadStart",
+              "file": "",
+              "line": 15,
+              "truncated": false
+            }
+          ],
+          "truncated": false
+        },
+        "location": {
+          "file": "C:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-languages-4lr70wc0\\walk.rs",
+          "line": 3,
+          "source": [
+            {
+              "line": 1,
+              "text": "#[inline(never)]",
+              "truncated": false
+            },
+            {
+              "line": 2,
+              "text": "fn add_one(value: i32) -> i32 {",
+              "truncated": false
+            },
+            {
+              "line": 3,
+              "text": "    let answer = value + 1;",
+              "truncated": false
+            },
+            {
+              "line": 4,
+              "text": "    answer",
+              "truncated": false
+            },
+            {
+              "line": 5,
+              "text": "}",
+              "truncated": false
+            }
+          ],
+          "frame": "417130fbd88527e1:3:f:1001"
+        },
+        "locals": {
+          "items": [
+            {
+              "name": "value",
+              "value": "41",
+              "type": "int",
+              "handle": null,
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            }
+          ],
+          "start": 0,
+          "truncated": false,
+          "next_start": null,
+          "handle": "417130fbd88527e1:3:v:1020"
+        }
+      }
+    },
+    {
+      "command": [
+        "step",
+        "over"
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "417130fbd88527e1",
+        "generation": 5,
+        "reason": "step",
+        "exit_code": null,
+        "thread": 30156,
+        "language": "rust",
+        "target": "process",
+        "processes": {
+          "helper": 84096,
+          "adapter": 25248,
+          "target": null
+        },
+        "recording": {
+          "id": "417130fbd88527e1",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false,
+        "stack": {
+          "frames": [
+            {
+              "handle": "417130fbd88527e1:5:f:1001",
+              "name": "walk::add_one",
+              "file": "C:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-languages-4lr70wc0\\walk.rs",
+              "line": 5,
+              "truncated": false
+            },
+            {
+              "handle": "417130fbd88527e1:5:f:1002",
+              "name": "walk::main",
+              "file": "C:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-languages-4lr70wc0\\walk.rs",
+              "line": 10,
+              "truncated": false
+            },
+            {
+              "handle": "417130fbd88527e1:5:f:1003",
+              "name": "core::ops::function::FnOnce::call_once<void (*)(),tuple$<> >",
+              "file": "",
+              "line": 230,
+              "truncated": false
+            },
+            {
+              "handle": "417130fbd88527e1:5:f:1004",
+              "name": "std::sys::backtrace::__rust_begin_short_backtrace<void (*)(),tuple$<> >",
+              "file": "",
+              "line": 22,
+              "truncated": false
+            },
+            {
+              "handle": "417130fbd88527e1:5:f:1005",
+              "name": "std::rt::lang_start::closure$0<tuple$<> >",
+              "file": "",
+              "line": 41,
+              "truncated": false
+            },
+            {
+              "handle": "417130fbd88527e1:5:f:1006",
+              "name": "core::ops::function::impls::impl$2::call_once",
+              "file": "",
+              "line": 42,
+              "truncated": false
+            },
+            {
+              "handle": "417130fbd88527e1:5:f:1007",
+              "name": "std::panicking::catch_unwind::do_call",
+              "file": "",
+              "line": 40,
+              "truncated": false
+            },
+            {
+              "handle": "417130fbd88527e1:5:f:1008",
+              "name": "std::panicking::catch_unwind",
+              "file": "",
+              "line": 40,
+              "truncated": false
+            },
+            {
+              "handle": "417130fbd88527e1:5:f:1009",
+              "name": "std::panic::catch_unwind",
+              "file": "",
+              "line": 40,
+              "truncated": false
+            },
+            {
+              "handle": "417130fbd88527e1:5:f:1010",
+              "name": "std::rt::lang_start_internal::closure$0",
+              "file": "",
+              "line": 40,
+              "truncated": false
+            },
+            {
+              "handle": "417130fbd88527e1:5:f:1011",
+              "name": "std::panicking::catch_unwind::do_call",
+              "file": "",
+              "line": 11,
+              "truncated": false
+            },
+            {
+              "handle": "417130fbd88527e1:5:f:1012",
+              "name": "std::panicking::catch_unwind",
+              "file": "",
+              "line": 11,
+              "truncated": false
+            },
+            {
+              "handle": "417130fbd88527e1:5:f:1013",
+              "name": "std::panic::catch_unwind",
+              "file": "",
+              "line": 11,
+              "truncated": false
+            },
+            {
+              "handle": "417130fbd88527e1:5:f:1014",
+              "name": "std::rt::lang_start_internal",
+              "file": "",
+              "line": 11,
+              "truncated": false
+            },
+            {
+              "handle": "417130fbd88527e1:5:f:1015",
+              "name": "std::rt::lang_start::<()>",
+              "file": "",
+              "line": 16,
+              "truncated": false
+            },
+            {
+              "handle": "417130fbd88527e1:5:f:1016",
+              "name": "main",
+              "file": "",
+              "line": 9,
+              "truncated": false
+            },
+            {
+              "handle": "417130fbd88527e1:5:f:1017",
+              "name": "invoke_main",
+              "file": "",
+              "line": 184,
+              "truncated": false
+            },
+            {
+              "handle": "417130fbd88527e1:5:f:1018",
+              "name": "__scrt_common_main_seh",
+              "file": "",
+              "line": 175,
+              "truncated": false
+            },
+            {
+              "handle": "417130fbd88527e1:5:f:1019",
+              "name": "BaseThreadInitThunk",
+              "file": "",
+              "line": 11,
+              "truncated": false
+            },
+            {
+              "handle": "417130fbd88527e1:5:f:1026",
+              "name": "RtlUserThreadStart",
+              "file": "",
+              "line": 15,
+              "truncated": false
+            }
+          ],
+          "truncated": false
+        },
+        "location": {
+          "file": "C:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-languages-4lr70wc0\\walk.rs",
+          "line": 5,
+          "source": [
+            {
+              "line": 3,
+              "text": "    let answer = value + 1;",
+              "truncated": false
+            },
+            {
+              "line": 4,
+              "text": "    answer",
+              "truncated": false
+            },
+            {
+              "line": 5,
+              "text": "}",
+              "truncated": false
+            },
+            {
+              "line": 6,
+              "text": "",
+              "truncated": false
+            },
+            {
+              "line": 7,
+              "text": "fn main() {",
+              "truncated": false
+            }
+          ],
+          "frame": "417130fbd88527e1:5:f:1001"
+        },
+        "locals": {
+          "items": [
+            {
+              "name": "value",
+              "value": "41",
+              "type": "int",
+              "handle": null,
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            }
+          ],
+          "start": 0,
+          "truncated": false,
+          "next_start": null,
+          "handle": "417130fbd88527e1:5:v:1020"
+        }
+      }
+    },
+    {
+      "command": [
+        "step",
+        "out"
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "417130fbd88527e1",
+        "generation": 7,
+        "reason": "step",
+        "exit_code": null,
+        "thread": 30156,
+        "language": "rust",
+        "target": "process",
+        "processes": {
+          "helper": 84096,
+          "adapter": 25248,
+          "target": null
+        },
+        "recording": {
+          "id": "417130fbd88527e1",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false,
+        "stack": {
+          "frames": [
+            {
+              "handle": "417130fbd88527e1:7:f:1001",
+              "name": "walk::main",
+              "file": "C:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-languages-4lr70wc0\\walk.rs",
+              "line": 10,
+              "truncated": false
+            },
+            {
+              "handle": "417130fbd88527e1:7:f:1002",
+              "name": "core::ops::function::FnOnce::call_once<void (*)(),tuple$<> >",
+              "file": "",
+              "line": 230,
+              "truncated": false
+            },
+            {
+              "handle": "417130fbd88527e1:7:f:1003",
+              "name": "std::sys::backtrace::__rust_begin_short_backtrace<void (*)(),tuple$<> >",
+              "file": "",
+              "line": 22,
+              "truncated": false
+            },
+            {
+              "handle": "417130fbd88527e1:7:f:1004",
+              "name": "std::rt::lang_start::closure$0<tuple$<> >",
+              "file": "",
+              "line": 41,
+              "truncated": false
+            },
+            {
+              "handle": "417130fbd88527e1:7:f:1005",
+              "name": "core::ops::function::impls::impl$2::call_once",
+              "file": "",
+              "line": 42,
+              "truncated": false
+            },
+            {
+              "handle": "417130fbd88527e1:7:f:1006",
+              "name": "std::panicking::catch_unwind::do_call",
+              "file": "",
+              "line": 40,
+              "truncated": false
+            },
+            {
+              "handle": "417130fbd88527e1:7:f:1007",
+              "name": "std::panicking::catch_unwind",
+              "file": "",
+              "line": 40,
+              "truncated": false
+            },
+            {
+              "handle": "417130fbd88527e1:7:f:1008",
+              "name": "std::panic::catch_unwind",
+              "file": "",
+              "line": 40,
+              "truncated": false
+            },
+            {
+              "handle": "417130fbd88527e1:7:f:1009",
+              "name": "std::rt::lang_start_internal::closure$0",
+              "file": "",
+              "line": 40,
+              "truncated": false
+            },
+            {
+              "handle": "417130fbd88527e1:7:f:1010",
+              "name": "std::panicking::catch_unwind::do_call",
+              "file": "",
+              "line": 11,
+              "truncated": false
+            },
+            {
+              "handle": "417130fbd88527e1:7:f:1011",
+              "name": "std::panicking::catch_unwind",
+              "file": "",
+              "line": 11,
+              "truncated": false
+            },
+            {
+              "handle": "417130fbd88527e1:7:f:1012",
+              "name": "std::panic::catch_unwind",
+              "file": "",
+              "line": 11,
+              "truncated": false
+            },
+            {
+              "handle": "417130fbd88527e1:7:f:1013",
+              "name": "std::rt::lang_start_internal",
+              "file": "",
+              "line": 11,
+              "truncated": false
+            },
+            {
+              "handle": "417130fbd88527e1:7:f:1014",
+              "name": "std::rt::lang_start::<()>",
+              "file": "",
+              "line": 16,
+              "truncated": false
+            },
+            {
+              "handle": "417130fbd88527e1:7:f:1015",
+              "name": "main",
+              "file": "",
+              "line": 9,
+              "truncated": false
+            },
+            {
+              "handle": "417130fbd88527e1:7:f:1016",
+              "name": "invoke_main",
+              "file": "",
+              "line": 184,
+              "truncated": false
+            },
+            {
+              "handle": "417130fbd88527e1:7:f:1017",
+              "name": "__scrt_common_main_seh",
+              "file": "",
+              "line": 175,
+              "truncated": false
+            },
+            {
+              "handle": "417130fbd88527e1:7:f:1018",
+              "name": "BaseThreadInitThunk",
+              "file": "",
+              "line": 11,
+              "truncated": false
+            },
+            {
+              "handle": "417130fbd88527e1:7:f:1019",
+              "name": "RtlUserThreadStart",
+              "file": "",
+              "line": 15,
+              "truncated": false
+            }
+          ],
+          "truncated": false
+        },
+        "location": {
+          "file": "C:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-languages-4lr70wc0\\walk.rs",
+          "line": 10,
+          "source": [
+            {
+              "line": 8,
+              "text": "    let known = 41;",
+              "truncated": false
+            },
+            {
+              "line": 9,
+              "text": "    let nested = [3, 5, 8];",
+              "truncated": false
+            },
+            {
+              "line": 10,
+              "text": "    let result = add_one(known);",
+              "truncated": false
+            },
+            {
+              "line": 11,
+              "text": "    println!(\"{} {:?}\", result, nested);",
+              "truncated": false
+            },
+            {
+              "line": 12,
+              "text": "}",
+              "truncated": false
+            }
+          ],
+          "frame": "417130fbd88527e1:7:f:1001"
+        },
+        "locals": {
+          "items": [
+            {
+              "name": "[return value]",
+              "value": "42",
+              "type": "int",
+              "handle": null,
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "known",
+              "value": "41",
+              "type": "int",
+              "handle": null,
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "nested",
+              "value": "{3, 5, 8}",
+              "type": "int[3]",
+              "handle": "417130fbd88527e1:7:v:1027",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            }
+          ],
+          "start": 0,
+          "truncated": false,
+          "next_start": null,
+          "handle": "417130fbd88527e1:7:v:1020"
+        }
+      }
+    },
+    {
+      "command": [
+        "break",
+        "remove",
+        "walk.rs"
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "417130fbd88527e1",
+        "generation": 7,
+        "reason": "step",
+        "exit_code": null,
+        "thread": 30156,
+        "language": "rust",
+        "target": "process",
+        "processes": {
+          "helper": 84096,
+          "adapter": 25248,
+          "target": null
+        },
+        "recording": {
+          "id": "417130fbd88527e1",
+          "truncated": false,
+          "error": null
+        },
+        "breakpoints": [],
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "continue"
+      ],
+      "response": {
+        "ok": true,
+        "state": "exited",
+        "phase": "done",
+        "session": "417130fbd88527e1",
+        "generation": 9,
+        "reason": null,
+        "exit_code": 0,
+        "thread": 30156,
+        "language": "rust",
+        "target": "process",
+        "processes": {
+          "helper": 84096,
+          "adapter": 25248,
+          "target": null
+        },
+        "recording": {
+          "id": "417130fbd88527e1",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "output"
+      ],
+      "response": {
+        "ok": true,
+        "state": "exited",
+        "phase": "done",
+        "session": "417130fbd88527e1",
+        "generation": 10,
+        "reason": null,
+        "exit_code": 0,
+        "thread": 30156,
+        "language": "rust",
+        "target": "process",
+        "processes": {
+          "helper": 84096,
+          "adapter": 25248,
+          "target": null
+        },
+        "recording": {
+          "id": "417130fbd88527e1",
+          "truncated": false,
+          "error": null
+        },
+        "output": {
+          "stdout": {
+            "text": "Console is in 'commands' mode, prefix expressions with '?'.\nExecuting script: initCommands\nLoading Rust formatters from C:\\Users\\ayoub\\.rustup\\toolchains\\stable-x86_64-pc-windows-msvc\\lib/rustlib/etc\nLaunching: C:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-languages-4lr70wc0\\walk.exe\nLaunched process 82176 from 'C:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-languages-4lr70wc0\\walk.exe'\n42 [3, 5, 8]\nProcess exited with code 0.\n",
+            "truncated": false,
+            "dropped_chars": 0
+          },
+          "stderr": {
+            "text": "",
+            "truncated": false,
+            "dropped_chars": 0
+          },
+          "adapter": {
+            "text": "",
+            "truncated": false,
+            "dropped_chars": 0
+          }
+        },
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "stop"
+      ],
+      "response": {
+        "ok": true,
+        "state": "exited",
+        "phase": "closed",
+        "session": "417130fbd88527e1",
+        "generation": 11,
+        "reason": null,
+        "exit_code": 0,
+        "thread": 30156,
+        "language": "rust",
+        "target": "process",
+        "processes": {
+          "helper": 84096,
+          "adapter": 25248,
+          "target": null
+        },
+        "recording": {
+          "id": "417130fbd88527e1",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "launch",
+        "--language",
+        "rust",
+        "--adapter",
+        "C:\\Users\\ayoub\\Videos\\claude\\aidebug\\.tools\\codelldb\\extension\\adapter\\codelldb.exe",
+        "--run",
+        "--uncaught",
+        "C:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-languages-4lr70wc0\\panic.exe"
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "1a07efc4cbcd547f",
+        "generation": 1,
+        "reason": "breakpoint",
+        "exit_code": null,
+        "thread": 88964,
+        "language": "rust",
+        "target": "process",
+        "processes": {
+          "helper": 88560,
+          "adapter": 86748,
+          "target": null
+        },
+        "recording": {
+          "id": "1a07efc4cbcd547f",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false,
+        "stack": {
+          "frames": [
+            {
+              "handle": "1a07efc4cbcd547f:1:f:1001",
+              "name": "__rustc::rust_panic",
+              "file": "",
+              "line": 3,
+              "truncated": false
+            },
+            {
+              "handle": "1a07efc4cbcd547f:1:f:1002",
+              "name": "std::panicking::panic_with_hook",
+              "file": "",
+              "line": 74,
+              "truncated": false
+            },
+            {
+              "handle": "1a07efc4cbcd547f:1:f:1003",
+              "name": "std::panicking::begin_panic::closure$0<ref$<str$> >",
+              "file": "",
+              "line": 251,
+              "truncated": false
+            },
+            {
+              "handle": "1a07efc4cbcd547f:1:f:1004",
+              "name": "std::sys::backtrace::__rust_end_short_backtrace::<std::panicking::begin_panic<&str>::{closure#0}, !>",
+              "file": "",
+              "line": 7,
+              "truncated": false
+            },
+            {
+              "handle": "1a07efc4cbcd547f:1:f:1005",
+              "name": "std::panicking::begin_panic::<&str>",
+              "file": "",
+              "line": 12,
+              "truncated": false
+            },
+            {
+              "handle": "1a07efc4cbcd547f:1:f:1006",
+              "name": "panic::main",
+              "file": "C:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-languages-4lr70wc0\\panic.rs",
+              "line": 3,
+              "truncated": false
+            },
+            {
+              "handle": "1a07efc4cbcd547f:1:f:1007",
+              "name": "core::ops::function::FnOnce::call_once<void (*)(),tuple$<> >",
+              "file": "",
+              "line": 38,
+              "truncated": false
+            },
+            {
+              "handle": "1a07efc4cbcd547f:1:f:1008",
+              "name": "std::sys::backtrace::__rust_begin_short_backtrace<void (*)(),tuple$<> >",
+              "file": "",
+              "line": 22,
+              "truncated": false
+            },
+            {
+              "handle": "1a07efc4cbcd547f:1:f:1009",
+              "name": "std::rt::lang_start::closure$0<tuple$<> >",
+              "file": "",
+              "line": 41,
+              "truncated": false
+            },
+            {
+              "handle": "1a07efc4cbcd547f:1:f:1010",
+              "name": "core::ops::function::impls::impl$2::call_once",
+              "file": "",
+              "line": 42,
+              "truncated": false
+            },
+            {
+              "handle": "1a07efc4cbcd547f:1:f:1011",
+              "name": "std::panicking::catch_unwind::do_call",
+              "file": "",
+              "line": 40,
+              "truncated": false
+            },
+            {
+              "handle": "1a07efc4cbcd547f:1:f:1012",
+              "name": "std::panicking::catch_unwind",
+              "file": "",
+              "line": 40,
+              "truncated": false
+            },
+            {
+              "handle": "1a07efc4cbcd547f:1:f:1013",
+              "name": "std::panic::catch_unwind",
+              "file": "",
+              "line": 40,
+              "truncated": false
+            },
+            {
+              "handle": "1a07efc4cbcd547f:1:f:1014",
+              "name": "std::rt::lang_start_internal::closure$0",
+              "file": "",
+              "line": 40,
+              "truncated": false
+            },
+            {
+              "handle": "1a07efc4cbcd547f:1:f:1015",
+              "name": "std::panicking::catch_unwind::do_call",
+              "file": "",
+              "line": 11,
+              "truncated": false
+            },
+            {
+              "handle": "1a07efc4cbcd547f:1:f:1016",
+              "name": "std::panicking::catch_unwind",
+              "file": "",
+              "line": 11,
+              "truncated": false
+            },
+            {
+              "handle": "1a07efc4cbcd547f:1:f:1017",
+              "name": "std::panic::catch_unwind",
+              "file": "",
+              "line": 11,
+              "truncated": false
+            },
+            {
+              "handle": "1a07efc4cbcd547f:1:f:1018",
+              "name": "std::rt::lang_start_internal",
+              "file": "",
+              "line": 11,
+              "truncated": false
+            },
+            {
+              "handle": "1a07efc4cbcd547f:1:f:1019",
+              "name": "std::rt::lang_start::<()>",
+              "file": "",
+              "line": 16,
+              "truncated": false
+            },
+            {
+              "handle": "1a07efc4cbcd547f:1:f:1020",
+              "name": "main",
+              "file": "",
+              "line": 9,
+              "truncated": false
+            }
+          ],
+          "truncated": true
+        },
+        "location": {
+          "file": "",
+          "line": 3,
+          "source": [],
+          "frame": "1a07efc4cbcd547f:1:f:1001"
+        },
+        "locals": {
+          "items": [],
+          "start": 0,
+          "truncated": false,
+          "next_start": null,
+          "handle": "1a07efc4cbcd547f:1:v:1022"
+        }
+      }
+    },
+    {
+      "command": [
+        "inspect",
+        "--frame",
+        "1a07efc4cbcd547f:1:f:1006"
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "1a07efc4cbcd547f",
+        "generation": 1,
+        "reason": "breakpoint",
+        "exit_code": null,
+        "thread": 88964,
+        "language": "rust",
+        "target": "process",
+        "processes": {
+          "helper": 88560,
+          "adapter": 86748,
+          "target": null
+        },
+        "recording": {
+          "id": "1a07efc4cbcd547f",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false,
+        "stack": {
+          "frames": [
+            {
+              "handle": "1a07efc4cbcd547f:1:f:1026",
+              "name": "__rustc::rust_panic",
+              "file": "",
+              "line": 3,
+              "truncated": false
+            },
+            {
+              "handle": "1a07efc4cbcd547f:1:f:1027",
+              "name": "std::panicking::panic_with_hook",
+              "file": "",
+              "line": 74,
+              "truncated": false
+            },
+            {
+              "handle": "1a07efc4cbcd547f:1:f:1028",
+              "name": "std::panicking::begin_panic::closure$0<ref$<str$> >",
+              "file": "",
+              "line": 251,
+              "truncated": false
+            },
+            {
+              "handle": "1a07efc4cbcd547f:1:f:1029",
+              "name": "std::sys::backtrace::__rust_end_short_backtrace::<std::panicking::begin_panic<&str>::{closure#0}, !>",
+              "file": "",
+              "line": 7,
+              "truncated": false
+            },
+            {
+              "handle": "1a07efc4cbcd547f:1:f:1030",
+              "name": "std::panicking::begin_panic::<&str>",
+              "file": "",
+              "line": 12,
+              "truncated": false
+            },
+            {
+              "handle": "1a07efc4cbcd547f:1:f:1031",
+              "name": "panic::main",
+              "file": "C:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-languages-4lr70wc0\\panic.rs",
+              "line": 3,
+              "truncated": false
+            },
+            {
+              "handle": "1a07efc4cbcd547f:1:f:1032",
+              "name": "core::ops::function::FnOnce::call_once<void (*)(),tuple$<> >",
+              "file": "",
+              "line": 38,
+              "truncated": false
+            },
+            {
+              "handle": "1a07efc4cbcd547f:1:f:1033",
+              "name": "std::sys::backtrace::__rust_begin_short_backtrace<void (*)(),tuple$<> >",
+              "file": "",
+              "line": 22,
+              "truncated": false
+            },
+            {
+              "handle": "1a07efc4cbcd547f:1:f:1034",
+              "name": "std::rt::lang_start::closure$0<tuple$<> >",
+              "file": "",
+              "line": 41,
+              "truncated": false
+            },
+            {
+              "handle": "1a07efc4cbcd547f:1:f:1035",
+              "name": "core::ops::function::impls::impl$2::call_once",
+              "file": "",
+              "line": 42,
+              "truncated": false
+            },
+            {
+              "handle": "1a07efc4cbcd547f:1:f:1036",
+              "name": "std::panicking::catch_unwind::do_call",
+              "file": "",
+              "line": 40,
+              "truncated": false
+            },
+            {
+              "handle": "1a07efc4cbcd547f:1:f:1037",
+              "name": "std::panicking::catch_unwind",
+              "file": "",
+              "line": 40,
+              "truncated": false
+            },
+            {
+              "handle": "1a07efc4cbcd547f:1:f:1038",
+              "name": "std::panic::catch_unwind",
+              "file": "",
+              "line": 40,
+              "truncated": false
+            },
+            {
+              "handle": "1a07efc4cbcd547f:1:f:1039",
+              "name": "std::rt::lang_start_internal::closure$0",
+              "file": "",
+              "line": 40,
+              "truncated": false
+            },
+            {
+              "handle": "1a07efc4cbcd547f:1:f:1040",
+              "name": "std::panicking::catch_unwind::do_call",
+              "file": "",
+              "line": 11,
+              "truncated": false
+            },
+            {
+              "handle": "1a07efc4cbcd547f:1:f:1041",
+              "name": "std::panicking::catch_unwind",
+              "file": "",
+              "line": 11,
+              "truncated": false
+            },
+            {
+              "handle": "1a07efc4cbcd547f:1:f:1042",
+              "name": "std::panic::catch_unwind",
+              "file": "",
+              "line": 11,
+              "truncated": false
+            },
+            {
+              "handle": "1a07efc4cbcd547f:1:f:1043",
+              "name": "std::rt::lang_start_internal",
+              "file": "",
+              "line": 11,
+              "truncated": false
+            },
+            {
+              "handle": "1a07efc4cbcd547f:1:f:1044",
+              "name": "std::rt::lang_start::<()>",
+              "file": "",
+              "line": 16,
+              "truncated": false
+            },
+            {
+              "handle": "1a07efc4cbcd547f:1:f:1045",
+              "name": "main",
+              "file": "",
+              "line": 9,
+              "truncated": false
+            }
+          ],
+          "truncated": true
+        },
+        "location": {
+          "file": "C:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-languages-4lr70wc0\\panic.rs",
+          "line": 3,
+          "source": [
+            {
+              "line": 1,
+              "text": "fn main() {",
+              "truncated": false
+            },
+            {
+              "line": 2,
+              "text": "    let divisor = 0;",
+              "truncated": false
+            },
+            {
+              "line": 3,
+              "text": "    assert!(divisor > 0, \"bad divisor\");",
+              "truncated": false
+            },
+            {
+              "line": 4,
+              "text": "}",
+              "truncated": false
+            }
+          ],
+          "frame": "1a07efc4cbcd547f:1:f:1006"
+        },
+        "locals": {
+          "items": [
+            {
+              "name": "divisor",
+              "value": "0",
+              "type": "int",
+              "handle": null,
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            }
+          ],
+          "start": 0,
+          "truncated": false,
+          "next_start": null,
+          "handle": "1a07efc4cbcd547f:1:v:1047"
+        }
+      }
+    },
+    {
+      "command": [
+        "exceptions",
+        "off"
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "1a07efc4cbcd547f",
+        "generation": 1,
+        "reason": "breakpoint",
+        "exit_code": null,
+        "thread": 88964,
+        "language": "rust",
+        "target": "process",
+        "processes": {
+          "helper": 88560,
+          "adapter": 86748,
+          "target": null
+        },
+        "recording": {
+          "id": "1a07efc4cbcd547f",
+          "truncated": false,
+          "error": null
+        },
+        "uncaught": false,
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "continue"
+      ],
+      "response": {
+        "ok": true,
+        "state": "exited",
+        "phase": "done",
+        "session": "1a07efc4cbcd547f",
+        "generation": 3,
+        "reason": null,
+        "exit_code": 101,
+        "thread": 88964,
+        "language": "rust",
+        "target": "process",
+        "processes": {
+          "helper": 88560,
+          "adapter": 86748,
+          "target": null
+        },
+        "recording": {
+          "id": "1a07efc4cbcd547f",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "output"
+      ],
+      "response": {
+        "ok": true,
+        "state": "exited",
+        "phase": "done",
+        "session": "1a07efc4cbcd547f",
+        "generation": 4,
+        "reason": null,
+        "exit_code": 101,
+        "thread": 88964,
+        "language": "rust",
+        "target": "process",
+        "processes": {
+          "helper": 88560,
+          "adapter": 86748,
+          "target": null
+        },
+        "recording": {
+          "id": "1a07efc4cbcd547f",
+          "truncated": false,
+          "error": null
+        },
+        "output": {
+          "stdout": {
+            "text": "Console is in 'commands' mode, prefix expressions with '?'.\nExecuting script: initCommands\nLoading Rust formatters from C:\\Users\\ayoub\\.rustup\\toolchains\\stable-x86_64-pc-windows-msvc\\lib/rustlib/etc\nLaunching: C:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-languages-4lr70wc0\\panic.exe\nLaunched process 89036 from 'C:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-languages-4lr70wc0\\panic.exe'\nProcess exited with code 101.\n",
+            "truncated": false,
+            "dropped_chars": 0
+          },
+          "stderr": {
+            "text": "\nthread 'main' (88964) panicked at C:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-languages-4lr70wc0\\panic.rs:3:5:\nbad divisor\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n",
+            "truncated": false,
+            "dropped_chars": 0
+          },
+          "adapter": {
+            "text": "",
+            "truncated": false,
+            "dropped_chars": 0
+          }
+        },
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "stop"
+      ],
+      "response": {
+        "ok": true,
+        "state": "exited",
+        "phase": "closed",
+        "session": "1a07efc4cbcd547f",
+        "generation": 5,
+        "reason": null,
+        "exit_code": 101,
+        "thread": 88964,
+        "language": "rust",
+        "target": "process",
+        "processes": {
+          "helper": 88560,
+          "adapter": 86748,
+          "target": null
+        },
+        "recording": {
+          "id": "1a07efc4cbcd547f",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false
+      }
+    }
+  ]
+}

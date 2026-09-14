@@ -1,0 +1,957 @@
+{
+  "passed": [
+    "Viewer authentication, local origin/host restrictions, no DAP control route",
+    "Live CLI commands, inspected values and children, value changes, agent notes, observer isolation",
+    "Exception observation, safe rendering of target text, captured source changes, persistent recording after stop",
+    "Multiple saved sessions, replay play/pause/scrub/speed, original source history and successful rerun",
+    "Viewer restart reopens recordings without a debug session",
+    "No browser JavaScript errors; all views and open navigation pass eight viewport widths"
+  ],
+  "screenshots": [
+    "empty-320.png",
+    "empty-375.png",
+    "empty-600.png",
+    "empty-768.png",
+    "empty-850.png",
+    "empty-1024.png",
+    "empty-1141.png",
+    "empty-1280.png",
+    "live-expanded-320.png",
+    "live-expanded-375.png",
+    "live-expanded-600.png",
+    "live-expanded-768.png",
+    "live-expanded-850.png",
+    "live-expanded-1024.png",
+    "live-expanded-1141.png",
+    "live-expanded-1280.png",
+    "live-note-320.png",
+    "live-note-375.png",
+    "live-note-600.png",
+    "live-note-768.png",
+    "live-note-850.png",
+    "live-note-1024.png",
+    "live-note-1141.png",
+    "live-note-1280.png",
+    "source-changes-320.png",
+    "source-changes-375.png",
+    "source-changes-600.png",
+    "source-changes-768.png",
+    "source-changes-850.png",
+    "source-changes-1024.png",
+    "source-changes-1141.png",
+    "source-changes-1280.png",
+    "command-320.png",
+    "command-375.png",
+    "command-600.png",
+    "command-768.png",
+    "command-850.png",
+    "command-1024.png",
+    "command-1141.png",
+    "command-1280.png",
+    "successful-replay-320.png",
+    "successful-replay-375.png",
+    "successful-replay-600.png",
+    "successful-replay-768.png",
+    "successful-replay-850.png",
+    "successful-replay-1024.png",
+    "successful-replay-1141.png",
+    "successful-replay-1280.png",
+    "exception-replay-320.png",
+    "exception-replay-375.png",
+    "exception-replay-600.png",
+    "exception-replay-768.png",
+    "exception-replay-850.png",
+    "exception-replay-1024.png",
+    "exception-replay-1141.png",
+    "exception-replay-1280.png",
+    "truncated-recording-320.png",
+    "truncated-recording-375.png",
+    "truncated-recording-600.png",
+    "truncated-recording-768.png",
+    "truncated-recording-850.png",
+    "truncated-recording-1024.png",
+    "truncated-recording-1141.png",
+    "truncated-recording-1280.png",
+    "access-required-320.png",
+    "access-required-375.png",
+    "access-required-600.png",
+    "access-required-768.png",
+    "access-required-850.png",
+    "access-required-1024.png",
+    "access-required-1141.png",
+    "access-required-1280.png"
+  ],
+  "transcript": [
+    {
+      "command": [
+        "view"
+      ],
+      "response": {
+        "ok": true,
+        "viewer": "running"
+      }
+    },
+    {
+      "command": [
+        "launch",
+        "--run",
+        "--uncaught",
+        "--breakpoint",
+        "checkout.py:4",
+        "checkout.py"
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "9d715550c2993820",
+        "generation": 1,
+        "reason": "breakpoint",
+        "exit_code": null,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 84628,
+          "adapter": 94020,
+          "target": 22236
+        },
+        "recording": {
+          "id": "9d715550c2993820",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false,
+        "stack": {
+          "frames": [
+            {
+              "handle": "9d715550c2993820:1:f:2",
+              "name": "average_price",
+              "file": "C:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-viewer-LpX6uv\\checkout.py",
+              "line": 4,
+              "truncated": false
+            },
+            {
+              "handle": "9d715550c2993820:1:f:3",
+              "name": "<module>",
+              "file": "C:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-viewer-LpX6uv\\checkout.py",
+              "line": 9,
+              "truncated": false
+            },
+            {
+              "handle": "9d715550c2993820:1:f:4",
+              "name": "_run_code",
+              "file": "C:\\Python311\\Lib\\runpy.py",
+              "line": 88,
+              "truncated": false
+            },
+            {
+              "handle": "9d715550c2993820:1:f:5",
+              "name": "_run_module_as_main",
+              "file": "C:\\Python311\\Lib\\runpy.py",
+              "line": 198,
+              "truncated": false
+            }
+          ],
+          "truncated": false
+        },
+        "location": {
+          "file": "C:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-viewer-LpX6uv\\checkout.py",
+          "line": 4,
+          "source": [
+            {
+              "line": 2,
+              "text": "    prices = [order[\"price\"] for order in orders if order[\"paid\"]]",
+              "truncated": false
+            },
+            {
+              "line": 3,
+              "text": "    count = len(prices)",
+              "truncated": false
+            },
+            {
+              "line": 4,
+              "text": "    count -= len(orders)",
+              "truncated": false
+            },
+            {
+              "line": 5,
+              "text": "    return sum(prices) / count",
+              "truncated": false
+            },
+            {
+              "line": 6,
+              "text": "",
+              "truncated": false
+            }
+          ],
+          "frame": "9d715550c2993820:1:f:2"
+        },
+        "locals": {
+          "items": [
+            {
+              "name": "count",
+              "value": "2",
+              "type": "int",
+              "handle": null,
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "orders",
+              "value": "[{'price': 10, 'paid': True}, {'price': 20, 'paid': True}]",
+              "type": "list",
+              "handle": "9d715550c2993820:1:v:8",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "prices",
+              "value": "[10, 20]",
+              "type": "list",
+              "handle": "9d715550c2993820:1:v:9",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            }
+          ],
+          "start": 0,
+          "truncated": false,
+          "next_start": null,
+          "handle": "9d715550c2993820:1:v:6"
+        }
+      }
+    },
+    {
+      "command": [
+        "variables",
+        "9d715550c2993820:1:v:9"
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "9d715550c2993820",
+        "generation": 1,
+        "reason": "breakpoint",
+        "exit_code": null,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 84628,
+          "adapter": 94020,
+          "target": 22236
+        },
+        "recording": {
+          "id": "9d715550c2993820",
+          "truncated": false,
+          "error": null
+        },
+        "variables": {
+          "items": [
+            {
+              "name": "special variables",
+              "value": "",
+              "type": "",
+              "handle": "9d715550c2993820:1:v:10",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "function variables",
+              "value": "",
+              "type": "",
+              "handle": "9d715550c2993820:1:v:11",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "0",
+              "value": "10",
+              "type": "int",
+              "handle": null,
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "1",
+              "value": "20",
+              "type": "int",
+              "handle": null,
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "len()",
+              "value": "2",
+              "type": "int",
+              "handle": null,
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            }
+          ],
+          "start": 0,
+          "truncated": false,
+          "next_start": null
+        },
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "step",
+        "over"
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "9d715550c2993820",
+        "generation": 3,
+        "reason": "step",
+        "exit_code": null,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 84628,
+          "adapter": 94020,
+          "target": 22236
+        },
+        "recording": {
+          "id": "9d715550c2993820",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false,
+        "stack": {
+          "frames": [
+            {
+              "handle": "9d715550c2993820:3:f:2",
+              "name": "average_price",
+              "file": "C:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-viewer-LpX6uv\\checkout.py",
+              "line": 5,
+              "truncated": false
+            },
+            {
+              "handle": "9d715550c2993820:3:f:3",
+              "name": "<module>",
+              "file": "C:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-viewer-LpX6uv\\checkout.py",
+              "line": 9,
+              "truncated": false
+            },
+            {
+              "handle": "9d715550c2993820:3:f:4",
+              "name": "_run_code",
+              "file": "C:\\Python311\\Lib\\runpy.py",
+              "line": 88,
+              "truncated": false
+            },
+            {
+              "handle": "9d715550c2993820:3:f:5",
+              "name": "_run_module_as_main",
+              "file": "C:\\Python311\\Lib\\runpy.py",
+              "line": 198,
+              "truncated": false
+            }
+          ],
+          "truncated": false
+        },
+        "location": {
+          "file": "C:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-viewer-LpX6uv\\checkout.py",
+          "line": 5,
+          "source": [
+            {
+              "line": 3,
+              "text": "    count = len(prices)",
+              "truncated": false
+            },
+            {
+              "line": 4,
+              "text": "    count -= len(orders)",
+              "truncated": false
+            },
+            {
+              "line": 5,
+              "text": "    return sum(prices) / count",
+              "truncated": false
+            },
+            {
+              "line": 6,
+              "text": "",
+              "truncated": false
+            },
+            {
+              "line": 7,
+              "text": "",
+              "truncated": false
+            }
+          ],
+          "frame": "9d715550c2993820:3:f:2"
+        },
+        "locals": {
+          "items": [
+            {
+              "name": "count",
+              "value": "0",
+              "type": "int",
+              "handle": null,
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "orders",
+              "value": "[{'price': 10, 'paid': True}, {'price': 20, 'paid': True}]",
+              "type": "list",
+              "handle": "9d715550c2993820:3:v:8",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "prices",
+              "value": "[10, 20]",
+              "type": "list",
+              "handle": "9d715550c2993820:3:v:9",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            }
+          ],
+          "start": 0,
+          "truncated": false,
+          "next_start": null,
+          "handle": "9d715550c2993820:3:v:6"
+        }
+      }
+    },
+    {
+      "command": [
+        "note",
+        "The two paid orders produce count = 0. Subtracting all orders is the cause of the division failure."
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "9d715550c2993820",
+        "generation": 3,
+        "reason": "step",
+        "exit_code": null,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 84628,
+          "adapter": 94020,
+          "target": 22236
+        },
+        "recording": {
+          "id": "9d715550c2993820",
+          "truncated": false,
+          "error": null
+        },
+        "note": "The two paid orders produce count = 0. Subtracting all orders is the cause of the division failure.",
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "status"
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "9d715550c2993820",
+        "generation": 3,
+        "reason": "step",
+        "exit_code": null,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 84628,
+          "adapter": 94020,
+          "target": 22236
+        },
+        "recording": {
+          "id": "9d715550c2993820",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false,
+        "stack": {
+          "frames": [
+            {
+              "handle": "9d715550c2993820:3:f:2",
+              "name": "average_price",
+              "file": "C:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-viewer-LpX6uv\\checkout.py",
+              "line": 5,
+              "truncated": false
+            },
+            {
+              "handle": "9d715550c2993820:3:f:3",
+              "name": "<module>",
+              "file": "C:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-viewer-LpX6uv\\checkout.py",
+              "line": 9,
+              "truncated": false
+            },
+            {
+              "handle": "9d715550c2993820:3:f:4",
+              "name": "_run_code",
+              "file": "C:\\Python311\\Lib\\runpy.py",
+              "line": 88,
+              "truncated": false
+            },
+            {
+              "handle": "9d715550c2993820:3:f:5",
+              "name": "_run_module_as_main",
+              "file": "C:\\Python311\\Lib\\runpy.py",
+              "line": 198,
+              "truncated": false
+            }
+          ],
+          "truncated": false
+        },
+        "location": {
+          "file": "C:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-viewer-LpX6uv\\checkout.py",
+          "line": 5,
+          "source": [
+            {
+              "line": 3,
+              "text": "    count = len(prices)",
+              "truncated": false
+            },
+            {
+              "line": 4,
+              "text": "    count -= len(orders)",
+              "truncated": false
+            },
+            {
+              "line": 5,
+              "text": "    return sum(prices) / count",
+              "truncated": false
+            },
+            {
+              "line": 6,
+              "text": "",
+              "truncated": false
+            },
+            {
+              "line": 7,
+              "text": "",
+              "truncated": false
+            }
+          ],
+          "frame": "9d715550c2993820:3:f:2"
+        },
+        "locals": {
+          "items": [
+            {
+              "name": "count",
+              "value": "0",
+              "type": "int",
+              "handle": null,
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "orders",
+              "value": "[{'price': 10, 'paid': True}, {'price': 20, 'paid': True}]",
+              "type": "list",
+              "handle": "9d715550c2993820:3:v:8",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "prices",
+              "value": "[10, 20]",
+              "type": "list",
+              "handle": "9d715550c2993820:3:v:9",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            }
+          ],
+          "start": 0,
+          "truncated": false,
+          "next_start": null,
+          "handle": "9d715550c2993820:3:v:6"
+        }
+      }
+    },
+    {
+      "command": [
+        "continue"
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "9d715550c2993820",
+        "generation": 5,
+        "reason": "exception",
+        "exit_code": null,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 84628,
+          "adapter": 94020,
+          "target": 22236
+        },
+        "recording": {
+          "id": "9d715550c2993820",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false,
+        "stack": {
+          "frames": [
+            {
+              "handle": "9d715550c2993820:5:f:2",
+              "name": "average_price",
+              "file": "C:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-viewer-LpX6uv\\checkout.py",
+              "line": 5,
+              "truncated": false
+            },
+            {
+              "handle": "9d715550c2993820:5:f:3",
+              "name": "<module>",
+              "file": "C:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-viewer-LpX6uv\\checkout.py",
+              "line": 9,
+              "truncated": false
+            },
+            {
+              "handle": "9d715550c2993820:5:f:4",
+              "name": "_run_code",
+              "file": "C:\\Python311\\Lib\\runpy.py",
+              "line": 88,
+              "truncated": false
+            },
+            {
+              "handle": "9d715550c2993820:5:f:5",
+              "name": "_run_module_as_main (Current frame)",
+              "file": "C:\\Python311\\Lib\\runpy.py",
+              "line": 198,
+              "truncated": false
+            }
+          ],
+          "truncated": false
+        },
+        "location": {
+          "file": "C:\\Users\\ayoub\\AppData\\Local\\Temp\\aidebug-viewer-LpX6uv\\checkout.py",
+          "line": 5,
+          "source": [
+            {
+              "line": 3,
+              "text": "    count = len(prices)",
+              "truncated": false
+            },
+            {
+              "line": 4,
+              "text": "    count -= len(orders)",
+              "truncated": false
+            },
+            {
+              "line": 5,
+              "text": "    return sum(prices) / count",
+              "truncated": false
+            },
+            {
+              "line": 6,
+              "text": "",
+              "truncated": false
+            },
+            {
+              "line": 7,
+              "text": "",
+              "truncated": false
+            }
+          ],
+          "frame": "9d715550c2993820:5:f:2"
+        },
+        "locals": {
+          "items": [
+            {
+              "name": "special variables",
+              "value": "",
+              "type": "",
+              "handle": "9d715550c2993820:5:v:12",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "count",
+              "value": "0",
+              "type": "int",
+              "handle": null,
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "orders",
+              "value": "[{'price': 10, 'paid': True}, {'price': 20, 'paid': True}]",
+              "type": "list",
+              "handle": "9d715550c2993820:5:v:8",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            },
+            {
+              "name": "prices",
+              "value": "[10, 20]",
+              "type": "list",
+              "handle": "9d715550c2993820:5:v:9",
+              "named": null,
+              "indexed": null,
+              "truncated": false
+            }
+          ],
+          "start": 0,
+          "truncated": false,
+          "next_start": null,
+          "handle": "9d715550c2993820:5:v:6"
+        }
+      }
+    },
+    {
+      "command": [
+        "note",
+        "<img src=x onerror=\"window.viewerInjected=true\">"
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "9d715550c2993820",
+        "generation": 5,
+        "reason": "exception",
+        "exit_code": null,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 84628,
+          "adapter": 94020,
+          "target": 22236
+        },
+        "recording": {
+          "id": "9d715550c2993820",
+          "truncated": false,
+          "error": null
+        },
+        "note": "<img src=x onerror=\"window.viewerInjected=true\">",
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "note",
+        "Fixed the divisor to use the number of paid orders. The current failed run still uses its original code; the next launch will verify the fix."
+      ],
+      "response": {
+        "ok": true,
+        "state": "stopped",
+        "phase": "ready",
+        "session": "9d715550c2993820",
+        "generation": 5,
+        "reason": "exception",
+        "exit_code": null,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 84628,
+          "adapter": 94020,
+          "target": 22236
+        },
+        "recording": {
+          "id": "9d715550c2993820",
+          "truncated": false,
+          "error": null
+        },
+        "note": "Fixed the divisor to use the number of paid orders. The current failed run still uses its original code; the next launch will verify the fix.",
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "continue"
+      ],
+      "response": {
+        "ok": true,
+        "state": "exited",
+        "phase": "done",
+        "session": "9d715550c2993820",
+        "generation": 7,
+        "reason": null,
+        "exit_code": 1,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 84628,
+          "adapter": 94020,
+          "target": 22236
+        },
+        "recording": {
+          "id": "9d715550c2993820",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "stop"
+      ],
+      "response": {
+        "ok": true,
+        "state": "exited",
+        "phase": "closed",
+        "session": "9d715550c2993820",
+        "generation": 9,
+        "reason": null,
+        "exit_code": 1,
+        "thread": 1,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 84628,
+          "adapter": 94020,
+          "target": 22236
+        },
+        "recording": {
+          "id": "9d715550c2993820",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "launch",
+        "--run",
+        "checkout.py"
+      ],
+      "response": {
+        "ok": true,
+        "state": "exited",
+        "phase": "done",
+        "session": "91d535433860ffda",
+        "generation": 1,
+        "reason": null,
+        "exit_code": 0,
+        "thread": null,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 48532,
+          "adapter": 92000,
+          "target": 71612
+        },
+        "recording": {
+          "id": "91d535433860ffda",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "note",
+        "Verified: the corrected average is 15.0 and the process exits successfully."
+      ],
+      "response": {
+        "ok": true,
+        "state": "exited",
+        "phase": "done",
+        "session": "91d535433860ffda",
+        "generation": 2,
+        "reason": null,
+        "exit_code": 0,
+        "thread": null,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 48532,
+          "adapter": 92000,
+          "target": 71612
+        },
+        "recording": {
+          "id": "91d535433860ffda",
+          "truncated": false,
+          "error": null
+        },
+        "note": "Verified: the corrected average is 15.0 and the process exits successfully.",
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "stop"
+      ],
+      "response": {
+        "ok": true,
+        "state": "exited",
+        "phase": "closed",
+        "session": "91d535433860ffda",
+        "generation": 3,
+        "reason": null,
+        "exit_code": 0,
+        "thread": null,
+        "language": "python",
+        "target": "process",
+        "processes": {
+          "helper": 48532,
+          "adapter": 92000,
+          "target": 71612
+        },
+        "recording": {
+          "id": "91d535433860ffda",
+          "truncated": false,
+          "error": null
+        },
+        "timed_out": false
+      }
+    },
+    {
+      "command": [
+        "view",
+        "--stop"
+      ],
+      "response": {
+        "ok": true,
+        "viewer": "stopped"
+      }
+    },
+    {
+      "command": [
+        "view"
+      ],
+      "response": {
+        "ok": true,
+        "viewer": "running"
+      }
+    }
+  ],
+  "seconds": 53.968
+}
