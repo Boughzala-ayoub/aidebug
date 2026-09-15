@@ -4,7 +4,7 @@
 
 Each invocation connects to the same background helper in the selected workspace. The helper owns the debug adapter, matches DAP responses by request sequence, and processes asynchronous events on reader threads. Python uses debugpy, JavaScript and TypeScript use Microsoft's js-debug, and Rust uses CodeLLDB. There is no general expression evaluation command or generic DAP passthrough.
 
-The local session viewer shows the agent's debugging activity live and replays saved sessions after they end. Recording is automatic for new launches.
+The local session viewer shows the agent's debugging activity live and replays saved sessions after they end. Recording is enabled by default; use `launch --no-record` to disable it for a session.
 
 Run `aidebug --help` for the agent usage loop, including inspection, handle expiry, and timeouts. [AGENTS.md](AGENTS.md) contains contributor rules.
 
@@ -34,6 +34,37 @@ Download the standalone DAP archive from [js-debug releases](https://github.com/
 Download the matching platform archive from [CodeLLDB releases](https://github.com/vadimcn/codelldb/releases). The tested Windows archive is `codelldb-win32-x64.vsix` version 1.12.3. It is a ZIP file. Extract its entire contents under `.tools/codelldb`, retaining the `extension/adapter` and `extension/lldb` directories. The default Windows executable path is `.tools/codelldb/extension/adapter/codelldb.exe`. On other platforms, the executable is `codelldb` without the suffix.
 
 These `.tools` paths are relative to the selected workspace and are ignored by Git. Use an environment variable or `--adapter` for a shared installation. aidebug never downloads adapters, compiles code, starts a web server, or runs package scripts automatically. Missing tools return a JSON `missing_dependency` error before a session starts.
+
+## Install the agent skill
+
+After installing the CLI, register its bundled skill for Codex and Claude Code:
+
+```sh
+aidebug skills install --agent codex --agent claude-code
+aidebug skills status
+```
+
+The default user scope copies the same [skill](aidebug/skill/SKILL.md) and language references into `~/.agents/skills/aidebug` for Codex and `~/.claude/skills/aidebug` for Claude Code. Agents can select it for runtime debugging tasks. Invoke it explicitly with `$aidebug` in Codex or `/aidebug` in Claude Code. Start a new agent session if it is not listed. Skill discovery does not guarantee the model will choose it for every bug.
+
+For one project, add `--scope project`; directories are relative to the selected workspace:
+
+```sh
+aidebug --workspace PATH/TO/PROJECT skills install --agent codex --agent claude-code --scope project
+aidebug --workspace PATH/TO/PROJECT skills status --scope project
+```
+
+Installation is explicit; `pip install` does not edit agent configuration. Setup never starts a debug session or downloads adapters. It leaves `AGENTS.md` and `CLAUDE.md` alone. The generated `installation.json` records file hashes, the package version, and an interpreter command the skill can use if `aidebug` is absent from PATH. That interpreter path is machine-specific. For shared repositories, prefer user scope or ignore the generated project skill directories.
+
+Run `skills install` again after upgrading or moving the CLI. Repeated installation is a no-op when current. Status reports `not_installed`, `current`, `outdated`, or `conflict`. Modified, missing, or unmanaged skill files cause a JSON error; back up or restore those files before retrying. Installation refuses directory links and junctions. Uninstall removes only unchanged managed files and preserves unrelated files. A remaining directory becomes unmanaged. A small installer lock file stays in the parent `skills` directory.
+
+Remove skills before removing the CLI environment, using the same scope used to install them:
+
+```sh
+aidebug skills uninstall --agent codex --agent claude-code
+aidebug skills status
+```
+
+The skill format and locations follow the official [Codex skills](https://learn.chatgpt.com/docs/build-skills), [Claude Code skills](https://code.claude.com/docs/en/skills), and [Agent Skills specification](https://agentskills.io/specification). Other agents are not registered by this version.
 
 ## Debug a Python project or test
 
@@ -138,13 +169,32 @@ The demo refuses to replace an existing session. Each run creates its own source
 
 ## Recording and viewer boundaries
 
+To debug without saving observations, put `--no-record` before the target:
+
+```sh
+aidebug launch --no-record examples/walk.py
+```
+
+Inspection, stepping, and output still work. Responses report `recording.enabled: false`. This session creates no recording file, has no live or replay activity in the viewer, and rejects `note`. Existing recordings remain untouched. The flag applies to every supported language and target.
+
+After stopping the debug session, preview and remove recordings whose last write was more than 30 days ago:
+
+```sh
+aidebug recordings prune --older-than 30 --dry-run
+aidebug recordings prune --older-than 30
+```
+
+`--older-than` is required and accepts whole days from 0 to 365000. Use `0` to match all recordings. Cleanup applies only to the selected `--workspace`, includes interrupted recordings with valid session headers, and preserves unrelated files, links, and malformed recordings. It holds the workspace lock and returns `busy` until the debug session is stopped, even if its target has exited. A linked recordings directory is rejected.
+
+JSON results include `matched`, `matched_bytes`, `deleted`, `deleted_bytes`, and `skipped`. Dry runs delete no recordings. Cleanup stops at the first filesystem error and reports `ok: false` with any deletions already completed. There is no automatic retention policy.
+
 Recordings live in `.aidebug/recordings/SESSION_ID.jsonl`, inside the protected workspace session directory. They contain command arguments, source, output, inspected values, and explicit notes. Treat these files as local debugging data; they may include secrets from your program. They are ignored by Git and never uploaded.
 
 Each recording is capped at 32 MiB. An observation is capped at 128 KiB, source snapshots at 24,000 characters, and output chunks at 8,192 characters. The recorder marks limits explicitly. A full recording stops collecting new activity without stopping the debug session. Recording write errors appear in CLI responses under `recording.error`. The viewer lists the 100 most recent recordings and reads them in bounded pages. It displays recorded values only, not every variable or every executed instruction.
 
 The viewer binds to `127.0.0.1`, checks the request host and origin, and requires its own random access token for recording APIs. The token is passed in the URL fragment, removed from the address bar, and retained in that tab's session storage. Fonts and assets are bundled locally; the page makes no external requests. Keep the returned URL private. This protects against unrelated clients, not processes running as your own account.
 
-The viewer reads recordings without a second DAP connection. Opening it, replaying, or selecting a frame cannot resume or modify the target. A helper crash can leave a usable partial recording, shown as interrupted. This is replay of saved observations, not time-travel execution. Recordings remain until you remove their files.
+The viewer reads recordings without a second DAP connection. Opening it, replaying, or selecting a frame cannot resume or modify the target. A helper crash can leave a usable partial recording, shown as interrupted. This is replay of saved observations, not time-travel execution. Recordings remain until you prune them or remove their files.
 
 ## Debugger commands
 
@@ -185,6 +235,7 @@ At line 12, `known` is `41`. Stepping into `add_one` exposes its `value` argumen
 | `note TEXT` | Add an explicit agent explanation and capture edits to previously inspected source files. |
 | `view [--open]` | Start or locate the local viewer for live activity and saved replay. |
 | `view --stop` | Stop the viewer server, preserving debug sessions and recordings. |
+| `recordings prune --older-than DAYS [--dry-run]` | Preview or remove old recordings after stopping the workspace's debug session. Use `0` for all recordings. |
 
 Global options go before the command:
 
@@ -195,7 +246,7 @@ aidebug --workspace /path/to/project launch --cwd tests --python /path/to/python
 
 The workspace defaults to the current directory. Script, breakpoint, adapter, working-directory, and explicit relative interpreter paths resolve relative to the workspace. Use the same `--workspace` on later invocations. Bare interpreter names resolve through `PATH`. Launch options must precede the target name.
 
-Launch options common to the adapters are `--language`, `--cwd`, `--run`, `--uncaught`, repeatable `--breakpoint FILE:LINE`, and `--condition EXPR`. Python also accepts `--python EXE` and `--module`. JS/TS accepts `--target node|browser`, `--node EXE`, and repeatable `--out-files GLOB`. Browser launches also accept `--browser EXE`, `--web-root DIR`, and `--headed`. Rust requires `--language rust`; Python, JavaScript, and TypeScript can be inferred from their source extensions. `--module` infers Python. `js` and `ts` are accepted aliases.
+Launch options common to the adapters are `--language`, `--cwd`, `--run`, `--uncaught`, `--no-record`, repeatable `--breakpoint FILE:LINE`, and `--condition EXPR`. Python also accepts `--python EXE` and `--module`. JS/TS accepts `--target node|browser`, `--node EXE`, and repeatable `--out-files GLOB`. Browser launches also accept `--browser EXE`, `--web-root DIR`, and `--headed`. Rust requires `--language rust`; Python, JavaScript, and TypeScript can be inferred from their source extensions. `--module` infers Python. `js` and `ts` are accepted aliases.
 
 Set initial breakpoints in the launch command to avoid racing a fast program:
 
@@ -348,6 +399,8 @@ Tracked `checks/*-results.json` and `checks/results.json` contain counts, check 
 
 Run `python checks/reports.py` to check summary stability and preservation of full failure reports.
 
+Verify skill setup against the installed CLI with `.venv/Scripts/python checks/skills.py --cli .venv/Scripts/aidebug.exe`, or `.venv/bin` paths on POSIX. The check uses isolated homes and workspaces to exercise both agents, both scopes, repeat installation, upgrades, a missing PATH entry, conflict protection, and uninstall. See the [Windows skill summary](checks/skills-results.json) and [Linux skill summary](checks/skills-linux-results.json).
+
 Verify module launch and a real multi-file test investigation:
 
 ```sh
@@ -360,7 +413,7 @@ Verify module launch and a real multi-file test investigation:
 
 Use `.venv/bin` paths on Linux/macOS. The check creates a separate workspace `.venv` without debugpy, adds a workspace-only dependency, verifies selection of a custom activated environment and explicit interpreter override, then diagnoses and repairs a temporary copy of the checkout fixture. [Project results](checks/project-results.json) summarize the checks. The check installs nothing itself.
 
-[GitHub Actions](.github/workflows/checks.yml) installs the package and runs transport, recording, the average calculation check, Python integration, and both test-runner investigations on Ubuntu and Windows with Python 3.10 and 3.13. It needs no JS or Rust adapter downloads. The workflow runs on pushes and pull requests; no GitHub run is claimed until this repository is published and the job succeeds.
+[GitHub Actions](.github/workflows/checks.yml) installs the package and runs transport, recording, the average calculation check, skill installation and removal, Python integration, and both test-runner investigations on Ubuntu and Windows with Python 3.10 and 3.13. It needs no JS or Rust adapter downloads. The workflow runs on pushes and pull requests; no GitHub run is claimed until this repository is published and the job succeeds.
 
 For all other languages, install the adapters above, Node, Rust, a Chromium browser, and TypeScript. If your project already has TypeScript, pass its `lib/typescript.js` path. Otherwise install a local test compiler:
 
@@ -374,7 +427,7 @@ Optional check flags `--js-adapter` and `--rust-adapter` select shared installat
 
 Run `.venv/Scripts/python -I checks/transport.py` to check adapter authentication, fragmented UTF-8 DAP messages, out-of-order responses, asynchronous events, output isolation, and cleanup against a small test adapter. `-I` ensures this check imports the installed package.
 
-Verify recording behavior with `.venv/Scripts/python -I checks/recording.py`. To run the viewer integration checks, install the browser test dependency separately from the Python package:
+Verify recording behavior with `.venv/Scripts/python -I checks/recording.py`. This includes real installed-CLI checks for recording opt-out, cleanup previews, age filtering, active-session protection, deletion errors, and links. To run the viewer integration checks, install the browser test dependency separately from the Python package:
 
 ```sh
 npm install --prefix .tools/viewer-check --no-save --package-lock=false puppeteer-core

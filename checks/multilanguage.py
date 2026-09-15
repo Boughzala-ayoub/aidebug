@@ -83,6 +83,8 @@ for (const input of process.argv.slice(2)) {
             return {v["name"]: v for v in result[key]["items"]}
 
         def stop(result):
+            recording = workspace / ".aidebug/recordings" / (result["session"] + ".jsonl")
+            assert recording.exists() == result["recording"]["enabled"], result
             # A transient OS profile lock is a reported, retryable cleanup failure.
             # Require that retry actually removes both metadata and the profile.
             for attempt in range(3):
@@ -113,7 +115,8 @@ for (const input of process.argv.slice(2)) {
             groups.append("invalid language/target combinations, remote browser URL, source binary, adapter and breakpoint return JSON without a session")
             print("PASS launch validation", flush=True)
             for language, target, source in [("javascript", "walk.js", "walk.js"), ("typescript", "ts-walk.js", "ts-walk.ts")]:
-                result = call("launch", "--language", language, "--adapter", options.js_adapter, "--run", "--breakpoint", f"{source}:8", target)
+                result = call("launch", "--no-record", "--language", language, "--adapter", options.js_adapter, "--run", "--breakpoint", f"{source}:8", target)
+                assert result["recording"]["enabled"] is False, result
                 assert result["state"] == "stopped" and result["reason"] == "breakpoint", result
                 assert Path(result["location"]["file"]).name == source and result["location"]["line"] == 8, result
                 assert values(result)["known"]["value"] == "41", result
@@ -131,7 +134,7 @@ for (const input of process.argv.slice(2)) {
                 assert call("continue")["state"] == "exited"
                 assert "42" in call("output")["output"]["stdout"]["text"]
                 stop(result)
-                groups.append(f"{language}: real breakpoint, nested values, all steps, handle expiry, output and cleanup")
+                groups.append(f"{language}: recording opt-out, real breakpoint, nested values, all steps, handle expiry, output and cleanup")
                 print("PASS", language, flush=True)
 
             (workspace / "conditional-node.js").write_text('for (let i = 0; i < 500; i++) {\n  console.log(i);\n}\n')
@@ -180,7 +183,8 @@ for (const input of process.argv.slice(2)) {
             with urllib.request.urlopen(url) as response:
                 assert response.status == 200
             result = call("launch", "--language", "typescript", "--target", "browser", "--adapter", options.js_adapter,
-                          "--breakpoint", "ui.ts:4", url)
+                          "--no-record", "--breakpoint", "ui.ts:4", url)
+            assert result["recording"]["enabled"] is False, result
             assert result["state"] == "stopped" and Path(result["location"]["file"]).name == "ui.ts", result
             assert result["location"]["line"] == 4, result
             assert values(result)["quantity"]["value"] == "2" and values(result)["price"]["value"] == "21", result
@@ -220,7 +224,7 @@ for (const input of process.argv.slice(2)) {
             finally:
                 for handle in browser_handles:
                     kernel.CloseHandle(handle)
-            groups.append("headless browser clicks Save and stops in original TypeScript handler with quantity=2, price=21, total=42")
+            groups.append("headless browser recording opt-out, Save handler stops in original TypeScript with quantity=2, price=21, total=42")
             print("PASS browser UI and TypeScript source maps", flush=True)
 
             (workspace / "heartbeat.html").write_text('<script>setInterval(function tick() { const known = 41; document.title = String(known); }, 50);</script>')
@@ -247,7 +251,8 @@ for (const input of process.argv.slice(2)) {
             groups.append("Browser TypeScript conditional breakpoint skips to 437 and updates through source maps")
             print("PASS browser conditional breakpoints", flush=True)
 
-            result = call("launch", "--language", "rust", "--adapter", options.rust_adapter, "--run", "--breakpoint", "walk.rs:10", str(binary))
+            result = call("launch", "--no-record", "--language", "rust", "--adapter", options.rust_adapter, "--run", "--breakpoint", "walk.rs:10", str(binary))
+            assert result["recording"]["enabled"] is False, result
             assert result["state"] == "stopped" and result["location"]["line"] == 10, result
             assert values(result)["known"]["value"] == "41", result
             nested = call("variables", values(result)["nested"]["handle"])
@@ -261,7 +266,7 @@ for (const input of process.argv.slice(2)) {
             assert exited["state"] == "exited" and exited["exit_code"] == 0, exited
             assert "42" in call("output")["output"]["stdout"]["text"]
             stop(result)
-            groups.append("Rust debug-symbol breakpoint, nested array, all steps, output, exit and cleanup")
+            groups.append("Rust recording opt-out, debug-symbol breakpoint, nested array, all steps, output, exit and cleanup")
             print("PASS Rust", flush=True)
 
             result = call("launch", "--language", "rust", "--adapter", options.rust_adapter, "--run", "--uncaught", str(panic_binary))

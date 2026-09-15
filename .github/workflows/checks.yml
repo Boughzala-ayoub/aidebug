@@ -29,5 +29,7 @@ jobs:
           python checks/reports.py
       - name: Check installed CLI and process cleanup
         run: python checks/integration.py --cli "$(command -v aidebug)"
+      - name: Check agent skill install and uninstall
+        run: python checks/skills.py --cli "$(command -v aidebug)"
       - name: Debug multi-file unittest and pytest failures
         run: python checks/project.py --cli "$(command -v aidebug)" --pytest-python "$(command -v python)"

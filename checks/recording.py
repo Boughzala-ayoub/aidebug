@@ -1,12 +1,135 @@
 """Run with the installed package: python -I checks/recording.py."""
 
 import json
+import os
 from pathlib import Path
+import subprocess
+import sys
 import tempfile
+import time
 from unittest.mock import patch
 
-from aidebug.recording import Recording
+from aidebug.recording import Recording, prune
 from aidebug.viewer import events, record_path
+
+
+def controls():
+    with tempfile.TemporaryDirectory(prefix="aidebug-recording-controls-") as temporary:
+        workspace = Path(temporary)
+        directory = workspace / ".aidebug"
+        folder = directory / "recordings"
+        sample = workspace / "sample.py"
+        sample.write_text("value = 41\nvalue += 1\nprint(value)\n")
+
+        def call(*arguments, ok=True):
+            process = subprocess.run([sys.executable, "-I", "-m", "aidebug.cli", "--workspace", temporary, *arguments],
+                                     cwd=temporary, capture_output=True, timeout=25)
+            result = json.loads(process.stdout)
+            assert not process.stderr and len(process.stdout) <= 65536, process.stderr
+            assert result["ok"] == ok and process.returncode == (0 if ok else 1), result
+            return result
+
+        try:
+            assert "--no-record" in call("launch", "--help")["help"]
+            assert "--dry-run" in call("recordings", "--help")["help"]
+            for arguments in [(), ("--older-than", "-1"), ("--older-than", "nan"), ("--older-than", "365001")]:
+                assert call("recordings", "prune", *arguments, ok=False)["error"]["code"] == "invalid_request"
+            assert call("recordings", "prune", "--older-than", "0")["deleted"] == 0
+            assert not directory.exists(), "Empty cleanup must not create workspace state"
+
+            entry = call("launch", "--no-record", "--module", "sample")
+            assert entry["recording"] == {"enabled": False}
+            call("break", "set", "sample.py", "3")
+            stopped = call("continue")
+            assert any(v["name"] == "value" and v["value"] == "42" for v in stopped["locals"]["items"])
+            assert call("inspect")["recording"]["enabled"] is False
+            assert call("note", "do not save this", ok=False)["error"]["code"] == "invalid_state"
+            assert call("recordings", "prune", "--older-than", "0", ok=False)["error"]["code"] == "busy"
+            assert call("continue")["exit_code"] == 0
+            assert call("output")["output"]["stdout"]["text"] == "42\n"
+            call("stop")
+            assert not folder.exists(), "Opt-out must not create any recordings"
+
+            entry = call("launch", "--run", "sample.py")
+            archived = folder / (entry["session"] + ".jsonl")
+            assert entry["recording"]["enabled"] and archived.is_file()
+            assert call("recordings", "prune", "--older-than", "0", ok=False)["error"]["code"] == "busy"
+            assert archived.is_file(), "Cleanup must preserve an open recording after target exit"
+            call("stop")
+            args = {"workspace": temporary, "script": "sample.py", "language": "python", "target": "process", "cwd": temporary}
+            recent = Recording(args, "1111222233334444")
+            recent.close()
+            future = time.time() + 40 * 86400
+            os.utime(recent.path, (future, future))
+            interrupted = Recording(args, "2222333344445555")
+            interrupted.stream.close()
+            old = time.time() - 40 * 86400
+            for file in (archived, interrupted.path):
+                os.utime(file, (old, old))
+            unrelated = folder / "notes.txt"
+            unrelated.write_text("keep me")
+            malformed = folder / "3333444455556666.jsonl"
+            malformed.write_text("{}\n")
+            os.utime(malformed, (old, old))
+            expected_bytes = archived.stat().st_size + interrupted.path.stat().st_size
+            preview = call("recordings", "prune", "--older-than", "30", "--dry-run")
+            assert preview["matched"] == 2 and preview["matched_bytes"] == expected_bytes and preview["deleted"] == 0, preview
+            assert archived.exists() and interrupted.path.exists()
+            removed = call("recordings", "prune", "--older-than", "30")
+            assert removed["deleted"] == 2 and removed["deleted_bytes"] == expected_bytes, removed
+            assert recent.path.exists() and unrelated.exists() and malformed.exists()
+            assert call("recordings", "prune", "--older-than", "30")["deleted"] == 0
+
+            # A failed deletion must report the error and preserve the file for retry.
+            with patch.object(Path, "unlink", side_effect=PermissionError("file is locked")):
+                failed = prune({"workspace": temporary, "older_than": 0, "dry_run": False})
+            assert not failed["ok"] and failed["error"]["code"] == "cleanup_failure" and failed["deleted"] == 0
+            assert recent.path.exists()
+            assert call("recordings", "prune", "--older-than", "0")["deleted"] == 1
+            assert sorted(file.name for file in folder.iterdir()) == [malformed.name, unrelated.name]
+
+            outside = workspace / "other-workspace"
+            outside.mkdir()
+            sentinel = outside / "5555666677778888.jsonl"
+            sentinel.write_text('{"kind":"session","session":"5555666677778888"}\n')
+            # Exercise real directory links, including Windows junctions without symlink privileges.
+            def link(target):
+                try:
+                    target.symlink_to(outside, target_is_directory=True)
+                except OSError:
+                    if os.name != "nt":
+                        raise
+                    result = subprocess.run(["powershell", "-NoProfile", "-NonInteractive", "-Command",
+                        "New-Item -ItemType Junction -Path $env:AIDEBUG_TEST_LINK -Target $env:AIDEBUG_TEST_TARGET -ErrorAction Stop | Out-Null"],
+                        env=dict(os.environ, AIDEBUG_TEST_LINK=str(target), AIDEBUG_TEST_TARGET=str(outside)),
+                        capture_output=True, timeout=20, creationflags=subprocess.CREATE_NO_WINDOW)
+                    assert result.returncode == 0, result.stderr
+
+            redirected_file = folder / "4444555566667777.jsonl"
+            link(redirected_file)
+            try:
+                assert call("recordings", "prune", "--older-than", "0")["deleted"] == 0
+                assert sentinel.exists() and redirected_file.exists()
+            finally:
+                if redirected_file.is_symlink():
+                    redirected_file.unlink()
+                else:
+                    redirected_file.rmdir()
+            linked_workspace = workspace / "linked-workspace"
+            (linked_workspace / ".aidebug").mkdir(parents=True)
+            redirected_folder = linked_workspace / ".aidebug/recordings"
+            link(redirected_folder)
+            try:
+                result = call("--workspace", str(linked_workspace), "recordings", "prune", "--older-than", "0", ok=False)
+                assert result["error"]["code"] == "unsafe_state" and sentinel.exists(), result
+            finally:
+                if redirected_folder.is_symlink():
+                    redirected_folder.unlink()
+                else:
+                    redirected_folder.rmdir()
+        finally:
+            call("stop")
+    print("PASS installed CLI recording opt-out, inspection/output, cleanup preview/age/all, interrupted sessions, active-session lock, deletion failure and link protection")
 
 
 def main():
@@ -77,6 +200,7 @@ def main():
         failed.append("note", text="test")
         assert failed.error == "disk full", "Recording I/O errors must be reported without crashing the debugger"
     print("PASS recording persistence, source versions, partial writes, cursor/path validation, size bounds and disk failure")
+    controls()
 
 
 if __name__ == "__main__":

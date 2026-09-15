@@ -126,7 +126,9 @@ class Session:
             if self.language == "python":
                 result["python"] = self.launch_args["python"]
             if self.recording:
-                result["recording"] = {"id": self.id, "truncated": self.recording.full, "error": self.recording.error}
+                result["recording"] = {"enabled": True, "id": self.id, "truncated": self.recording.full, "error": self.recording.error}
+            elif self.launched:
+                result["recording"] = {"enabled": False}
             return result
 
     def handle(self, kind, reference):
@@ -352,7 +354,7 @@ class Session:
         return result
 
     def command(self, args):
-        if args["command"] == "launch" and not self.launched:
+        if args["command"] == "launch" and not self.launched and not args["no_record"]:
             self.recording = Recording(args, self.id)
         if self.recording:
             # Record only public command arguments, never the control-channel token.
@@ -433,7 +435,7 @@ class Session:
             self.close()
         elif command == "note":
             if not self.recording:
-                raise DebugError("invalid_state", "Launch a program before adding a note")
+                raise DebugError("invalid_state", "Notes require a session launched with recording enabled")
             self.recording.append("note", text=args["text"])
             extra["note"] = args["text"]
         elif command not in ("status", "inspect"):

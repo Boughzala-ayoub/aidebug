@@ -2,8 +2,15 @@
 
 ## Unreleased
 
+- Add `launch --no-record` and `recordings prune --older-than DAYS [--dry-run]`. Cleanup uses the workspace lock, preserves unrelated files and links, and reports matched and deleted bytes.
+
+- Bundle a shared runtime debugging skill for Codex and Claude Code, with Python, JavaScript/TypeScript, and Rust references. Add JSON `skills install`, `status`, and `uninstall` commands for user or project scope. Track owned files and preserve local edits during updates and removal.
 - Ignore `VIRTUAL_ENV` when it identifies aidebug's own environment, so activating the tool does not override the workspace's Python environment. The regression check failed before the fix and passed on Windows and Ubuntu WSL afterward.
 - Keep check summaries in Git and full reports under the ignored `checks/artifacts/` directory.
+
+Recording controls passed the installed-package recording checks, nine Python integration groups, and thirteen multi-language groups on Windows. Opt-out was exercised with Python modules, Node JavaScript and TypeScript, browser TypeScript, and Rust. Cleanup checks include interrupted recordings, write-age filtering, active-session exclusion, deletion failures, and real Windows junction protection. These recording controls have not been verified on Linux or macOS.
+
+Version 0.6.0 verification passed seven skill lifecycle groups on Windows with Python 3.11.0 and Ubuntu WSL with Python 3.14.4. The checks include real Windows junction and POSIX symlink protection. The official skill validator passed. Real debugpy integration passed nine Windows and eight Linux groups; Linux transport, recording, average calculation, and three project groups also passed. Both actual user-scope registrations were installed, removed, and reinstalled successfully. Agent model selection and macOS discovery were not tested.
 
 ## 0.5.0 (2026-09-14)
 

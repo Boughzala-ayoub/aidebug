@@ -1,0 +1,19 @@
+{
+  "passed": 7,
+  "failed": 0,
+  "groups": [
+    "JSON help, invalid requests, read-only status, no debug session",
+    "packaged skill and references, both user paths, idempotent installation",
+    "CLI fallback without PATH, stale version and removed interpreter repair",
+    "edited and missing files preserved, invalid ownership and traversal rejected",
+    "uninstall preserves unrelated files and other agent, repeat removal is safe",
+    "project scope with spaces, separate user scope, contributor files untouched",
+    "symlink or junction redirects refused without touching external directory"
+  ],
+  "versions": {
+    "python": "3.14.4",
+    "platform": "linux",
+    "aidebug": "0.6.0"
+  },
+  "skipped": []
+}

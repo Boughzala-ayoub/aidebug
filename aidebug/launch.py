@@ -104,9 +104,9 @@ def arguments(args):
     for key in ("language", "target", "cwd", "python", "adapter", "node", "browser", "web_root", "condition"):
         if args.get(key):
             argv += ["--" + key.replace("_", "-"), args[key]]
-    for flag in ("run", "uncaught", "headed", "module"):
+    for flag in ("run", "uncaught", "headed", "module", "no_record"):
         if args[flag]:
-            argv.append("--" + flag)
+            argv.append("--" + flag.replace("_", "-"))
     for pattern in args["out_files"]:
         argv += ["--out-files", pattern]
     for file, lines in args["breakpoints"].items():

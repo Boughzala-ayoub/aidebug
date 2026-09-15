@@ -50,6 +50,10 @@ After editing source, stop and relaunch to verify. Recordings remain available.
 Conditional stop: break set pricing.py 6 --condition "count == 437"
 Conditions use the adapter's expression syntax and can execute target code.
 No arbitrary evaluate command is provided. See launch --help and break --help.
+Use launch --no-record TARGET to disable saved observations and viewer activity.
+After stop, preview cleanup: recordings prune --older-than 30 --dry-run
+Remove matching recordings: recordings prune --older-than 30
+Age is days since last write; 0 matches all recordings. Cleanup requires no live session.
 """
 
 
@@ -113,6 +117,7 @@ def parse(argv):
     launch.add_argument("--condition", type=condition, help="condition for all launch breakpoints; may execute target code")
     launch.add_argument("--run", action="store_true", help="run without stopping at entry")
     launch.add_argument("--uncaught", action="store_true", help="stop on uncaught exceptions, or Rust panics")
+    launch.add_argument("--no-record", action="store_true", help="disable saved observations, notes and viewer activity for this launch")
     launch.add_argument("script")
     launch.add_argument("args", nargs=argparse.REMAINDER)
     bp = sub.add_parser("break", help="add or remove breakpoints")
@@ -140,17 +145,29 @@ def parse(argv):
     view = sub.add_parser("view", help="start or locate the local live/replay viewer")
     view.add_argument("--open", action="store_true", help="open the viewer in your browser")
     view.add_argument("--stop", action="store_true", help="stop only the viewer server")
+    recordings = sub.add_parser("recordings", help="remove old recordings from this workspace", description="Prune saved recordings after stopping the debug session. Unrelated files and links are preserved.")
+    recordings.add_argument("action", choices=["prune"])
+    recordings.add_argument("--older-than", type=int, required=True, metavar="DAYS", help="days since last write, 0 removes all recordings; range 0..365000")
+    recordings.add_argument("--dry-run", action="store_true", help="report matching file count and bytes without deleting recordings")
+    skills = sub.add_parser("skills", help="install, inspect, or remove agent skills")
+    skills.add_argument("action", choices=["install", "status", "uninstall"])
+    skills.add_argument("--agent", action="append", choices=["codex", "claude-code"], help="repeat for both agents; status defaults to both")
+    skills.add_argument("--scope", choices=["user", "project"], default="user")
     args = vars(parser.parse_args(argv))
     if not math.isfinite(args["timeout"]) or not 0.01 <= args["timeout"] <= 60:
         raise DebugError("invalid_request", "Timeout must be between 0.01 and 60 seconds")
     if args.get("limit", 20) > 30 or args.get("start", 0) < 0:
         raise DebugError("invalid_request", "Limit must be 1..30 and start must be nonnegative")
+    if args["command"] == "recordings" and not 0 <= args["older_than"] <= 365000:
+        raise DebugError("invalid_request", "Recording age must be 0..365000 days")
     if args["command"] == "note" and (not args["text"].strip() or len(args["text"]) > 4000):
         raise DebugError("invalid_request", "Notes must contain 1..4000 characters")
     workspace = Path(args["workspace"]).resolve()
     if not workspace.is_dir():
         raise DebugError("invalid_request", "Workspace directory does not exist")
     args["workspace"] = str(workspace)
+    if args["command"] == "skills" and args["action"] != "status" and not args["agent"]:
+        raise DebugError("invalid_request", "Skill install/uninstall requires --agent codex or --agent claude-code")
     if args["command"] == "launch":
         launch_options.resolve(args)
     if args["command"] == "break":
@@ -339,6 +356,12 @@ def remove_state(path):
 
 def run(argv):
     args = parse(argv)
+    if args["command"] == "recordings":
+        from .recording import prune
+        return prune(args)
+    if args["command"] == "skills":
+        from .skills import manage
+        return manage(args)
     if args["command"] == "view":
         from .viewer import start
         return start(args)
