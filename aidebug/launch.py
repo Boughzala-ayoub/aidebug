@@ -52,7 +52,11 @@ def resolve(args):
             raise DebugError("invalid_request", "Build Rust with debug symbols first; launch the executable, not the .rs source")
     if args["language"] == "python":
         project_python = workspace / ".venv" / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
-        active_python = Path(os.environ["VIRTUAL_ENV"]) / ("Scripts/python.exe" if os.name == "nt" else "bin/python") if os.environ.get("VIRTUAL_ENV") else None
+        active_env = os.environ.get("VIRTUAL_ENV")
+        # Activating aidebug itself says nothing about the target's environment.
+        if active_env and Path(active_env).resolve() == Path(sys.prefix).resolve():
+            active_env = None
+        active_python = Path(active_env) / ("Scripts/python.exe" if os.name == "nt" else "bin/python") if active_env else None
         selected = args["python"] or (str(active_python) if active_python else str(project_python) if project_python.is_file() else sys.executable)
         if not Path(selected).is_absolute() and ("/" in selected or "\\" in selected):
             selected = str(workspace / selected)

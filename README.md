@@ -49,7 +49,7 @@ aidebug --workspace PATH/TO/PROJECT stop
 
 Install pytest in the target environment first. For unittest, use `--module unittest -- -q test_checkout`. Script launches still work as before. A module name is resolved by the target interpreter from `--cwd`, which defaults to the workspace. Module launch does not import project code into the CLI or helper.
 
-Python selection uses explicit `--python`, then the environment named by `VIRTUAL_ENV`, then the workspace's `.venv`, then aidebug's own interpreter. Environments use `Scripts/python.exe` on Windows or `bin/python` on POSIX. An invalid activated environment returns an error instead of silently selecting another interpreter. Status and execution responses include the selected `python` path. Interpreter paths containing directories are relative to the workspace; bare executable names use PATH. Virtual-environment symlinks are preserved.
+Python selection uses explicit `--python`, then the environment named by `VIRTUAL_ENV`, then the workspace's `.venv`, then aidebug's own interpreter. `VIRTUAL_ENV` is ignored when its directory resolves to aidebug's `sys.prefix`: activating the tool's environment must not override the project's environment. Environments use `Scripts/python.exe` on Windows or `bin/python` on POSIX. An invalid activated environment returns an error instead of silently selecting another interpreter. Status and execution responses include the selected `python` path. Interpreter paths containing directories are relative to the workspace; bare executable names use PATH. Virtual-environment symlinks are preserved.
 
 Test runners catch assertion failures, so `--uncaught` alone does not stop at every failing test. Set a breakpoint on the assertion or the function it calls. The [three-file checkout fixture](examples/project/test_checkout.py) deliberately computes 10 instead of 15 because `pricing.py` counts all orders after `orders.py` filters unpaid ones. The project check copies it, inspects both frames, fixes the divisor, and reruns successfully. The original fixture remains buggy.
 
@@ -342,7 +342,11 @@ Run the integration checks against the installed executable:
 .venv/bin/python checks/integration.py --cli .venv/bin/aidebug
 ```
 
-The checks launch separate CLI processes in a temporary workspace and use real debugpy. They cover breakpoints, all three steps, nested values, frame selection, arguments, working directory, interpreter, exceptions, deadlines, pause/resume, authentication, adapter failure, truncation, and process cleanup. `checks/results.json` records the actual commands and responses from the last successful run.
+The checks launch separate CLI processes in a temporary workspace and use real debugpy. They cover breakpoints, all three steps, nested values, frame selection, arguments, working directory, interpreter, exceptions, deadlines, pause/resume, authentication, adapter failure, truncation, and process cleanup. [Python results](checks/results.json) contain the latest summary.
+
+Tracked `checks/*-results.json` and `checks/results.json` contain counts, check groups, and available version information. Full reports, CLI transcripts, timings, and screenshots go under the Git-ignored `checks/artifacts/` directory. Repeating a run with the same outcome and tool versions does not change its summary.
+
+Run `python checks/reports.py` to check summary stability and preservation of full failure reports.
 
 Verify module launch and a real multi-file test investigation:
 
@@ -354,7 +358,7 @@ Verify module launch and a real multi-file test investigation:
 .venv/Scripts/python checks/project.py --cli .venv/Scripts/aidebug.exe --pytest-python .venv/Scripts/python.exe
 ```
 
-Use `.venv/bin` paths on Linux/macOS. The check creates a separate workspace `.venv` without debugpy, adds a workspace-only dependency, verifies selection of a custom activated environment and explicit interpreter override, then diagnoses and repairs a temporary copy of the checkout fixture. [Project results](checks/project-results.json) preserve the commands and runtime evidence with workspace paths replaced by placeholders. The check installs nothing itself.
+Use `.venv/bin` paths on Linux/macOS. The check creates a separate workspace `.venv` without debugpy, adds a workspace-only dependency, verifies selection of a custom activated environment and explicit interpreter override, then diagnoses and repairs a temporary copy of the checkout fixture. [Project results](checks/project-results.json) summarize the checks. The check installs nothing itself.
 
 [GitHub Actions](.github/workflows/checks.yml) installs the package and runs transport, recording, the average calculation check, Python integration, and both test-runner investigations on Ubuntu and Windows with Python 3.10 and 3.13. It needs no JS or Rust adapter downloads. The workflow runs on pushes and pull requests; no GitHub run is claimed until this repository is published and the job succeeds.
 
@@ -366,7 +370,7 @@ npm install --prefix .tools/ts-compiler --no-save --package-lock=false typescrip
 .venv/Scripts/python checks/multilanguage.py --cli .venv/Scripts/aidebug.exe --typescript-compiler .tools/ts-compiler/node_modules/typescript/lib/typescript.js
 ```
 
-Optional check flags `--js-adapter` and `--rust-adapter` select shared installations. The check compiles its own TypeScript and Rust fixtures, serves a local test page, and launches the installed CLI from temporary workspaces. It checks original TypeScript breakpoints in Node and a browser button handler, nested values, all step operations, expired handles, JS exceptions, Rust panic caller values, output, deadlines, invalid launches, and cleanup. `checks/multilanguage-results.json` records pass/failure counts and the actual CLI transcript. It uses no browser automation package or Python test framework.
+Optional check flags `--js-adapter` and `--rust-adapter` select shared installations. The check compiles its own TypeScript and Rust fixtures, serves a local test page, and launches the installed CLI from temporary workspaces. It checks original TypeScript breakpoints in Node and a browser button handler, nested values, all step operations, expired handles, JS exceptions, Rust panic caller values, output, deadlines, invalid launches, and cleanup. [Multi-language results](checks/multilanguage-results.json) summarize the checks. It uses no browser automation package or Python test framework.
 
 Run `.venv/Scripts/python -I checks/transport.py` to check adapter authentication, fragmented UTF-8 DAP messages, out-of-order responses, asynchronous events, output isolation, and cleanup against a small test adapter. `-I` ensures this check imports the installed package.
 
@@ -379,21 +383,7 @@ node checks/viewer.mjs --cli .venv/Scripts/aidebug.exe --puppeteer .tools/viewer
 
 Pass `--browser EXE` if Chrome, Chromium, or Edge is not found automatically. The check verifies the installed package's served assets in fresh headless browser contexts. It drives real CLI commands, live updates, nested values, source changes, exceptions, successful reruns, replay, viewer restart, access controls, and untrusted text rendering. It checks every view and open navigation at 320, 375, 600, 768, 850, 1024, 1141, and 1280 pixels. Results are saved to `checks/viewer-results.json`; screenshots are generated under `checks/artifacts/viewer`.
 
-Verified on Windows on 2026-09-14 with aidebug 0.5.0, Python 3.11.0, debugpy 1.8.21, Node 24.18.0, js-debug 1.117.0, CodeLLDB 1.12.3, and Rust 1.97.1:
-
-| Check | Actual result |
-| --- | --- |
-| [Python integration transcript](checks/results.json) | 9 groups passed, 0 failed, including conditional breakpoints |
-| [Multi-language integration transcript](checks/multilanguage-results.json) | 13 groups passed, 0 failed, including pause and conditional breakpoints in Node, browser TypeScript, and Rust |
-| [Project integration transcript](checks/project-results.json) | 3 groups passed: isolated interpreter selection, unittest investigation, pytest investigation |
-| `checks/transport.py` | Passed authentication, framing, response matching, events, output isolation, and cleanup |
-| `checks/recording.py` | Passed persistence, source versions, partial writes, bounds, path/cursor validation, and disk failure |
-| `checks/test_buggy.py` | Passed paid, mixed, zero-price, empty, and unpaid-only inputs |
-| [Viewer integration results](checks/viewer-results.json) | 6 groups passed; 72 screenshots across 9 views and 8 widths |
-
-Ubuntu under WSL also passed transport, recording, the average calculation check, 8 Python integration groups, and all 3 project groups with Python 3.14.4 and debugpy 1.8.21. [Linux results](checks/linux-results.json) include the actual output and transcripts. The earlier Linux run found and fixed an adapter-reaping bug: exited adapters now get reaped while the helper remains available. JS/TS, Rust, the viewer browser checks, and macOS still need verification on their respective non-Windows platforms.
-
-The original deliberately broken average calculation failed at line 4. Runtime inspection showed `prices = [10, 20]` and `count = 0`: subtracting paid orders from all orders counted unpaid orders. `examples/fixed.py` divides by the number of paid orders, rejects an empty set, and prints `15.0`. The integration check preserves the original failure in a temporary `exception.py` fixture and reruns the corrected example successfully.
+See the [viewer summary](checks/viewer-results.json) and [Linux summary](checks/linux-results.json) for platform results. Release verification notes and development history are in [CHANGELOG.md](CHANGELOG.md).
 
 Run `python checks/test_buggy.py` to verify paid, mixed, zero-priced, empty, and unpaid-only inputs. `examples/buggy.py` preserves the repaired divisor and puts its unpaid-only demonstration under a main guard, so importing it does not run the demonstration. Running that example directly still demonstrates the intended `ValueError`. Inspect the successful corrected example with:
 
@@ -407,10 +397,10 @@ aidebug output
 aidebug stop
 ```
 
-Version 0.5 supports one local target and the thread that caused the stop. It has no stdin/interactive terminal support, arbitrary expression evaluation command, variable mutation, remote attachment, worker/subprocess debugging, concurrent sessions per workspace, or thread-selection command. Additional js-debug child targets are rejected. Commands are serialized; overlapping commands receive `busy`. Set breakpoints with `launch --breakpoint` or after a process entry stop.
+aidebug supports one local target and the thread that caused the stop. It has no stdin/interactive terminal support, arbitrary expression evaluation command, variable mutation, remote attachment, worker/subprocess debugging, concurrent sessions per workspace, or thread-selection command. Additional js-debug child targets are rejected. Commands are serialized; overlapping commands receive `busy`. Set breakpoints with `launch --breakpoint` or after a process entry stop.
 
 General expression evaluation remains outside this version because it can invoke arbitrary application code and mutate the state the agent is investigating. Conditional breakpoints are the explicit opt-in exception. Inspection stays on DAP variable requests. Formatter side effects remain possible, as described below.
 
-Inspection uses only DAP stack, scopes, and variable requests. Debugger object formatting can still invoke representation, property, or formatter code. Adapters materialize variable children before the CLI pages them, so response limits are not debuggee memory or CPU limits. The DAP transport rejects messages larger than 16 MiB. This debugger does not provide performance profiling, browser layout inspection, or network tracing. Killing a POSIX helper with `SIGKILL`, or a target deliberately escaping its process group, can leave descendants behind. Windows covers all supported adapters; Ubuntu WSL covers the Python CLI, transport, and recording checks. Other platform/adapter combinations remain unverified. Browser profile files can remain after a helper crash. If an OS file lock outlasts the cleanup grace period, `stop` returns `cleanup_failure` and preserves session metadata for retry. A Windows check encountered this transient condition; retrying `stop` after the lock cleared completed cleanup.
+Inspection uses only DAP stack, scopes, and variable requests. Debugger object formatting can still invoke representation, property, or formatter code. Adapters materialize variable children before the CLI pages them, so response limits are not debuggee memory or CPU limits. The DAP transport rejects messages larger than 16 MiB. This debugger does not provide performance profiling, browser layout inspection, or network tracing. Killing a POSIX helper with `SIGKILL`, or a target deliberately escaping its process group, can leave descendants behind. Windows covers all supported adapters; Ubuntu WSL covers the Python CLI, transport, and recording checks. Other platform/adapter combinations remain unverified. Browser profile files can remain after a helper crash. If an OS file lock outlasts the cleanup grace period, `stop` returns `cleanup_failure` and preserves session metadata for retry.
 
 Protocol implementation references checked during development: [debugpy](https://github.com/microsoft/debugpy), [debugpy launch settings](https://github.com/microsoft/debugpy/wiki/Debug-configuration-settings), [DAP overview](https://microsoft.github.io/debug-adapter-protocol/overview), [DAP specification](https://github.com/microsoft/debug-adapter-protocol/blob/main/specification.md), [js-debug](https://github.com/microsoft/vscode-js-debug), [js-debug launch settings](https://github.com/microsoft/vscode-js-debug/blob/main/OPTIONS.md), [js-debug standalone server](https://github.com/microsoft/vscode-js-debug/blob/main/src/dapDebugServer.ts), and [CodeLLDB manual](https://github.com/vadimcn/codelldb/blob/master/MANUAL.md).

@@ -15,7 +15,7 @@ import threading
 import time
 import urllib.request
 
-from integration import alive, redact, until
+from integration import alive, redact, until, write_report
 
 
 def main():
@@ -320,7 +320,7 @@ for (const input of process.argv.slice(2)) {
                 "seconds": round(time.monotonic() - started, 2),
                 "groups": groups, "transcript": transcript}, indent=2)
             report = redact(report, [(temporary, "<workspace>"), (str(root), "<repo>"), (str(Path.home()), "<home>")])
-            (root / "checks/multilanguage-results.json").write_text(report, encoding="utf-8", newline="\n")
+            write_report(root / "checks/multilanguage-results.json", report)
     print(f"PASS {len(groups)} multi-language groups")
 
 

@@ -41,6 +41,7 @@ launch script.py; for unittest, use launch --module unittest -- -q test_module.
 Pytest must be installed in the target interpreter. Test runners catch assertions;
 --uncaught can stop at their final SystemExit instead. Set a breakpoint near the failure.
 Python selection: --python, VIRTUAL_ENV, workspace .venv, then the CLI interpreter.
+VIRTUAL_ENV is ignored when it identifies aidebug's own environment.
 Check the response's python path. Every command returns JSON: check ok and state.
 Handles expire when execution resumes. Expand only values needed for the investigation.
 timed_out is not an exit: inspect status, or pause a running target, or stop it.
@@ -98,7 +99,7 @@ def parse(argv):
     sub = parser.add_subparsers(dest="command", required=True)
     launch = sub.add_parser("launch", help="launch a script, executable, or local browser URL")
     launch.add_argument("--cwd", help="target working directory, default: workspace")
-    launch.add_argument("--python", help="target interpreter; default: VIRTUAL_ENV, workspace .venv, then CLI interpreter")
+    launch.add_argument("--python", help="target interpreter; default: VIRTUAL_ENV (except aidebug's own), workspace .venv, then CLI interpreter")
     launch.add_argument("--module", action="store_true", help="launch the positional name as a Python module")
     launch.add_argument("--language", choices=["python", "javascript", "typescript", "js", "ts", "rust"], help="infer from script extension when omitted")
     launch.add_argument("--target", choices=["process", "node", "browser"])

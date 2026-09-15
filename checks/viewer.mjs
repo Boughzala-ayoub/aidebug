@@ -167,7 +167,10 @@ try {
   results.seconds=(Date.now()-started)/1000;
   let report=JSON.stringify(results,null,2);
   for (const [value,label] of [[workspace,'<workspace>'],[root,'<repo>'],[os.homedir(),'<home>']]) report=report.replaceAll(JSON.stringify(value).slice(1,-1),label);
-  fs.writeFileSync(path.join(root,'checks/viewer-results.json'),report);
+  fs.writeFileSync(path.join(root,'checks/artifacts/viewer-results.json'),report);
+  fs.writeFileSync(path.join(root,'checks/viewer-results.json'),JSON.stringify({
+    passed:results.passed.length,failed:results.failure?1:0,groups:results.passed,screenshot_count:results.screenshots.length
+  },null,2)+'\n');
   // This is the exact temporary workspace created above, never a user-supplied path.
   fs.rmSync(workspace,{recursive:true,force:true,maxRetries:5,retryDelay:150});
 }

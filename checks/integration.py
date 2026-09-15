@@ -26,6 +26,15 @@ def redact(report, paths):
     return report
 
 
+def write_report(destination, report):
+    artifacts = destination.parent / "artifacts"
+    artifacts.mkdir(exist_ok=True)
+    (artifacts / destination.name).write_text(report, encoding="utf-8", newline="\n")
+    summary = {key: value for key, value in json.loads(report).items()
+               if key not in ("transcript", "seconds", "cli")}
+    destination.write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8", newline="\n")
+
+
 def alive(pid):
     if not pid:
         return False
@@ -284,7 +293,7 @@ def main():
     destination = root / "checks" / "results.json"
     report = json.dumps(report, indent=2)
     report = redact(report, [(temp, "<workspace>"), (str(root), "<repo>"), (str(Path.home()), "<home>")])
-    destination.write_text(report, encoding="utf-8", newline="\n")
+    write_report(destination, report)
     print(f"PASS {len(checks)} integration groups; results: {destination}")
 
 

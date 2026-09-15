@@ -14,7 +14,7 @@ import tempfile
 import time
 import venv
 
-from integration import alive, redact, until
+from integration import alive, redact, until, write_report
 
 
 def main():
@@ -108,6 +108,13 @@ def main():
             output = call("output")["output"]["stdout"]["text"]
             assert "731" in output and str(workspace / ".venv") in output, output
             stop(result)
+            # Activating the CLI's own environment must not hide the project's imports.
+            for activated_prefix in (sys.prefix, sys.prefix + os.sep + "." + os.sep):
+                own_env = call("launch", "--run", "--cwd", "checkout", "--module", "probe",
+                               env={**environment, "VIRTUAL_ENV": activated_prefix})
+                assert own_env["python"] == str(python) and own_env["exit_code"] == 0, own_env
+                assert "731" in call("output")["output"]["stdout"]["text"]
+                stop(own_env)
             relative = str(python.relative_to(workspace))
             explicit_project = call("launch", "--run", "--python", relative, "--cwd", "checkout", "checkout/probe.py")
             assert explicit_project["exit_code"] == 0 and explicit_project["python"] == str(python), explicit_project
@@ -133,7 +140,7 @@ def main():
             stop(override)
             assert call("launch", "checkout/environment.py", env={**environment, "VIRTUAL_ENV": str(workspace / "missing-env")}, ok=False)["error"]["code"] == "missing_dependency"
             assert not (workspace / ".aidebug/session.json").exists()
-            groups.append("module validation, missing module, cwd, workspace-only dependency and explicit interpreter override")
+            groups.append("module validation, cwd, workspace imports, CLI environment exclusion, custom activation and explicit interpreter override")
             print("PASS", groups[-1], flush=True)
             diagnose("unittest")
             if options.pytest_python:
@@ -144,7 +151,7 @@ def main():
             report = json.dumps({"passed": len(groups), "failed": int(sys.exc_info()[0] is not None),
                 "groups": groups, "seconds": round(time.monotonic() - started, 2), "transcript": transcript}, indent=2)
             report = redact(report, [(temporary, "<workspace>"), (str(root), "<repo>"), (str(Path.home()), "<home>")])
-            (root / "checks/project-results.json").write_text(report, encoding="utf-8", newline="\n")
+            write_report(root / "checks/project-results.json", report)
     print(f"PASS {len(groups)} project groups")
 
 
