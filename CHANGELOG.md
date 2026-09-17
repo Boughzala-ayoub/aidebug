@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+- Add output-only `--fields` projection for nested JSON and arrays, retaining errors and truncation/paging flags. Preserve async stack labels, reject historical frame inspection with `frame_not_inspectable`, and identify parent handles in failed value lookups. Document UTF-8 output for Python consumers on Windows.
+
+The follow-up CLI changes passed nine Python integration groups, thirteen multi-language groups, four workflow groups, four browser groups, and seven skill lifecycle groups on Windows. The installed viewer passed seven groups and produced 80 screenshots across eight widths, including async stack labels. The browser regression reproduced the original async-frame failure before the fix and verified the corrected error, live scopes, DOM lookup guidance, and intact UTF-8 source excerpts afterward. An initial multi-language run failed its browser descendant-cleanup deadline; the unchanged check passed on an isolated rerun. Its failure report remains in `checks/artifacts/multilanguage-initial-cleanup-failure.json`. These follow-up changes have not been checked on Linux or macOS.
+- Add all-scope inspection, selected-value traversal, asynchronous launch, responsive waits, and setup diagnostics. Report debugging termination without a target exit as an unknown target outcome with diagnostics.
+- Add private same-page CDP access and a bundled Puppeteer transport, browser source mappings, and replay of selected values and scope expansions. Headless launches now preserve Chrome's default GPU behavior; `--disable-gpu` is explicit.
+
+Version 0.7.0 verification passed nine Python integration groups, thirteen multi-language groups, three agent-workflow groups, three browser-automation groups, and seven skill lifecycle groups on Windows. The viewer passed six groups with 72 screenshots across eight widths; selected values appear in replay. Transport and recording checks passed. Ubuntu WSL passed eight Python integration groups, three project groups, three agent-workflow groups, seven skill groups, and transport, recording, and average-calculation checks. The official skill validator passed, and both managed user skills were updated. macOS, Playwright, and actual AI tool-selection behavior were not tested.
+
+The browser check reads a module-scoped geometry count of 731 without modifying the page to expose a local snapshot. Puppeteer clicks and captures the same page while aidebug stops and resumes it. Directory, explicit HTML, and custom-route URLs resolve to the expected local source, including a sibling script. Closing the page yields an unconfirmed termination with event history; the automation secret is absent from recordings. Custom file mappings require matching filenames, and directory routes require `index.html`.
+
+An initial concurrent verification run hit a CDP test deadline and CodeLLDB's connection deadline. Isolated reruns passed; the cause of those intermittent timeouts was not established. The earlier unexplained exit in the user's game was not reproduced or attributed to a renderer crash.
+
 - Add `launch --no-record` and `recordings prune --older-than DAYS [--dry-run]`. Cleanup uses the workspace lock, preserves unrelated files and links, and reports matched and deleted bytes.
 
 - Bundle a shared runtime debugging skill for Codex and Claude Code, with Python, JavaScript/TypeScript, and Rust references. Add JSON `skills install`, `status`, and `uninstall` commands for user or project scope. Track owned files and preserve local edits during updates and removal.

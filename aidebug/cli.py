@@ -8,6 +8,7 @@ import json
 import math
 import os
 from pathlib import Path
+import re
 import secrets
 import socket
 import socketserver
@@ -29,6 +30,8 @@ USAGE_LOOP = """Agent debugging loop (run in the target project, or add --worksp
   aidebug launch --module --run --breakpoint pricing.py:6 pytest -- -q test_checkout.py
   aidebug inspect
   aidebug inspect --frame FRAME_HANDLE
+  aidebug scopes
+  aidebug value --scope SCOPE_HANDLE renderer.info.memory.geometries
   aidebug variables VALUE_HANDLE
   aidebug note "Describe the observed values and suspected cause."
   aidebug step over
@@ -50,6 +53,28 @@ After editing source, stop and relaunch to verify. Recordings remain available.
 Conditional stop: break set pricing.py 6 --condition "count == 437"
 Conditions use the adapter's expression syntax and can execute target code.
 No arbitrary evaluate command is provided. See launch --help and break --help.
+Start without waiting: launch --no-wait TARGET. Then use --timeout 300 wait.
+wait ends on stopped, exited, terminated, or failed; other commands remain available.
+timed_out means the wait deadline expired, not that the program failed.
+scopes exposes adapter-provided local, closure, module and global containers.
+value follows child names through DAP variables; it does not evaluate expressions.
+Stack entries with hint: label are separators without handles. Historical JS/TS
+async frames have async: true and scopes_available: false; inspect a live frame instead.
+For a missing value child, expand the parent handle named in the error with variables.
+Reduce stdout with global --fields before the command:
+  aidebug --fields state,reason,timed_out wait
+  aidebug --fields 'stack.frames[].name,stack.frames[].line,stack.frames[].handle' inspect
+Use complete comma-separated paths; [] selects each array element. Output keeps its
+JSON structure. Missing fields become null. ok, errors, and truncation/paging flags
+are retained. Recordings and inspection work remain unchanged. No string formatting.
+When piping into Python on Windows, set PYTHONIOENCODING=utf-8 in the consumer's
+environment (Git Bash: export PYTHONIOENCODING=utf-8; PowerShell: $env:PYTHONIOENCODING='utf-8').
+For unknown termination, read diagnostics and output, then stop before relaunching.
+Use sources to check binding and --url-path /ROUTE/=LOCAL_FILE for browser mappings.
+Use doctor --language javascript --target browser --adapter PATH to check setup.
+automation returns a private page CDP connection and a Puppeteer client module.
+Measure performance separately: frame-loop breakpoints affect timing. Confirm
+application progress before claiming a soak passed; running alone is insufficient.
 Use launch --no-record TARGET to disable saved observations and viewer activity.
 After stop, preview cleanup: recordings prune --older-than 30 --dry-run
 Remove matching recordings: recordings prune --older-than 30
@@ -61,7 +86,7 @@ def encode(result):
     data = json.dumps(result, ensure_ascii=True).encode() + b"\n"
     if len(data) > MAX_RESPONSE:
         result = dict(result)
-        for key in ("output", "locals", "variables", "stack", "location", "breakpoints"):
+        for key in ("output", "locals", "variables", "stack", "location", "breakpoints", "scopes", "sources", "value", "launch", "diagnostics"):
             if key in result:
                 result[key] = {"truncated": True, "message": "Response exceeds 64 KiB; request fewer values"}
                 result["truncated"] = True
@@ -95,11 +120,50 @@ def condition(value):
     return value
 
 
+def fields(value):
+    paths = value.split(",")
+    if len(value) > 2048 or not 1 <= len(paths) <= 32:
+        raise argparse.ArgumentTypeError("fields requires 1..32 paths within 2048 characters")
+    tree = {}
+    for path in paths:
+        parts = path.strip().split(".")
+        if not 1 <= len(parts) <= 8 or any(not re.fullmatch(r"[A-Za-z_][A-Za-z_0-9]*(\[\])?", part) for part in parts):
+            raise argparse.ArgumentTypeError("use complete dot-separated field paths, with [] for arrays (at most 8 levels)")
+        node = tree
+        for index, part in enumerate(parts):
+            if any(key != part and key.removesuffix("[]") == part.removesuffix("[]") for key in node):
+                raise argparse.ArgumentTypeError("a field cannot be selected as both an object and an array")
+            if part in node and (not node[part] or index == len(parts) - 1):
+                raise argparse.ArgumentTypeError("field paths must be distinct and must not select both a parent and its child")
+            node = node.setdefault(part, {})
+    return tree
+
+
+def project_fields(value, tree):
+    if not tree:
+        return value
+    if not isinstance(value, dict):
+        return None
+    result = {}
+    for part, children in tree.items():
+        key = part.removesuffix("[]")
+        item = value.get(key)
+        if part.endswith("[]"):
+            result[key] = [project_fields(child, children) for child in item] if isinstance(item, list) else None
+        else:
+            result[key] = project_fields(item, children)
+    for key in ("ok", "error", "truncated", "inspection_truncated", "breakpoints_truncated", "next_start"):
+        if key in value:
+            result[key] = value[key]
+    return result
+
+
 def parse(argv):
     parser = Parser(prog="aidebug", description="Local Python, JS/TS, and Rust debugger. Every command prints JSON.",
                     epilog=USAGE_LOOP, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--workspace", default=os.getcwd(), help="session workspace, default: current directory")
-    parser.add_argument("--timeout", type=float, default=10, help="command deadline in seconds, 0.01 to 60")
+    parser.add_argument("--timeout", type=float, default=10, help="deadline: 0.01..60 seconds; wait allows up to 3600")
+    parser.add_argument("--fields", type=fields, help="project JSON stdout using complete comma-separated paths, e.g. state,stack.frames[].name; put before command")
     sub = parser.add_subparsers(dest="command", required=True)
     launch = sub.add_parser("launch", help="launch a script, executable, or local browser URL")
     launch.add_argument("--cwd", help="target working directory, default: workspace")
@@ -116,6 +180,9 @@ def parse(argv):
     launch.add_argument("--breakpoint", action="append", default=[], help="set FILE:LINE before execution; repeatable")
     launch.add_argument("--condition", type=condition, help="condition for all launch breakpoints; may execute target code")
     launch.add_argument("--run", action="store_true", help="run without stopping at entry")
+    launch.add_argument("--no-wait", action="store_true", help="start asynchronously; use wait or status for progress")
+    launch.add_argument("--disable-gpu", action="store_true", help="explicit software-rendering option for browser launches")
+    launch.add_argument("--url-path", action="append", default=[], metavar="URL_PATH=LOCAL_FILE", help="explicit browser source mapping; repeatable")
     launch.add_argument("--uncaught", action="store_true", help="stop on uncaught exceptions, or Rust panics")
     launch.add_argument("--no-record", action="store_true", help="disable saved observations, notes and viewer activity for this launch")
     launch.add_argument("script")
@@ -129,11 +196,28 @@ def parse(argv):
     exceptions.add_argument("mode", choices=["on", "off"])
     sub.add_parser("continue")
     sub.add_parser("pause", help="request a stop in the running target")
+    sub.add_parser("wait", help="wait for a stop or session end without blocking other commands")
+    sub.add_parser("automation", help="request a private CDP connection to the launched browser page")
+    sources = sub.add_parser("sources", help="list adapter-loaded sources and breakpoint binding results")
+    sources.add_argument("--filter", default="", help="case-insensitive source path substring")
+    sources.add_argument("--limit", type=positive, default=20)
+    sources.add_argument("--start", type=int, default=0)
+    doctor = sub.add_parser("doctor", help="check local tools without starting a program")
+    doctor.add_argument("--language", choices=["python", "javascript", "typescript", "rust"], default="python")
+    doctor.add_argument("--target", choices=["process", "node", "browser"])
+    for flag in ("python", "adapter", "browser", "node"):
+        doctor.add_argument("--" + flag)
     step = sub.add_parser("step")
     step.add_argument("kind", choices=["into", "over", "out"])
     inspect = sub.add_parser("inspect")
     inspect.add_argument("--frame", help="frame handle from the current stop")
     inspect.add_argument("--limit", type=positive, default=20)
+    scopes = sub.add_parser("scopes", help="list all scopes of the selected stopped frame")
+    scopes.add_argument("--frame")
+    value = sub.add_parser("value", help="select named children through DAP variables, without evaluating expressions")
+    value.add_argument("path", nargs="?", default="", help="dot-separated variable names; use repeated --key for exact names")
+    value.add_argument("--scope", required=True, help="scope or variable handle from the current stop")
+    value.add_argument("--key", action="append", default=[], help="additional exact child name, including numeric indices")
     variables = sub.add_parser("variables")
     variables.add_argument("handle")
     variables.add_argument("--start", type=int, default=0)
@@ -154,8 +238,13 @@ def parse(argv):
     skills.add_argument("--agent", action="append", choices=["codex", "claude-code"], help="repeat for both agents; status defaults to both")
     skills.add_argument("--scope", choices=["user", "project"], default="user")
     args = vars(parser.parse_args(argv))
-    if not math.isfinite(args["timeout"]) or not 0.01 <= args["timeout"] <= 60:
-        raise DebugError("invalid_request", "Timeout must be between 0.01 and 60 seconds")
+    maximum = 3600 if args["command"] == "wait" else 60
+    if not math.isfinite(args["timeout"]) or not 0.01 <= args["timeout"] <= maximum:
+        raise DebugError("invalid_request", f"Timeout must be between 0.01 and {maximum} seconds")
+    if args["command"] == "value":
+        args["keys"] = (args["path"].split(".") if args["path"] else []) + args["key"]
+        if not 1 <= len(args["keys"]) <= 16 or any(not key or len(key) > 256 for key in args["keys"]):
+            raise DebugError("invalid_request", "Value paths require 1..16 nonempty names of at most 256 characters")
     if args.get("limit", 20) > 30 or args.get("start", 0) < 0:
         raise DebugError("invalid_request", "Limit must be 1..30 and start must be nonnegative")
     if args["command"] == "recordings" and not 0 <= args["older_than"] <= 365000:
@@ -278,13 +367,16 @@ def serve(workspace):
                 args = parse(argv)
                 if args["workspace"] != workspace:
                     raise DebugError("invalid_request", "Workspace does not match this session")
-                if not commands.acquire(blocking=False):
-                    raise DebugError("busy", "Another command is active; retry after its deadline")
-                try:
+                if args["command"] == "wait":
                     result = session.command(args)
-                    stop = args["command"] == "stop"
-                finally:
-                    commands.release()
+                elif not commands.acquire(blocking=False):
+                    raise DebugError("busy", "Another command is active; retry after its deadline")
+                else:
+                    try:
+                        result = session.command(args)
+                        stop = args["command"] == "stop"
+                    finally:
+                        commands.release()
             except DebugError as exc:
                 result = session.status()
                 result.update(ok=False, error={"code": exc.code, "message": str(exc)[:512]})
@@ -354,8 +446,9 @@ def remove_state(path):
             time.sleep(0.02)
 
 
-def run(argv):
-    args = parse(argv)
+def run(argv, args):
+    if args["command"] == "doctor":
+        return launch_options.doctor(args)
     if args["command"] == "recordings":
         from .recording import prune
         return prune(args)
@@ -422,13 +515,16 @@ def main():
     if len(sys.argv) == 3 and sys.argv[1] == "_serve":
         serve(sys.argv[2])
         return
+    selection = None
     try:
-        result = run(sys.argv[1:])
+        args = parse(sys.argv[1:])
+        selection = args.pop("fields")
+        result = run(sys.argv[1:], args)
     except DebugError as exc:
         result = {"ok": False, "state": "unknown", "error": {"code": exc.code, "message": str(exc)[:512]}}
     except Exception as exc:
         result = {"ok": False, "state": "unknown", "error": {"code": "control_failure", "message": str(exc)[:512]}}
-    sys.stdout.write(encode(result).decode("ascii"))
+    sys.stdout.write(encode(project_fields(result, selection)).decode("ascii"))
     raise SystemExit(0 if result.get("ok") else 1)
 
 

@@ -19,6 +19,10 @@
       "exit_code": 0
     },
     {
+      "name": "experience",
+      "exit_code": 0
+    },
+    {
       "name": "integration",
       "exit_code": 0
     },
@@ -32,7 +36,7 @@
     "failed": 0,
     "python": "3.14.4 (main, Apr  8 2026, 04:02:31) [GCC 15.2.0]",
     "debugpy": "1.8.21",
-    "aidebug": "0.6.0",
+    "aidebug": "0.7.0",
     "platform": "linux",
     "checks": [
       "separate CLI calls: breakpoint add/remove, nested values, frame selection, all steps, args/cwd/interpreter, exit, expired handles",
@@ -54,6 +58,6 @@
       "pytest: multi-file stepping, caller values, captured failure, fix, passing rerun, recording and cleanup"
     ]
   },
-  "passed": 6,
+  "passed": 7,
   "failed": 0
 }

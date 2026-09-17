@@ -66,6 +66,75 @@ aidebug skills status
 
 The skill format and locations follow the official [Codex skills](https://learn.chatgpt.com/docs/build-skills), [Claude Code skills](https://code.claude.com/docs/en/skills), and [Agent Skills specification](https://agentskills.io/specification). Other agents are not registered by this version.
 
+## Inspect scopes, wait, and diagnose setup
+
+Run `doctor` before launching when tool paths are uncertain. It uses launch validation without starting a program or creating a session:
+
+```sh
+aidebug doctor --language python
+aidebug doctor --language javascript --target browser --adapter PATH/TO/dapDebugServer.js
+aidebug launch --run --no-wait --breakpoint app.py:24 app.py
+aidebug --timeout 300 wait
+aidebug scopes
+aidebug value --scope SCOPE_HANDLE settings.network.timeout
+aidebug variables VALUE_HANDLE --limit 10
+aidebug stop
+```
+
+`inspect` now includes every scope reported by the adapter, capped at 30, alongside the usual locals. `scopes --frame HANDLE` selects a caller. Scope names and availability depend on the adapter; expensive scopes are listed without automatically expanding them. Use their handles with `variables` or `value`. All handles expire when execution resumes.
+
+`value` traverses DAP variable children using dot-separated names. Repeated `--key` arguments select exact names, including dictionary keys containing dots or adapter-displayed array indices: `value --scope HANDLE --key settings --key "network.timeout"`. Python string dictionary keys can omit debugpy's display quotes. No expressions or function calls are evaluated. Missing or ambiguous names return JSON errors; adapter formatting can still have side effects.
+
+Missing-child errors identify the path component and the parent handle to expand with `variables`. A property available through JavaScript access can be absent from the adapter's children, including inherited properties and getters.
+
+Stack entries preserve the adapter's `hint`. Labels have a null handle. Historical JavaScript and TypeScript frames following an async boundary have `async: true` and `scopes_available: false`. Selecting these frames returns `frame_not_inspectable`; select a live frame for scopes and locals.
+
+To reduce stdout, put global `--fields` before the command:
+
+```sh
+aidebug --fields state,reason,timed_out wait
+aidebug --fields 'breakpoints[].line,breakpoints[].verified' break set app.py 12
+aidebug --fields 'stack.frames[].name,stack.frames[].file,stack.frames[].line,stack.frames[].handle' inspect
+aidebug --fields value.value value --scope HANDLE settings.timeout
+```
+
+Use complete comma-separated paths, with `[]` for array elements. The result preserves JSON objects and arrays. Missing fields become `null`. Each projected object retains its `ok`, `error`, truncation, and `next_start` fields when present. Selectors allow at most 32 paths, eight levels, and 2,048 characters. Duplicate or overlapping paths are rejected before the command runs. Full responses remain the default; projection changes only CLI output, not recordings or debugger work. String formatting and preview-length controls are not included.
+
+If a Python pipeline consumer on Windows raises `UnicodeEncodeError` when printing decoded values, set `PYTHONIOENCODING=utf-8` before running it. Use `export PYTHONIOENCODING=utf-8` in Git Bash or `$env:PYTHONIOENCODING='utf-8'` in PowerShell. aidebug's own JSON output is ASCII-safe.
+
+`launch --no-wait` returns `outcome: started` while setup proceeds. Use `status` to check `phase` or `wait` for a stop or terminal state. `wait` allows deadlines up to 3,600 seconds and leaves other commands available. It returns the state without expanding frames; use `inspect` after a stop. A deadline returns `timed_out: true` and `outcome: deadline`, preserving the live session. Other command deadlines remain capped at 60 seconds.
+
+An adapter `terminated` event without an `exited` event produces `state: terminated` and `target_exit_confirmed: false`. This means debugging ended; the program's exit is unknown. js-debug can report this even for a normal Node completion, so it is not classified as a failure. Terminal responses include recent events, the adapter's available exit code, transport errors, output tail, and whether cleanup was requested. Use `output` for captured target output, then `stop` before relaunching. Explicit cleanup returns `phase: closed`; it does not manufacture a target exit code.
+
+## Control the launched browser page
+
+After a browser launch reaches `phase: ready`, `aidebug automation` returns a private `websocket_url` and an installed `client_module`. The connection reuses js-debug's page CDP proxy, which binds locally and requires an unpredictable path. The URL is omitted from recordings. Treat it as a credential; it grants control of that page.
+
+With Node.js 22 or newer and an existing `puppeteer-core` installation, a script can obtain and use the connection:
+
+```javascript
+import puppeteer from 'puppeteer-core';
+import {execFileSync} from 'node:child_process';
+import {pathToFileURL} from 'node:url';
+const result = JSON.parse(execFileSync('aidebug', ['--workspace', process.cwd(), 'automation'], {encoding: 'utf8'}));
+if (!result.ok) throw new Error(result.error.message);
+const {connectPuppeteer} = await import(pathToFileURL(result.automation.client_module));
+const browser = await connectPuppeteer(puppeteer, result.automation);
+try {
+  const [page] = await browser.pages();
+  await page.click('#start');
+  await page.screenshot({path: 'game.png'});
+} finally {
+  await browser.disconnect();
+}
+```
+
+Run automation alongside debugger commands: a click or page evaluation may wait while JavaScript is paused, so another CLI invocation must inspect and continue it. The helper exposes the one launched page; new tabs, browser contexts, debugger commands through CDP, and browser shutdown through Puppeteer are unsupported. Use `aidebug stop` for cleanup. Automation actions are not automatically recorded as debugger observations; add `note` entries for actions worth retaining. Playwright and attachment to an unrelated browser remain unverified/unsupported.
+
+`sources --filter NAME` lists loaded source paths and current breakpoint verification, with bounded paging through `--start` and `--limit`. For directory URLs, an existing `index.html` under `--web-root` receives a source mapping. Custom routes can use `launch --url-path /ROUTE/=path/to/index.html`. Directory URLs require `index.html`; file URLs require the same filename locally. The mapping also resolves sibling scripts relative to that local directory. Other rewrites need matching server paths or source maps. The requested URL is never rewritten. Inspect the returned source and line; an unbound breakpoint provides no coverage.
+
+Headless browser launches no longer force `--disable-gpu`. Pass that flag explicitly to select that configuration. Status includes effective launch choices. This is still a debugger, not a profiler: compare timings in equivalent browser configurations and avoid frame-loop breakpoints during performance measurements. Confirm application progress before describing a soak as successful.
+
 ## Debug a Python project or test
 
 `--module` treats the positional target as a Python module name, like `python -m`. Target arguments follow the name:
@@ -95,7 +164,7 @@ aidebug --timeout 2 continue
 aidebug stop
 ```
 
-Pause selects the previously stopped thread if it still exists, otherwise the first thread offered by the adapter. It waits for a stopped event and returns bounded stack and local values. A blocked native call may delay that event. An idle browser can defer suspension until its next JavaScript task. If the deadline expires, the response reports the current state with `timed_out: true`; use `status` or `stop`. Pause requires a configured running session and does not interrupt another CLI command already in progress.
+Pause selects the previously stopped thread if it still exists, otherwise the first thread offered by the adapter. It waits for a stopped event and returns bounded stack and local values. A blocked native call may delay that event. An idle browser can defer suspension until its next JavaScript task. If the deadline expires, the response reports the current state with `timed_out: true`; use `status` or `stop`. Pause requires a configured running session. It can interrupt a concurrent `wait`; other commands remain serialized.
 
 ## Conditional breakpoints
 
@@ -225,9 +294,15 @@ At line 12, `known` is `41`. Stepping into `add_one` exposes its `value` argumen
 | `break remove FILE [LINE...]` | Remove the given lines, or all breakpoints for the file when no lines are supplied. |
 | `exceptions on` / `exceptions off` | Toggle uncaught Python/JS exceptions or Rust panics. Default is off unless launch includes `--uncaught`. Rust also stops on panics that the application later catches. |
 | `continue` | Resume until a stop, exit, failure, or deadline. |
-| `pause` | Request a stop in a configured running target and wait until stopped, exited, failed, or timed out. |
+| `pause` | Request a stop in a configured running target and wait until stopped, exited, terminated, failed, or timed out. |
 | `step into` / `step over` / `step out` | Step in the thread that triggered the current stop. |
-| `inspect [--frame HANDLE] [--limit N]` | Return the stack, selected source location, and locals. Default frame is the top frame. |
+| `inspect [--frame HANDLE] [--limit N]` | Return the stack, selected source location, locals, and scope handles. Default frame is the top frame. |
+| `scopes [--frame HANDLE]` | Inspect the selected frame and list all adapter-provided scopes without expanding them. |
+| `value --scope HANDLE [PATH] [--key NAME ...]` | Select nested children by name without evaluating expressions. |
+| `wait` | Wait for stopped, exited, terminated, or failed state; permits other commands and supports `--timeout` up to 3,600 seconds. |
+| `sources [--filter TEXT] [--start N] [--limit N]` | List loaded sources and current breakpoint bindings. |
+| `automation` | Get private page CDP access and the installed Puppeteer helper. |
+| `doctor [--language LANGUAGE] [--target TARGET]` | Validate local launch dependencies without starting a session. |
 | `variables HANDLE [--start N] [--limit N]` | Expand children of a value or locals scope. |
 | `status` | Report state. Include inspection when stopped. |
 | `output` | Read separate bounded stdout, stderr, and adapter diagnostic buffers without clearing them. |
@@ -246,7 +321,7 @@ aidebug --workspace /path/to/project launch --cwd tests --python /path/to/python
 
 The workspace defaults to the current directory. Script, breakpoint, adapter, working-directory, and explicit relative interpreter paths resolve relative to the workspace. Use the same `--workspace` on later invocations. Bare interpreter names resolve through `PATH`. Launch options must precede the target name.
 
-Launch options common to the adapters are `--language`, `--cwd`, `--run`, `--uncaught`, `--no-record`, repeatable `--breakpoint FILE:LINE`, and `--condition EXPR`. Python also accepts `--python EXE` and `--module`. JS/TS accepts `--target node|browser`, `--node EXE`, and repeatable `--out-files GLOB`. Browser launches also accept `--browser EXE`, `--web-root DIR`, and `--headed`. Rust requires `--language rust`; Python, JavaScript, and TypeScript can be inferred from their source extensions. `--module` infers Python. `js` and `ts` are accepted aliases.
+Launch options common to the adapters are `--language`, `--cwd`, `--run`, `--no-wait`, `--uncaught`, `--no-record`, repeatable `--breakpoint FILE:LINE`, and `--condition EXPR`. Python also accepts `--python EXE` and `--module`. JS/TS accepts `--target node|browser`, `--node EXE`, and repeatable `--out-files GLOB`. Browser launches also accept `--browser EXE`, `--web-root DIR`, `--headed`, `--disable-gpu`, and repeatable `--url-path URL_PATH=LOCAL_FILE`. Rust requires `--language rust`; Python, JavaScript, and TypeScript can be inferred from their source extensions. `--module` infers Python. `js` and `ts` are accepted aliases.
 
 Set initial breakpoints in the launch command to avoid racing a fast program:
 
@@ -286,7 +361,7 @@ aidebug output
 aidebug stop
 ```
 
-Browser launch is headless by default. `--headed` opens the target browser for interaction; the helper stays hidden. Each browser session uses its own temporary profile, which `stop` removes. A browser that is waiting for an interaction stays `running` after the deadline. The CLI controls debugging, not clicks, screenshots, network requests, or DOM queries. The integration check triggers a real button handler from its test page. Bundlers must serve usable source maps, and `--web-root` must match the local source tree. Only localhost HTTP and HTTPS launch URLs are accepted.
+Browser launch is headless by default. `--headed` opens the target browser for interaction; the helper stays hidden. Each browser session uses its own temporary profile, which `stop` removes. A browser that is waiting for an interaction stays `running` after the deadline. Use the `automation` connection with an external browser tool for clicks, screenshots, or DOM queries. Bundlers must serve usable source maps, and `--web-root` must match the local source tree. Only localhost HTTP and HTTPS launch URLs are accepted.
 
 For Rust, build an executable with debug symbols and launch that executable:
 
@@ -339,11 +414,11 @@ A stopped response has this shape. Handles below are illustrative; copy the actu
 
 Values are debugger display strings, not serialized objects. A non-null handle allows expansion through `variables`. Frame and variable handles belong to one session and one stopped generation. All expire as soon as execution resumes. Never cache them across steps or launches.
 
-States are `stopped`, `running`, `exited`, and `failed`. `running` with `phase: initializing` means launch setup is in progress. `failed` identifies an adapter or launch failure, while an uncaught target exception is a `stopped` state with `reason: exception`. A nonzero target exit remains `exited`. `unknown` is used for client-side errors when the session state could not be read.
+States are `stopped`, `running`, `exited`, `terminated`, and `failed`. `running` with `phase: initializing` means launch setup is in progress. `failed` identifies an adapter or launch failure, while an uncaught target exception is a `stopped` state with `reason: exception`. A nonzero target exit remains `exited`. `terminated` means debugging ended without a reported process exit and is not itself a failure. `unknown` is used for client-side errors when the session state could not be read.
 
 Errors include an `error` object with a stable `code` and a readable `message`. Codes include `invalid_request`, `invalid_state`, `invalid_handle`, `no_session`, `session_exists`, `busy`, `timeout`, `adapter_failure`, and `control_failure`. Error responses from the live helper include its actual state.
 
-The command deadline defaults to 10 seconds and accepts 0.01 to 60 seconds. Launch, continue, step, and pause wait until the next stop or exit. On a wait deadline they return `timed_out: true` with the current state and leave the session alive. Use `status`, `output`, `pause`, or `stop` next. If there is insufficient time to inspect a new stop, `inspection_truncated: true` requests a fresh `inspect` call. Helper startup can add up to five seconds before the command begins. Process cleanup and local transport have separate bounded grace periods. Adapter initialization and resume-request acknowledgments have a 30-second ceiling; a stuck adapter becomes `failed` and remains stoppable. Pause requests use the command's deadline and can be inspected afterward even if their response arrives late.
+The command deadline defaults to 10 seconds and accepts 0.01 to 60 seconds, or up to 3,600 seconds for `wait`. Launch, continue, step, and pause wait until the next stop or terminal state; `launch --no-wait` returns during setup. On a wait deadline they return `timed_out: true` with the current state and leave the session alive. Use `status`, `output`, `pause`, or `stop` next. If there is insufficient time to inspect a new stop, `inspection_truncated: true` requests a fresh `inspect` call. Helper startup can add up to five seconds before the command begins. Process cleanup and local transport have separate bounded grace periods. Adapter initialization and resume-request acknowledgments have a 30-second ceiling; a stuck adapter becomes `failed` and remains stoppable. Pause requests use the command's deadline and can be inspected afterward even if their response arrives late.
 
 Responses are capped at 64 KiB. Inspection returns at most 20 frames, five source lines, and 20 variables by default. `--limit` accepts 1 to 30. Variable previews have a 512-character ceiling. Source lines have a 240-character ceiling. `truncated` marks shortened previews, omitted items, or a response section dropped to meet the total byte cap. Preview ellipses from debugpy also mark possible truncation. Use `next_start` for the next page. Each output channel retains its last 8,192 characters and reports `dropped_chars`. Output buffers last until `stop`.
 
@@ -399,6 +474,16 @@ Tracked `checks/*-results.json` and `checks/results.json` contain counts, check 
 
 Run `python checks/reports.py` to check summary stability and preservation of full failure reports.
 
+Verify the agent workflow additions with `.venv/Scripts/python checks/experience.py --cli .venv/Scripts/aidebug.exe`. It exercises real Python scopes, nested values, asynchronous launch, and a long wait interrupted by another CLI's pause or stop. See the [Windows summary](checks/experience-results.json) and [Linux summary](checks/experience-linux-results.json).
+
+Verify browser interaction, module values, source mapping and unknown termination with:
+
+```sh
+node checks/browser_experience.mjs --cli .venv/Scripts/aidebug.exe --adapter .tools/js-debug/src/dapDebugServer.js --puppeteer .tools/viewer-check/node_modules/puppeteer-core
+```
+
+Use `.venv/bin` paths on POSIX. The browser check requires Node.js 22 or newer, js-debug, Chrome/Edge, and the separate Puppeteer test dependency. It verifies directory, explicit HTML, and custom-route launches against the same local page, then closes the page to test unconfirmed termination. It also verifies that the CDP secret is absent from recordings. See the [browser summary](checks/browser-experience-results.json). These are scripted agent workflows; they do not measure an AI model's tool-selection quality.
+
 Verify skill setup against the installed CLI with `.venv/Scripts/python checks/skills.py --cli .venv/Scripts/aidebug.exe`, or `.venv/bin` paths on POSIX. The check uses isolated homes and workspaces to exercise both agents, both scopes, repeat installation, upgrades, a missing PATH entry, conflict protection, and uninstall. See the [Windows skill summary](checks/skills-results.json) and [Linux skill summary](checks/skills-linux-results.json).
 
 Verify module launch and a real multi-file test investigation:
@@ -450,7 +535,7 @@ aidebug output
 aidebug stop
 ```
 
-aidebug supports one local target and the thread that caused the stop. It has no stdin/interactive terminal support, arbitrary expression evaluation command, variable mutation, remote attachment, worker/subprocess debugging, concurrent sessions per workspace, or thread-selection command. Additional js-debug child targets are rejected. Commands are serialized; overlapping commands receive `busy`. Set breakpoints with `launch --breakpoint` or after a process entry stop.
+aidebug supports one local target and the thread that caused the stop. It has no stdin/interactive terminal support, arbitrary expression evaluation command, variable mutation, remote attachment, worker/subprocess debugging, concurrent sessions per workspace, or thread-selection command. Additional js-debug child targets are rejected. Commands are serialized except for `wait`; other overlapping commands receive `busy`. Set breakpoints with `launch --breakpoint` or after a process entry stop.
 
 General expression evaluation remains outside this version because it can invoke arbitrary application code and mutate the state the agent is investigating. Conditional breakpoints are the explicit opt-in exception. Inspection stays on DAP variable requests. Formatter side effects remain possible, as described below.
 

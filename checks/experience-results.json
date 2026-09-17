@@ -1,0 +1,12 @@
+{
+  "passed": 4,
+  "failed": 0,
+  "groups": [
+    "doctor validates tools without launch; invalid deadlines return JSON",
+    "field projection preserves JSON arrays, errors and bounds; invalid selectors have no effects; recordings retain full results",
+    "real Python globals, nested paths, exact keys, missing values, expired handles and cleanup",
+    "asynchronous launch, deadline state, long wait interrupted by pause and stop"
+  ],
+  "python": "3.11.0",
+  "platform": "win32"
+}

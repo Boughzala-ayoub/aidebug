@@ -1,12 +1,14 @@
 """One live debug session; only DAP stack/scopes/variables for inspection."""
 
 import os
+import ast
 from pathlib import Path
 import secrets
 import shutil
 import threading
 import time
 import tokenize
+from collections import deque
 
 from .dap import DAP, DebugError
 from .adapters import get as get_adapter
@@ -55,6 +57,10 @@ class Session:
         self.closing = False
         self.launched = False
         self.recording = None
+        self.events = deque(maxlen=12)
+        self.binding_results = {}
+        self.exit_confirmed = False
+        self.transport_error = None
 
     def capture(self, category, text):
         if category == "console":
@@ -75,6 +81,9 @@ class Session:
 
     def event(self, name, body):
         with self.cv:
+            if name in ("stopped", "continued", "exited", "terminated", "process"):
+                self.events.append({"event": name, "time": time.time(),
+                                    "reason": clipped(body.get("reason", ""), 128)[0]})
             if name == "initialized":
                 self.initialized.set()
             elif name == "stopped" and not self.closing:
@@ -87,11 +96,22 @@ class Session:
                 self.state = "running"
             elif name == "exited":
                 self.exit_code = body.get("exitCode")
+                self.exit_confirmed = True
                 self.state, self.phase = "exited", "done"
                 self.invalidate()
-            elif name == "terminated" and self.state != "failed":
-                self.state, self.phase = "exited", "done"
+            elif name == "terminated":
+                if self.closing or self.exit_confirmed:
+                    self.state, self.phase = "exited", "done"
+                elif self.state != "failed":
+                    self.state, self.phase = "terminated", "done"
                 self.invalidate()
+            elif name == "breakpoint":
+                bp = body.get("breakpoint", {})
+                for entries in self.binding_results.values():
+                    for entry in entries:
+                        if bp.get("id") is not None and entry.get("id") == bp["id"]:
+                            entry.update(verified=bp.get("verified", False), line=bp.get("line"),
+                                         message=clipped(bp.get("message", ""))[0])
             elif name == "process":
                 self.target_pid = body.get("systemProcessId")
             elif name == "capabilities":
@@ -105,7 +125,8 @@ class Session:
 
     def failure(self, message):
         with self.cv:
-            if not self.closing and self.state != "exited":
+            self.transport_error = clipped(message)[0]
+            if not self.closing and self.state not in ("exited", "terminated"):
                 self.state, self.phase = "failed", "done"
                 self.error = {"code": "adapter_failure", "message": clipped(message)[0]}
                 self.invalidate()
@@ -121,6 +142,14 @@ class Session:
                       "language": self.language, "target": self.target,
                       "processes": {"helper": os.getpid(), "adapter": self.root_dap.process.pid if self.root_dap else None,
                                     "target": self.target_pid}}
+            result["target_exit_confirmed"] = self.exit_confirmed
+            if self.state in ("failed", "exited", "terminated"):
+                result["diagnostics"] = {"stop_requested": self.closing, "events": list(self.events),
+                    "adapter_exit_code": self.root_dap.process.poll() if self.root_dap else None,
+                    "transport_error": self.transport_error,
+                    "message": "Target exit confirmed" if self.exit_confirmed else "No target exit was reported; its outcome is unknown",
+                    "adapter_output_tail": self.output["adapter"][-2048:],
+                    "next_action": "stop" if not self.closing else "launch"}
             if self.error:
                 result["error"] = self.error
             if self.language == "python":
@@ -129,6 +158,9 @@ class Session:
                 result["recording"] = {"enabled": True, "id": self.id, "truncated": self.recording.full, "error": self.recording.error}
             elif self.launched:
                 result["recording"] = {"enabled": False}
+            if self.launch_args:
+                result["launch"] = {key: self.launch_args.get(key) for key in
+                    ("script", "cwd", "adapter", "browser", "headed", "disable_gpu", "path_mapping")}
             return result
 
     def handle(self, kind, reference):
@@ -178,7 +210,7 @@ class Session:
                         connect_back=self.adapter.TRANSPORT == "connect", capture=self.capture)
                 self.configure(self.root_dap, self.adapter.configuration(args), self.initialized)
                 with self.cv:
-                    if self.phase == "initializing":
+                    if self.phase == "initializing" and not self.endpoint:
                         self.phase = "ready"
                     self.cv.notify_all()
             except Exception as exc:
@@ -204,8 +236,7 @@ class Session:
         if filters or capabilities.get("exceptionBreakpointFilters"):
             dap.request("setExceptionBreakpoints", {"filters": filters}, deadline)
         for file, lines in list(self.breakpoints.items()):
-            dap.request("setBreakpoints", {"source": {"path": file},
-                "breakpoints": source_breakpoints(lines, capabilities)}, deadline)
+            self.set_breakpoints(dap, file, lines, deadline)
         if capabilities.get("supportsConfigurationDoneRequest"):
             dap.request("configurationDone", {}, deadline)
         dap.wait(ticket, deadline)
@@ -234,6 +265,10 @@ class Session:
                     return
                 self.dap = child
             self.configure(child, configuration, initialized, request["arguments"].get("request", "launch"))
+            with self.cv:
+                if self.phase == "initializing":
+                    self.phase = "ready"
+                self.cv.notify_all()
         except Exception as exc:
             self.failure(str(exc))
             raise
@@ -267,7 +302,7 @@ class Session:
         except DebugError as exc:
             if exc.code == "timeout":
                 return True
-            if self.state not in ("stopped", "exited"):
+            if self.state not in ("stopped", "exited", "terminated"):
                 raise
         # Only the stopped event establishes a stop, not the pause response.
         return self.wait(deadline)
@@ -299,8 +334,81 @@ class Session:
         return {"items": values, "start": start, "truncated": more,
                 "next_start": start + limit if more else None}
 
+    def frame_scopes(self, frame, deadline):
+        if self.frames.get(frame, {}).get("scopes_available") is False:
+            raise DebugError("frame_not_inspectable", "This is a historical async frame or stack separator, not a live call. Its scopes and locals are unavailable; select a live frame from inspect.")
+        return self.request("scopes", {"frameId": frame}, deadline).get("scopes", [])
+
+    def scopes(self, frame, deadline):
+        raw = self.frame_scopes(frame, deadline)
+        return {"items": [{"name": clipped(s.get("name", ""), 128)[0],
+                           "hint": s.get("presentationHint"), "expensive": s.get("expensive", False),
+                           "truncated": len(str(s.get("name", ""))) > 128,
+                           "handle": self.handle("v", s.get("variablesReference"))}
+                          for s in raw[:30]], "truncated": len(raw) > 30}
+
+    def selected_value(self, args, deadline):
+        epoch = self.epoch
+        reference = self.resolve(args["scope"], "v")
+        for index, key in enumerate(args["keys"]):
+            raw = self.request("variables", {"variablesReference": reference}, deadline).get("variables", [])
+            matches = [item for item in raw if item.get("name") == key]
+            if not matches and self.language == "python":
+                for candidate in raw:
+                    try:
+                        name = candidate.get("name", "")
+                        if len(name) <= 256 and name.startswith(("'", '"')) and ast.literal_eval(name) == key:
+                            matches.append(candidate)
+                    except (ValueError, SyntaxError):
+                        pass
+            if len(matches) != 1:
+                parent = self.handle("v", reference)
+                raise DebugError("value_not_found" if not matches else "ambiguous_value",
+                    f"Path component {index + 1}: expected one child named {clipped(key, 64)[0]!r}; found {len(matches)}. "
+                    f"Inspect this parent with variables {parent}. value follows adapter-visible children, not property access; inherited properties and getters may be absent.")
+            item = matches[0]
+            reference = item.get("variablesReference", 0)
+            if not reference and index < len(args["keys"]) - 1:
+                raise DebugError("value_not_found", f"Path component {index + 1}: child {clipped(key, 64)[0]!r} has no expandable values. value follows adapter-visible children, not expressions.")
+        if self.epoch != epoch or self.state != "stopped":
+            raise DebugError("state_changed", "Execution changed during inspection")
+        value, cut = clipped(item.get("value", ""))
+        name, name_cut = clipped(item.get("name", ""), 128)
+        type_name, type_cut = clipped(item.get("type", ""), 128)
+        return {"name": name, "value": value, "type": type_name,
+                "handle": self.handle("v", reference), "truncated": cut or name_cut or type_cut or "..." in value or "\u2026" in value}
+
+    def set_breakpoints(self, dap, file, lines, deadline):
+        requested = source_breakpoints(lines, self.capabilities)
+        body = dap.request("setBreakpoints", {"source": {"path": file}, "breakpoints": requested}, deadline)
+        actual = body.get("breakpoints", [])
+        entries = []
+        for index, request in enumerate(requested):
+            bp = actual[index] if index < len(actual) else {}
+            entries.append({"id": bp.get("id"), "file": file, "line": bp.get("line"),
+                "requested_line": request["line"], "condition": request.get("condition"),
+                "verified": bp.get("verified", False), "message": clipped(bp.get("message", ""))[0],
+                "source": clipped(bp.get("source", {}).get("path", file), 1024)[0]})
+        with self.cv:
+            if dap is self.dap:
+                self.binding_results[file] = entries
+        return entries
+
+    def sources(self, args, deadline):
+        if self.phase != "ready":
+            raise DebugError("invalid_state", "Sources require a configured live session")
+        supported = self.capabilities.get("supportsLoadedSourcesRequest", False)
+        raw = self.request("loadedSources", {}, deadline).get("sources", []) if supported else []
+        term = args["filter"].casefold()
+        raw = [s for s in raw if term in (s.get("path", "") + s.get("name", "")).casefold()]
+        start, limit = args["start"], args["limit"]
+        return {"supported": supported, "items": [
+            {"name": clipped(s.get("name", ""), 128)[0], "path": clipped(s.get("path", ""), 1024)[0],
+             "source_reference": s.get("sourceReference", 0)} for s in raw[start:start + limit]],
+            "truncated": len(raw) > start + limit, "next_start": start + limit if len(raw) > start + limit else None}
+
     def locals(self, frame, deadline, limit=20):
-        scopes = self.request("scopes", {"frameId": frame}, deadline).get("scopes", [])
+        scopes = self.frame_scopes(frame, deadline)
         local = next((s for s in scopes if s.get("presentationHint") == "locals" or s["name"] in ("Locals", "Local")), None)
         if not local:
             local = next((s for s in scopes if s.get("name") in ("Block", "Script", "Module") and not s.get("expensive")), None)
@@ -321,11 +429,19 @@ class Session:
         stack = self.request("stackTrace", {"threadId": self.thread, "startFrame": 0, "levels": 21}, deadline)
         frames = []
         raw = stack.get("stackFrames", [])
+        async_frame = False
         for item in raw[:20]:
+            label = item.get("presentationHint") == "label"
+            # js-debug separates the live stack from async ancestry with label frames.
+            if label and self.language in ("javascript", "typescript"):
+                async_frame = True
+            item = {**item, "scopes_available": not (label or async_frame)}
             self.frames[item["id"]] = item
             name, name_cut = clipped(item["name"], 128)
             file, file_cut = clipped(item.get("source", {}).get("path", ""), 1024)
-            frames.append({"handle": self.handle("f", item["id"]), "name": name, "file": file,
+            frames.append({"handle": None if label else self.handle("f", item["id"]), "name": name, "file": file,
+                           "hint": item.get("presentationHint"), "async": async_frame and not label,
+                           "scopes_available": item["scopes_available"],
                            "line": item["line"], "truncated": name_cut or file_cut})
         frame = self.resolve(frame_handle, "f") if frame_handle else (raw[0]["id"] if raw else None)
         # Some adapters allocate new IDs on every stackTrace request. A previously
@@ -349,6 +465,7 @@ class Session:
             result["location"] = {"file": file, "line": line, "source": excerpt,
                                   "frame": self.handle("f", frame)}
             result["locals"] = self.locals(frame, deadline, limit)
+            result["scopes"] = self.scopes(frame, deadline)
         if self.epoch != epoch or self.state != "stopped":
             raise DebugError("state_changed", "Execution changed during inspection; request status again")
         return result
@@ -358,7 +475,7 @@ class Session:
             self.recording = Recording(args, self.id)
         if self.recording:
             # Record only public command arguments, never the control-channel token.
-            public = {k: v for k, v in args.items() if k not in ("workspace", "breakpoints")}
+            public = {k: v for k, v in args.items() if k not in ("workspace", "breakpoints", "fields")}
             self.recording.append("command", command=args["command"], arguments=public)
         try:
             result = self.execute(args)
@@ -372,7 +489,8 @@ class Session:
             if args["command"] in ("note", "stop"):
                 for file in list(self.recording.sources):
                     self.recording.source(file)
-            self.recording.append("result", command=args["command"], handle=args.get("handle"), response=result)
+            recorded = {key: value for key, value in result.items() if key != "automation"}
+            self.recording.append("result", command=args["command"], handle=args.get("handle"), response=recorded)
             if args["command"] == "stop":
                 self.recording.close(result)
         return result
@@ -384,6 +502,8 @@ class Session:
         timed_out = False
         if command == "launch":
             self.launch(args)
+            timed_out = False if args["no_wait"] else self.wait(deadline)
+        elif command == "wait":
             timed_out = self.wait(deadline)
         elif command in ("continue", "step"):
             self.resume("continue" if command == "continue" else {"into": "stepIn", "over": "next", "out": "stepOut"}[args["kind"]])
@@ -404,13 +524,26 @@ class Session:
                 lines.clear()
             if len(lines) > 100:
                 raise DebugError("invalid_request", "At most 100 breakpoints per file")
-            requested = source_breakpoints(lines, self.capabilities)
-            response = self.request("setBreakpoints", {"source": {"path": file}, "breakpoints": requested}, deadline)
+            extra["breakpoints"] = self.set_breakpoints(self.dap, file, lines, deadline)
             self.breakpoints[file] = lines
-            extra["breakpoints"] = [{"line": b.get("line"), "requested_line": request["line"],
-                                      "condition": request.get("condition"), "verified": b.get("verified", False),
-                                      "message": clipped(b.get("message", ""))[0]}
-                                     for request, b in zip(requested, response.get("breakpoints", []))]
+        elif command == "sources":
+            extra["sources"] = self.sources(args, deadline)
+            extra["breakpoints"] = [bp for group in self.binding_results.values() for bp in group][:100]
+            extra["hint"] = "For unbound breakpoints, compare loaded paths and launch.path_mapping. Use --url-path URL_PATH=LOCAL_FILE for explicit mappings; the requested page URL is never rewritten."
+        elif command == "value":
+            extra["value"] = self.selected_value(args, deadline)
+            extra["selection"] = {"scope": args["scope"], "path": ".".join(args["keys"])}
+        elif command == "automation":
+            if self.target != "browser" or self.phase != "ready":
+                raise DebugError("invalid_state", "Automation requires a configured live browser session")
+            proxy = self.request("requestCDPProxy", {}, deadline)
+            if proxy.get("host") not in ("127.0.0.1", "::1", "localhost") or not isinstance(proxy.get("port"), int) or not 1 <= proxy["port"] <= 65535 or not proxy.get("path", "").startswith("/"):
+                raise DebugError("adapter_failure", "Adapter did not provide a loopback CDP proxy")
+            host = "[::1]" if proxy["host"] == "::1" else proxy["host"]
+            extra["automation"] = {"websocket_url": f"ws://{host}:{proxy['port']}{proxy['path']}",
+                "client_module": str(Path(__file__).with_name("automation.mjs")),
+                "protocol": "js-debug-cdp-proxy", "scope": "launched page", "secret": True,
+                "events": "Send JsDebug.subscribe with events ['*'] to receive CDP events."}
         elif command == "exceptions":
             if self.phase != "ready" or self.state not in ("running", "stopped"):
                 raise DebugError("invalid_state", "Exception settings require a configured live session")
@@ -438,12 +571,17 @@ class Session:
                 raise DebugError("invalid_state", "Notes require a session launched with recording enabled")
             self.recording.append("note", text=args["text"])
             extra["note"] = args["text"]
-        elif command not in ("status", "inspect"):
+        elif command not in ("status", "inspect", "scopes"):
             raise DebugError("invalid_request", "Unknown command")
         result = self.status()
         result.update(extra)
         result["timed_out"] = timed_out
-        if command in ("launch", "continue", "pause", "step", "status", "inspect") and self.state == "stopped":
+        result["outcome"] = "deadline" if timed_out else "started" if command == "launch" and args["no_wait"] and self.state == "running" else self.state
+        if command == "launch":
+            result["breakpoints"] = [bp for group in self.binding_results.values() for bp in group][:100]
+        if "breakpoints" in result and command in ("launch", "sources"):
+            result["breakpoints_truncated"] = sum(map(len, self.binding_results.values())) > 100
+        if command in ("launch", "continue", "pause", "step", "status", "inspect", "scopes") and self.state == "stopped":
             try:
                 result.update(self.inspect(deadline, args.get("frame"), args.get("limit", 20)))
             except DebugError as exc:
@@ -451,7 +589,8 @@ class Session:
                     raise
                 result["inspection_truncated"] = True
                 result["timed_out"] = True
-        elif command == "inspect":
+                result["outcome"] = "deadline"
+        elif command in ("inspect", "scopes"):
             raise DebugError("invalid_state", "Inspection requires a stopped session")
         return result
 

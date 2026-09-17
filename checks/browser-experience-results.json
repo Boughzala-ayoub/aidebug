@@ -1,0 +1,13 @@
+{
+  "passed": 4,
+  "failed": 0,
+  "groups": [
+    "async ancestry labels, live scopes, actionable property errors, field projection and UTF-8 source excerpts",
+    "same-page automation, module values, source/excerpt mapping, credential protection and unknown termination: /",
+    "same-page automation, module values, source/excerpt mapping, credential protection and unknown termination: /index.html",
+    "same-page automation, module values, source/excerpt mapping, credential protection and unknown termination: /custom/"
+  ],
+  "node": "v24.18.0",
+  "puppeteer": true,
+  "platform": "win32"
+}

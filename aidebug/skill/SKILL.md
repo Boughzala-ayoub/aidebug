@@ -8,6 +8,12 @@ description: Debug local Python, JavaScript/TypeScript on Node.js or in a browse
 ## Find the CLI and choose a target
 
 Run `aidebug --help` for the current command reference and debugging loop.
+Use global `--fields` before the command to select response fields without a
+Python extraction script. See `--help` for complete paths and array selection.
+When a Python consumer on Windows cannot print decoded Unicode, set
+`PYTHONIOENCODING=utf-8` in its environment before running the pipeline.
+Use `doctor --language LANGUAGE` with the intended target and adapter options to
+check setup without launching anything. Resolve a reported dependency once.
 If the executable is absent from PATH, read the adjacent `installation.json`.
 Its `cli_argv` records the Python executable followed by `-m aidebug.cli`.
 Invoke those as separate, shell-quoted arguments, then append the command.
@@ -33,11 +39,22 @@ Read the matching reference before launching:
    Check the returned interpreter, breakpoint verification, `ok`, and `state`.
 2. At a stop, read `location`, `stack`, and `locals`. Use `inspect --frame HANDLE`
    for a caller and `variables HANDLE --limit 10` for selected nested values.
+   `scopes` lists all adapter-provided containers, including module and closure
+   state. Use `value --scope SCOPE_HANDLE renderer.info.memory.geometries` to
+   follow named children, or repeated `--key` for exact names. Inspect existing
+   scopes before adding temporary snapshot variables to the application.
    Expand only evidence needed for the current hypothesis. Respect `truncated`.
+   Stack labels have no handles. Historical async frames have
+   `scopes_available: false`; select a live frame for locals and scopes.
+   When `value` cannot find a child, expand the parent handle in its error.
 3. Use `step into`, `step over`, `step out`, or `continue` to test the hypothesis.
    All frame and variable handles expire when execution resumes. Use fresh
    handles from the next stop, including after a pause.
 4. Treat `timed_out: true` as a deadline, not a crash or an exit. Run `status`.
+   Use `launch --no-wait ...` then `--timeout 300 wait` instead of shell polling.
+   Wait returns on stopped, exited, terminated, or failed and allows pause/stop.
+   For `state: terminated`, read `diagnostics` and `output`. An ended debugging
+   connection does not confirm a target exit. Stop your session before relaunching.
    If `state` is `running` and `phase` is `ready`, use `pause` to request a stop.
    An idle browser or native call may delay suspension. Keep waits bounded;
    stop a session you own if it cannot make useful progress.
@@ -52,6 +69,13 @@ debugger variable requests. There is no arbitrary evaluate command. Conditional
 breakpoints are available through `break set FILE LINE --condition EXPR`; they
 execute adapter-native expressions in the target. Prefer simple comparisons
 without calls or mutations, and check the returned verification result.
+
+For a soak, verify the breakpoints bind and sample application progress. Report
+"no exceptions observed" with its duration and coverage; a running session alone
+does not prove the application is advancing. For memory growth or timing, use
+sampling/profiling alongside the debugger. Frequent conditional breakpoints can
+distort frame timings, so compare performance in equivalent browser configurations
+without those breakpoints. Do not infer game-time progress from a speed flag alone.
 
 ## Make an investigation watchable
 

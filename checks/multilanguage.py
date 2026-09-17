@@ -82,6 +82,13 @@ for (const input of process.argv.slice(2)) {
         def values(result, key="locals"):
             return {v["name"]: v for v in result[key]["items"]}
 
+        def assert_ended(result):
+            if result["state"] == "terminated":
+                assert result["language"] in ("javascript", "typescript") and not result["target_exit_confirmed"]
+                assert result["exit_code"] is None and result["diagnostics"]["events"][-1]["event"] == "terminated"
+            else:
+                assert result["state"] == "exited" and result["target_exit_confirmed"], result
+
         def stop(result):
             recording = workspace / ".aidebug/recordings" / (result["session"] + ".jsonl")
             assert recording.exists() == result["recording"]["enabled"], result
@@ -131,7 +138,7 @@ for (const input of process.argv.slice(2)) {
                 assert values(over)["answer"]["value"] == "42", over
                 call("step", "out")
                 call("break", "remove", source)
-                assert call("continue")["state"] == "exited"
+                assert_ended(call("continue"))
                 assert "42" in call("output")["output"]["stdout"]["text"]
                 stop(result)
                 groups.append(f"{language}: recording opt-out, real breakpoint, nested values, all steps, handle expiry, output and cleanup")
@@ -145,7 +152,7 @@ for (const input of process.argv.slice(2)) {
             call("break", "set", "conditional-node.js", "2")
             assert values(call("continue"))["i"]["value"] == "440"
             call("break", "remove", "conditional-node.js")
-            assert call("continue")["state"] == "exited"
+            assert_ended(call("continue"))
             stop(result)
             groups.append("Node conditional launch skips to iteration 437, updates to 439 and clears to unconditional")
             print("PASS Node conditional breakpoints", flush=True)
@@ -155,7 +162,7 @@ for (const input of process.argv.slice(2)) {
             assert result["state"] == "stopped" and result["reason"] == "exception", result
             assert values(result)["divisor"]["value"] == "0", result
             call("exceptions", "off")
-            assert call("continue")["state"] == "exited"
+            assert_ended(call("continue"))
             stop(result)
             groups.append("JavaScript uncaught exception and exception toggle")
             print("PASS JavaScript exception", flush=True)
@@ -311,7 +318,7 @@ for (const input of process.argv.slice(2)) {
                     break
             assert next_iteration == "440", "Clearing the condition must allow the next iteration"
             call("break", "remove", "conditional.rs")
-            assert call("continue")["state"] == "exited"
+            assert_ended(call("continue"))
             stop(result)
             groups.append("Rust conditional launch skips to iteration 437, updates to 439 and clears to unconditional")
             print("PASS Rust conditional breakpoints", flush=True)

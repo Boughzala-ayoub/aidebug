@@ -81,6 +81,10 @@ try {
   await wait(()=>document.querySelector('#program').textContent==='checkout.py' && document.querySelector('#variables').textContent.includes('count'));
   assert.match(await page.$eval('#variables',el=>el.textContent),/2/);
   const prices=launched.locals.items.find(v=>v.name==='prices'); await call('variables',prices.handle);
+  const scope=launched.scopes.items.find(s=>s.hint==='locals');
+  await call('value','--scope',scope.handle,'prices','--key','0');
+  await wait(()=>document.querySelector('#timeline').textContent.includes('Read selected value') &&
+    [...document.querySelectorAll('#variables .variable-name')].some(el=>el.textContent==='prices.0'));
   await wait(()=>document.querySelector('#variables').textContent.includes('Recorded children'));
   await page.$$eval('#variables details',els=>els.forEach(el=>el.open=true));
   await shotViews('live-expanded',true);
@@ -150,6 +154,25 @@ try {
   await wait(()=>document.querySelector('#observation-error').textContent.includes('too large'));
   assert.match(await page.$eval('#timeline',el=>el.textContent),/Pause execution/);
   await shotViews('truncated-recording');
+  const asyncId='eeeeeeeeeeeeeeee';
+  const asyncSnapshot={...launched,session:asyncId,stack:{...launched.stack,frames:[
+    launched.stack.frames[0],
+    {name:'requestAnimationFrame',handle:null,hint:'label',file:'',line:0,scopes_available:false},
+    {...launched.stack.frames[1],async:true,scopes_available:false}
+  ]}};
+  fs.writeFileSync(path.join(workspace,'.aidebug/recordings',asyncId+'.jsonl'),[
+    {seq:1,kind:'session',session:asyncId,program:'async-recording.js',language:'javascript',target:'browser',time:Date.now()/1000,elapsed:0},
+    {seq:2,kind:'result',command:'inspect',response:asyncSnapshot,time:Date.now()/1000,elapsed:1}
+  ].map(value=>JSON.stringify(value)).join('\n')+'\n');
+  await page.goto(viewer.url,{waitUntil:'domcontentloaded'});
+  await page.locator(`[data-session="${asyncId}"]`).click();
+  await wait(()=>document.querySelector('#variables').textContent.includes('count'));
+  assert.equal(await page.$$eval('#stack button:disabled',els=>els.length),1);
+  assert.match(await page.$eval('#stack button:disabled',el=>el.textContent),/requestAnimationFrameAsync boundary/);
+  assert.match(await page.$eval('#stack',el=>el.textContent),/historical async call/);
+  assert.equal(await page.$eval('#stack button.selected',el=>el.dataset.frame),launched.location.frame);
+  await shotViews('async-recording',true);
+  results.passed.push('Async stack separators are disabled and do not hide the selected live frame values');
   const restricted=await browser.createBrowserContext();const noToken=await restricted.newPage();
   await noToken.goto(new URL(viewer.url).origin,{waitUntil:'domcontentloaded'});
   assert.match(await noToken.$eval('#notice',el=>el.textContent),/aidebug view/);

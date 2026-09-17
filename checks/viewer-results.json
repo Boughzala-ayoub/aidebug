@@ -1,5 +1,5 @@
 {
-  "passed": 6,
+  "passed": 7,
   "failed": 0,
   "groups": [
     "Viewer authentication, local origin/host restrictions, no DAP control route",
@@ -7,7 +7,8 @@
     "Exception observation, safe rendering of target text, captured source changes, persistent recording after stop",
     "Multiple saved sessions, replay play/pause/scrub/speed, original source history and successful rerun",
     "Viewer restart reopens recordings without a debug session",
+    "Async stack separators are disabled and do not hide the selected live frame values",
     "No browser JavaScript errors; all views and open navigation pass eight viewport widths"
   ],
-  "screenshot_count": 72
+  "screenshot_count": 80
 }

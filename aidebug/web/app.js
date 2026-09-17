@@ -69,7 +69,7 @@ function schedule() {
 function derive() {
   const state = {state:'waiting', generation:null, reason:null, exit_code:null, snapshot:null, previous:null,
     sources:new Map(), changes:new Map(), frames:new Map(), frameSources:new Map(), expanded:new Map(), output:{stdout:'',stderr:'',adapter:''},
-    outputCut:{}, note:null, error:null, command:null, limited:false, observationCut:false, closed:false};
+    outputCut:{}, selectedValues:new Map(), note:null, error:null, command:null, limited:false, observationCut:false, closed:false};
   const previousFrames = new Map();
   for (let i = 0; i <= cursor; i++) {
     const event = log[i]; if (!event) continue;
@@ -110,6 +110,12 @@ function derive() {
         for (let j=0; j<(r.variables.items || []).length; j++) items[(r.variables.start || 0)+j] = r.variables.items[j];
         state.expanded.set(event.handle, {...r.variables, items});
       }
+      if (r.value) {
+        const args = r.selection || state.command?.arguments || {};
+        state.selectedValues.set(args.scope + ':' + args.path, {item:{...r.value,name:args.path || r.value.name},
+          scope:args.scope,generation:r.generation});
+        if (state.selectedValues.size > 20) state.selectedValues.delete(state.selectedValues.keys().next().value);
+      }
       if (r.recording?.truncated) state.limited = true;
     }
     if (event.kind === 'limit') state.limited = true;
@@ -125,11 +131,13 @@ function label(event) {
     const a = event.arguments || {};
     return {launch:'Launch program',continue:'Continue execution',pause:'Pause execution',inspect:'Inspect runtime values',variables:'Expand a value',
       status:'Check session status',output:'Read program output',stop:'Stop session',note:'Add an explanation',
+      scopes:'Inspect available scopes',value:'Read selected value',wait:'Wait for a stop or session end',
+      sources:'Check loaded sources',automation:'Connect browser automation',
       step:'Step ' + (a.kind || ''),break:(a.action === 'remove' ? 'Remove' : 'Set') + ' breakpoints',
       exceptions:'Exceptions ' + (a.mode || '')}[event.command] || event.command;
   }
   if (event.kind === 'result') return event.response?.ok === false ? 'Command failed' : event.response?.timed_out ? 'Deadline reached; session remains available' : (event.command === 'step' ? 'Step' : event.command[0].toUpperCase()+event.command.slice(1)) + ' result';
-  if (event.kind === 'event') return {stopped:'Paused: '+(event.reason || 'debugger stop'),continued:'Program running',exited:'Program exited',terminated:'Target terminated'}[event.event] || event.event;
+  if (event.kind === 'event') return {stopped:'Paused: '+(event.reason || 'debugger stop'),continued:'Program running',exited:'Program exited',terminated:'Debugging connection ended'}[event.event] || event.event;
   return {note:'Agent note',source:'Source changed',output:'Program output',error:'Adapter failure',limit:'Recording limit reached',end:'Session closed'}[event.kind] || event.kind;
 }
 function timeline() {
@@ -229,6 +237,14 @@ function variables(state, snapshot) {
     return el;
   }
   for (const item of items) content.append(row(item));
+  for (const scope of snapshot?.scopes?.items || []) {
+    if (scope.handle && scope.handle !== snapshot?.locals?.handle) {
+      content.append(row({name:scope.name,type:'scope',value:scope.expensive?'Expand recorded values on demand':'Available scope',handle:scope.handle}));
+    }
+  }
+  for (const value of state.selectedValues.values()) {
+    if (value.generation === snapshot?.generation && snapshot?.scopes?.items?.some(s=>s.handle===value.scope)) content.append(row(value.item));
+  }
   if (!items.length) content.append(text('p','No local values were inspected for this frame at this point.','no-values'));
   $('variables').replaceChildren(content); $('value-count').textContent=items.length;
   $('values-hint').textContent = snapshot?.locals?.truncated ? 'Recorded locals are truncated.' : state.state !== 'stopped' && items.length ? 'Last inspected values; these are not live while execution runs.' : 'Values inspected by the agent. Changes compare consecutive inspections.';
@@ -237,7 +253,7 @@ function render() {
   const item = meta(); $('empty').hidden = Boolean(item); $('workspace').hidden = !item;
   if (!item) { $('timeline').replaceChildren(); $('activity-count').textContent='0'; return; }
   const state = derive(), observed = state.snapshot;
-  const frame = observed?.stack?.frames?.find(f=>f.handle===selectedFrame);
+  const frame = selectedFrame && observed?.stack?.frames?.find(f=>f.handle===selectedFrame);
   const snapshot = frame ? state.frames.get(frame.handle) : observed;
   $('program').textContent=basename(item.program); $('program-path').textContent=item.program;
   $('language').textContent=(item.language || 'Program')+' / '+(item.target || 'process');
@@ -258,7 +274,8 @@ function render() {
   const stack=document.createDocumentFragment();
   for (const [i,f] of (observed?.stack?.frames || []).entries()) {
     const li=document.createElement('li'), el=button('',()=>{selectedFrame=f.handle;render();},f.handle===(selectedFrame || observed?.location?.frame)?'selected':'');
-    el.dataset.frame=f.handle; const info=text('span','','frame-text'); info.append(text('strong',f.name),text('small',`${basename(f.file)}:${f.line}`));
+    el.disabled=!f.handle;
+    el.dataset.frame=f.handle; const info=text('span','','frame-text'); info.append(text('strong',f.name),text('small',f.hint==='label'?'Async boundary':`${basename(f.file)}:${f.line}${f.async?' · historical async call':''}`));
     el.append(text('span',i,'frame-number'),info);li.append(el);stack.append(li);
   }
   if (!observed?.stack?.frames?.length) stack.append(text('li','The stack appears after an inspection.','panel-hint'));

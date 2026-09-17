@@ -35,6 +35,8 @@ def resolve(args):
         raise DebugError("invalid_request", "Node/browser targets require JavaScript or TypeScript")
     if args["headed"] and args["target"] != "browser":
         raise DebugError("invalid_request", "--headed requires --target browser")
+    if (args["disable_gpu"] or args["url_path"]) and args["target"] != "browser":
+        raise DebugError("invalid_request", "--disable-gpu and --url-path require --target browser")
     args["cwd"] = str((workspace / (args["cwd"] or ".")).resolve())
     if not Path(args["cwd"]).is_dir():
         raise DebugError("invalid_request", "Working directory does not exist")
@@ -81,6 +83,21 @@ def resolve(args):
             args["browser"] = next((shutil.which(p) for p in candidates if p and shutil.which(p)), None)
             if not args["browser"]:
                 raise DebugError("missing_dependency", "Chrome/Chromium/Edge not found; pass --browser EXE")
+            args["path_mapping"] = {}
+            url_path = urlsplit(args["script"]).path or "/"
+            index = Path(args["web_root"]) / url_path.lstrip("/") / "index.html"
+            if url_path.endswith("/") and index.is_file() and index.resolve().is_relative_to(Path(args["web_root"])):
+                args["path_mapping"][url_path] = str(index.resolve())
+            if len(args["url_path"]) > 20:
+                raise DebugError("invalid_request", "At most 20 URL mappings")
+            for mapping in args["url_path"]:
+                path, separator, local = mapping.partition("=")
+                file = (workspace / local).resolve()
+                if not separator or not path.startswith("/") or path.startswith("//") or "?" in path or "#" in path or not file.is_file():
+                    raise DebugError("invalid_request", "URL mappings require /URL_PATH=EXISTING_LOCAL_FILE")
+                if file.name != (path.rsplit("/", 1)[-1] or "index.html"):
+                    raise DebugError("invalid_request", "URL mappings require matching filenames, or a directory URL mapped to index.html")
+                args["path_mapping"][path] = str(file)
     args["breakpoints"] = {}
     if args["condition"] is not None and not args["breakpoint"]:
         raise DebugError("invalid_request", "Launch --condition requires --breakpoint")
@@ -104,12 +121,37 @@ def arguments(args):
     for key in ("language", "target", "cwd", "python", "adapter", "node", "browser", "web_root", "condition"):
         if args.get(key):
             argv += ["--" + key.replace("_", "-"), args[key]]
-    for flag in ("run", "uncaught", "headed", "module", "no_record"):
+    for flag in ("run", "uncaught", "headed", "module", "no_record", "no_wait", "disable_gpu"):
         if args[flag]:
             argv.append("--" + flag.replace("_", "-"))
     for pattern in args["out_files"]:
         argv += ["--out-files", pattern]
+    for mapping in args["url_path"]:
+        argv += ["--url-path", mapping]
     for file, lines in args["breakpoints"].items():
         for line in lines:
             argv += ["--breakpoint", f"{file}:{line}"]
     return argv + [args["script"], *args["args"]]
+
+
+def doctor(args):
+    """Use the launch validator without launching a program or creating state."""
+    from importlib.metadata import version
+    import sys
+    from .cli import parse
+    argv = ["--workspace", args["workspace"], "launch", "--language", args["language"]]
+    for key in ("target", "python", "adapter", "browser", "node"):
+        if args.get(key):
+            argv += ["--" + key, args[key]]
+    argv.append("http://127.0.0.1/" if args["target"] == "browser" else str(Path(__file__).resolve()))
+    result = {"ok": True, "version": version("aidebug-cli"), "workspace": args["workspace"],
+              "cli_python": sys.executable, "cli_on_path": shutil.which("aidebug"),
+              "language": args["language"], "runs_program": False}
+    try:
+        resolved = parse(argv)
+        result["tools"] = {key: resolved.get(key) for key in ("python", "adapter", "node", "browser")}
+        result["target"] = resolved["target"]
+    except DebugError as exc:
+        result.update(ok=False, error={"code": exc.code, "message": str(exc)[:512]})
+    result["next_action"] = "Ready to launch an explicitly selected program" if result["ok"] else "Correct the reported dependency or pass its explicit path, then rerun doctor"
+    return result
