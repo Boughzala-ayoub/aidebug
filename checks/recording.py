@@ -9,7 +9,9 @@ import tempfile
 import time
 from unittest.mock import patch
 
+from aidebug.dap import DebugError
 from aidebug.recording import Recording, prune
+from aidebug.session import Session
 from aidebug.viewer import events, record_path
 
 
@@ -145,8 +147,23 @@ def main():
         sample.write_text("value = 42\n", encoding="utf-8")
         record.source(str(sample))
         record.append("note", text="The value changed")
+        session = Session()
+        session.recording = record
+        error = DebugError("adapter_failure", "Variables unavailable in this frame", 9234)
+        with patch.object(session, "execute", side_effect=error):
+            try:
+                session.command({"command": "inspect"})
+            except DebugError:
+                pass
+            else:
+                raise AssertionError("Expected the adapter failure")
+        session.state = "running"
+        session.failure(error)
         record.close()
         response = events(directory, "1234567890abcdef", 0)
+        result = next(event for event in response["events"] if event["kind"] == "result")
+        assert result["response"]["error"] == error.as_dict()
+        assert next(event for event in response["events"] if event["kind"] == "error")["error"] == error.as_dict()
         sources = [event for event in response["events"] if event["kind"] == "source"]
         assert [source["text"] for source in sources] == ["value = 41\n", "value = 42\n"]
         assert sources[1]["changed"] and response["events"][-1]["kind"] == "end"

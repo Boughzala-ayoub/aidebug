@@ -13,6 +13,7 @@ import time
 
 from integration import alive, until, redact, write_report
 from aidebug.cli import encode, fields, project_fields
+from aidebug.session import Session
 
 
 def main():
@@ -54,6 +55,22 @@ def main():
             assert not stderr and result['state'] == expected and not result['timed_out'], result
 
         try:
+            session = Session()
+            session.state, session.thread = 'stopped', 1
+            requests = []
+            replies = {'threads': {'threads': [{'id': 1}]},
+                       'stackTrace': {'stackFrames': [{'id': 1, 'name': 'example', 'line': 1}]},
+                       'scopes': {'scopes': [{'name': 'Locals', 'variablesReference': 1}]},
+                       'variables': {'variables': []}}
+            def request(command, arguments, deadline):
+                requests.append(command)
+                return replies[command]
+            session.request = request
+            for command in ('status', 'inspect', 'scopes'):
+                requests.clear()
+                session.execute({'command': command, 'timeout': 1})
+                assert requests == ['threads', 'stackTrace', 'scopes', 'variables'], requests
+            passed('each inspection fetches scopes once, without caching across commands')
             sample = {'ok': True, 'error': {'code': 'example', 'message': 'retain'},
                       'groups': [{'rows': [{'value': '\u2014 \u273d', 'truncated': True}]}]}
             projected = project_fields(sample, fields('groups[].rows[].value'))
@@ -108,6 +125,8 @@ def main():
             assert result['timed_out'] and result['state'] == 'running' and result['outcome'] == 'deadline'
             pending = start_wait()
             time.sleep(0.5)
+            for _ in range(20):
+                assert call('--timeout', '0.1', 'wait', ok=False)['error']['code'] == 'busy'
             assert call('status')['state'] == 'running'
             assert call('pause')['state'] == 'stopped'
             finish_wait(pending, 'stopped')
@@ -117,7 +136,7 @@ def main():
             call('stop')
             finish_wait(pending, 'exited')
             assert not (work / '.aidebug/session.json').exists()
-            passed('asynchronous launch, deadline state, long wait interrupted by pause and stop')
+            passed('asynchronous launch, deadlines, duplicate waits rejected without exhausting control slots, pause and stop interrupt waits')
         finally:
             closed = call('stop')
             until(lambda: all(not alive(p) for p in closed.get('processes', {}).values() if p))

@@ -102,7 +102,7 @@ Use complete comma-separated paths, with `[]` for array elements. The result pre
 
 If a Python pipeline consumer on Windows raises `UnicodeEncodeError` when printing decoded values, set `PYTHONIOENCODING=utf-8` before running it. Use `export PYTHONIOENCODING=utf-8` in Git Bash or `$env:PYTHONIOENCODING='utf-8'` in PowerShell. aidebug's own JSON output is ASCII-safe.
 
-`launch --no-wait` returns `outcome: started` while setup proceeds. Use `status` to check `phase` or `wait` for a stop or terminal state. `wait` allows deadlines up to 3,600 seconds and leaves other commands available. It returns the state without expanding frames; use `inspect` after a stop. A deadline returns `timed_out: true` and `outcome: deadline`, preserving the live session. Other command deadlines remain capped at 60 seconds.
+`launch --no-wait` returns `outcome: started` while setup proceeds. Use `status` to check `phase` or `wait` for a stop or terminal state. `wait` allows deadlines up to 3,600 seconds and leaves other commands available. Only one wait can run at a time; another wait returns `busy`, keeping control connections available for `status`, `pause`, and `stop`. It returns the state without expanding frames; use `inspect` after a stop. A deadline returns `timed_out: true` and `outcome: deadline`, preserving the live session. Other command deadlines remain capped at 60 seconds.
 
 An adapter `terminated` event without an `exited` event produces `state: terminated` and `target_exit_confirmed: false`. This means debugging ended; the program's exit is unknown. js-debug can report this even for a normal Node completion, so it is not classified as a failure. Terminal responses include recent events, the adapter's available exit code, transport errors, output tail, and whether cleanup was requested. Use `output` for captured target output, then `stop` before relaunching. Explicit cleanup returns `phase: closed`; it does not manufacture a target exit code.
 
@@ -416,7 +416,7 @@ Values are debugger display strings, not serialized objects. A non-null handle a
 
 States are `stopped`, `running`, `exited`, `terminated`, and `failed`. `running` with `phase: initializing` means launch setup is in progress. `failed` identifies an adapter or launch failure, while an uncaught target exception is a `stopped` state with `reason: exception`. A nonzero target exit remains `exited`. `terminated` means debugging ended without a reported process exit and is not itself a failure. `unknown` is used for client-side errors when the session state could not be read.
 
-Errors include an `error` object with a stable `code` and a readable `message`. Codes include `invalid_request`, `invalid_state`, `invalid_handle`, `no_session`, `session_exists`, `busy`, `timeout`, `adapter_failure`, and `control_failure`. Error responses from the live helper include its actual state.
+Errors include an `error` object with a stable `code` and a readable `message`. Codes include `invalid_request`, `invalid_state`, `invalid_handle`, `no_session`, `session_exists`, `busy`, `timeout`, `adapter_failure`, and `control_failure`. Adapter failures use the adapter's structured explanation when supplied, substitute its named variables, and include `adapter_error_id` when supplied. Error responses from the live helper include its actual state.
 
 The command deadline defaults to 10 seconds and accepts 0.01 to 60 seconds, or up to 3,600 seconds for `wait`. Launch, continue, step, and pause wait until the next stop or terminal state; `launch --no-wait` returns during setup. On a wait deadline they return `timed_out: true` with the current state and leave the session alive. Use `status`, `output`, `pause`, or `stop` next. If there is insufficient time to inspect a new stop, `inspection_truncated: true` requests a fresh `inspect` call. Helper startup can add up to five seconds before the command begins. Process cleanup and local transport have separate bounded grace periods. Adapter initialization and resume-request acknowledgments have a 30-second ceiling; a stuck adapter becomes `failed` and remains stoppable. Pause requests use the command's deadline and can be inspected afterward even if their response arrives late.
 
@@ -474,7 +474,7 @@ Tracked `checks/*-results.json` and `checks/results.json` contain counts, check 
 
 Run `python checks/reports.py` to check summary stability and preservation of full failure reports.
 
-Verify the agent workflow additions with `.venv/Scripts/python checks/experience.py --cli .venv/Scripts/aidebug.exe`. It exercises real Python scopes, nested values, asynchronous launch, and a long wait interrupted by another CLI's pause or stop. See the [Windows summary](checks/experience-results.json) and [Linux summary](checks/experience-linux-results.json).
+Verify the agent workflow additions with `.venv/Scripts/python checks/experience.py --cli .venv/Scripts/aidebug.exe`. It checks that each inspection fetches scopes once and exercises real Python scopes, nested values, asynchronous launch, duplicate wait rejection, and a long wait interrupted by another CLI's pause or stop. See the [Windows summary](checks/experience-results.json) and [Linux summary](checks/experience-linux-results.json).
 
 Verify browser interaction, module values, source mapping and unknown termination with:
 
@@ -510,7 +510,9 @@ npm install --prefix .tools/ts-compiler --no-save --package-lock=false typescrip
 
 Optional check flags `--js-adapter` and `--rust-adapter` select shared installations. The check compiles its own TypeScript and Rust fixtures, serves a local test page, and launches the installed CLI from temporary workspaces. It checks original TypeScript breakpoints in Node and a browser button handler, nested values, all step operations, expired handles, JS exceptions, Rust panic caller values, output, deadlines, invalid launches, and cleanup. [Multi-language results](checks/multilanguage-results.json) summarize the checks. It uses no browser automation package or Python test framework.
 
-Run `.venv/Scripts/python -I checks/transport.py` to check adapter authentication, fragmented UTF-8 DAP messages, out-of-order responses, asynchronous events, output isolation, and cleanup against a small test adapter. `-I` ensures this check imports the installed package.
+The GitHub Actions workflow includes a Windows job for these multi-language checks, browser automation, and the viewer. It installs pinned js-debug, CodeLLDB, TypeScript, and Puppeteer versions, uses the runner's Rust and browser installations, and retains reports and screenshots for seven days. The Python checks also run on Ubuntu. Hosted CI results are separate from the local verification summaries.
+
+Run `.venv/Scripts/python -I checks/transport.py` to check adapter authentication, fragmented UTF-8 DAP messages, out-of-order responses, structured error details, asynchronous events, output isolation, and cleanup against a small test adapter. `-I` ensures this check imports the installed package.
 
 Verify recording behavior with `.venv/Scripts/python -I checks/recording.py`. This includes real installed-CLI checks for recording opt-out, cleanup previews, age filtering, active-session protection, deletion errors, and links. To run the viewer integration checks, install the browser test dependency separately from the Python package:
 

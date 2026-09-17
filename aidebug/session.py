@@ -128,7 +128,7 @@ class Session:
             self.transport_error = clipped(message)[0]
             if not self.closing and self.state not in ("exited", "terminated"):
                 self.state, self.phase = "failed", "done"
-                self.error = {"code": "adapter_failure", "message": clipped(message)[0]}
+                self.error = {**message.as_dict(), "code": "adapter_failure"} if isinstance(message, DebugError) else {"code": "adapter_failure", "message": clipped(message)[0]}
                 self.invalidate()
                 if self.recording:
                     self.recording.append("error", state="failed", error=self.error)
@@ -214,7 +214,7 @@ class Session:
                         self.phase = "ready"
                     self.cv.notify_all()
             except Exception as exc:
-                self.failure(str(exc))
+                self.failure(exc)
         threading.Thread(target=setup, daemon=True).start()
 
     def configure(self, dap, configuration, initialized, request="launch"):
@@ -270,7 +270,7 @@ class Session:
                     self.phase = "ready"
                 self.cv.notify_all()
         except Exception as exc:
-            self.failure(str(exc))
+            self.failure(exc)
             raise
 
     def resume(self, command):
@@ -284,7 +284,7 @@ class Session:
             try:
                 self.request(command, {"threadId": thread}, time.monotonic() + 30)
             except Exception as exc:
-                self.failure(str(exc))
+                self.failure(exc)
         threading.Thread(target=execute, daemon=True).start()
 
     def pause(self, deadline):
@@ -339,8 +339,7 @@ class Session:
             raise DebugError("frame_not_inspectable", "This is a historical async frame or stack separator, not a live call. Its scopes and locals are unavailable; select a live frame from inspect.")
         return self.request("scopes", {"frameId": frame}, deadline).get("scopes", [])
 
-    def scopes(self, frame, deadline):
-        raw = self.frame_scopes(frame, deadline)
+    def scopes(self, raw):
         return {"items": [{"name": clipped(s.get("name", ""), 128)[0],
                            "hint": s.get("presentationHint"), "expensive": s.get("expensive", False),
                            "truncated": len(str(s.get("name", ""))) > 128,
@@ -407,8 +406,7 @@ class Session:
              "source_reference": s.get("sourceReference", 0)} for s in raw[start:start + limit]],
             "truncated": len(raw) > start + limit, "next_start": start + limit if len(raw) > start + limit else None}
 
-    def locals(self, frame, deadline, limit=20):
-        scopes = self.frame_scopes(frame, deadline)
+    def locals(self, scopes, deadline, limit=20):
         local = next((s for s in scopes if s.get("presentationHint") == "locals" or s["name"] in ("Locals", "Local")), None)
         if not local:
             local = next((s for s in scopes if s.get("name") in ("Block", "Script", "Module") and not s.get("expensive")), None)
@@ -464,8 +462,9 @@ class Session:
                 pass
             result["location"] = {"file": file, "line": line, "source": excerpt,
                                   "frame": self.handle("f", frame)}
-            result["locals"] = self.locals(frame, deadline, limit)
-            result["scopes"] = self.scopes(frame, deadline)
+            scopes = self.frame_scopes(frame, deadline)
+            result["locals"] = self.locals(scopes, deadline, limit)
+            result["scopes"] = self.scopes(scopes)
         if self.epoch != epoch or self.state != "stopped":
             raise DebugError("state_changed", "Execution changed during inspection; request status again")
         return result
@@ -482,7 +481,7 @@ class Session:
         except Exception as exc:
             if self.recording:
                 self.recording.append("result", command=args["command"], response={**self.status(), "ok": False,
-                    "error": {"code": getattr(exc, "code", "invalid_request"), "message": str(exc)[:512]}})
+                    "error": exc.as_dict() if isinstance(exc, DebugError) else {"code": "invalid_request", "message": str(exc)[:512]}})
             raise
         if self.recording:
             self.recording.source(result.get("location", {}).get("file"))

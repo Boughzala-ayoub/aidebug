@@ -301,7 +301,7 @@ for (const input of process.argv.slice(2)) {
             groups.append("Rust running deadline, pause/inspection/resume and cleanup")
             print("PASS Rust pause", flush=True)
 
-            (workspace / "conditional.rs").write_text('fn main() {\n    for i in 0..500 {\n        println!("{}", i);\n    }\n}\n')
+            (workspace / "conditional.rs").write_text('fn main() {\n    for i in 0..500 {\n        std::hint::black_box(i);\n    }\n}\n')
             conditional_binary = workspace / ("conditional.exe" if os.name == "nt" else "conditional")
             subprocess.run(["rustc", "-g", str(workspace / "conditional.rs"), "-o", str(conditional_binary)], check=True, timeout=60)
             result = call("launch", "--language", "rust", "--adapter", options.rust_adapter, "--run",
@@ -310,7 +310,7 @@ for (const input of process.argv.slice(2)) {
             call("break", "set", "conditional.rs", "3", "--condition", "i == 439")
             assert values(call("continue"))["i"]["value"] == "439"
             call("break", "set", "conditional.rs", "3")
-            # println! maps this source line to several native breakpoint locations.
+            # A source line can map to several native breakpoint locations.
             for _ in range(4):
                 next_iteration = values(call("continue"))["i"]["value"]
                 assert next_iteration in ("439", "440"), next_iteration

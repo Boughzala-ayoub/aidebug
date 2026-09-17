@@ -5,7 +5,7 @@ import threading
 import time
 
 from aidebug.dap import DAP, DebugError
-from aidebug.session import source_breakpoints
+from aidebug.session import Session, source_breakpoints
 
 
 # The fake adapter must reject its own deliberately unauthenticated connection
@@ -36,6 +36,17 @@ for sequence, request in enumerate([second, first], 2):
     send({"seq": sequence, "type": "response", "request_seq": request["seq"],
           "command": request["command"], "success": True, "body": {"value": request["command"] + " é"}})
 print("Content-Length: this is target output", flush=True)
+errors = [
+    {'message': 'notStopped', 'body': {'error': {'id': 9234,
+      'format': 'Cannot inspect {frame}; missing {unknown}', 'variables': {'frame': 'outer {unknown}'}}}},
+    {'message': 'Plain adapter error'},
+    {'body': None},
+    {'message': 'Fallback error', 'body': {'error': 'invalid detail'}},
+]
+for sequence, error in enumerate(errors, 4):
+    request = read()
+    send({'seq': sequence, 'type': 'response', 'request_seq': request['seq'],
+          'command': request['command'], 'success': False, **error})
 time.sleep(30)
 '''
 
@@ -64,10 +75,26 @@ def main():
         assert "initialized" in events and not failures, (events, failures)
         assert captured.wait(2)
         assert any(category == "stdout" and "this is target output" in value for category, value in output), output
+        for index, message in enumerate(('Cannot inspect outer {unknown}; missing {unknown}',
+                                        'Plain adapter error', 'Debug adapter rejected request', 'Fallback error')):
+            try:
+                dap.request('error', {}, time.monotonic() + 5)
+            except DebugError as error:
+                expected = {'code': 'adapter_failure', 'message': message}
+                if index == 0:
+                    expected['adapter_error_id'] = 9234
+                assert error.as_dict() == expected, error.as_dict()
+                session = Session()
+                session.state = 'running'
+                session.failure(error)
+                assert session.status()['error'] == expected
+            else:
+                raise AssertionError('Expected an adapter error')
+        assert len(DebugError('adapter_failure', 'x' * 600, 7).as_dict()['message']) == 512
     finally:
         dap.close()
     assert dap.process.poll() is not None
-    print("PASS authenticated adapter connection, fragmented UTF-8 frames, out-of-order responses, events, output isolation and cleanup")
+    print("PASS authenticated adapter connection, fragmented UTF-8 frames, out-of-order responses, structured error details, events, output isolation and cleanup")
 
 
 if __name__ == "__main__":

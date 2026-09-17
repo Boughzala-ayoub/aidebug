@@ -1,4 +1,4 @@
-name: Python debugger checks
+name: Debugger checks
 on: [push, pull_request, workflow_dispatch]
 permissions:
   contents: read
@@ -35,3 +35,42 @@ jobs:
         run: python checks/experience.py --cli "$(command -v aidebug)"
       - name: Debug multi-file unittest and pytest failures
         run: python checks/project.py --cli "$(command -v aidebug)" --pytest-python "$(command -v python)"
+  browser-and-languages:
+    runs-on: windows-2025
+    defaults:
+      run:
+        shell: bash
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - name: Install the CLI and test tools
+        run: |
+          python -m venv .venv
+          .venv/Scripts/python -m pip install .
+          npm install --prefix .tools/ci --no-save --package-lock=false typescript@4.9.4 puppeteer-core@25.11.0
+          curl --fail --location --retry 3 https://github.com/microsoft/vscode-js-debug/releases/download/v1.117.0/js-debug-dap-v1.117.0.tar.gz -o .tools/js-debug.tar.gz
+          tar -xzf .tools/js-debug.tar.gz -C .tools
+          curl --fail --location --retry 3 https://github.com/vadimcn/codelldb/releases/download/v1.12.3/codelldb-win32-x64.vsix -o .tools/codelldb.vsix
+          python -m zipfile -e .tools/codelldb.vsix .tools/codelldb
+      - name: Check Node, TypeScript, browser and Rust debugging
+        run: .venv/Scripts/python checks/multilanguage.py --cli .venv/Scripts/aidebug.exe --typescript-compiler .tools/ci/node_modules/typescript/lib/typescript.js
+      - name: Check browser automation and async frames
+        run: node checks/browser_experience.mjs --cli .venv/Scripts/aidebug.exe --adapter .tools/js-debug/src/dapDebugServer.js --puppeteer .tools/ci/node_modules/puppeteer-core
+      - name: Check installed viewer assets in a fresh browser
+        run: node checks/viewer.mjs --cli .venv/Scripts/aidebug.exe --puppeteer .tools/ci/node_modules/puppeteer-core
+      - name: Upload check reports and screenshots
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: browser-and-languages-windows
+          path: |
+            checks/*results.json
+            checks/artifacts/
+          retention-days: 7

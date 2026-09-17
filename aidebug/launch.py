@@ -152,6 +152,6 @@ def doctor(args):
         result["tools"] = {key: resolved.get(key) for key in ("python", "adapter", "node", "browser")}
         result["target"] = resolved["target"]
     except DebugError as exc:
-        result.update(ok=False, error={"code": exc.code, "message": str(exc)[:512]})
+        result.update(ok=False, error=exc.as_dict())
     result["next_action"] = "Ready to launch an explicitly selected program" if result["ok"] else "Correct the reported dependency or pass its explicit path, then rerun doctor"
     return result

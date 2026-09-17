@@ -55,6 +55,8 @@ Conditions use the adapter's expression syntax and can execute target code.
 No arbitrary evaluate command is provided. See launch --help and break --help.
 Start without waiting: launch --no-wait TARGET. Then use --timeout 300 wait.
 wait ends on stopped, exited, terminated, or failed; other commands remain available.
+One wait may be active per workspace; additional waits return busy. Use pause or stop
+to interrupt it. Adapter failures retain their explanation and adapter_error_id when supplied.
 timed_out means the wait deadline expired, not that the program failed.
 scopes exposes adapter-provided local, closure, module and global containers.
 value follows child names through DAP variables; it does not evaluate expressions.
@@ -352,6 +354,7 @@ def serve(workspace):
     token = secrets.token_hex(32)
     session = Session()
     commands = threading.Lock()
+    waiter = threading.Lock()
 
     class Handler(socketserver.StreamRequestHandler):
         def handle(self):
@@ -367,19 +370,18 @@ def serve(workspace):
                 args = parse(argv)
                 if args["workspace"] != workspace:
                     raise DebugError("invalid_request", "Workspace does not match this session")
-                if args["command"] == "wait":
+                selected_lock = waiter if args["command"] == "wait" else commands
+                if not selected_lock.acquire(blocking=False):
+                    raise DebugError("busy", "Another wait is active; use status, pause or stop" if args["command"] == "wait"
+                                     else "Another command is active; retry after its deadline")
+                try:
                     result = session.command(args)
-                elif not commands.acquire(blocking=False):
-                    raise DebugError("busy", "Another command is active; retry after its deadline")
-                else:
-                    try:
-                        result = session.command(args)
-                        stop = args["command"] == "stop"
-                    finally:
-                        commands.release()
+                    stop = args["command"] == "stop"
+                finally:
+                    selected_lock.release()
             except DebugError as exc:
                 result = session.status()
-                result.update(ok=False, error={"code": exc.code, "message": str(exc)[:512]})
+                result.update(ok=False, error=exc.as_dict())
             except (Exception, SystemExit) as exc:
                 result = {"ok": False, "state": session.state,
                           "error": {"code": "invalid_request", "message": str(exc)[:512]}}
@@ -521,7 +523,7 @@ def main():
         selection = args.pop("fields")
         result = run(sys.argv[1:], args)
     except DebugError as exc:
-        result = {"ok": False, "state": "unknown", "error": {"code": exc.code, "message": str(exc)[:512]}}
+        result = {"ok": False, "state": "unknown", "error": exc.as_dict()}
     except Exception as exc:
         result = {"ok": False, "state": "unknown", "error": {"code": "control_failure", "message": str(exc)[:512]}}
     sys.stdout.write(encode(project_fields(result, selection)).decode("ascii"))

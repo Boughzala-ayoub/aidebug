@@ -4,6 +4,7 @@ import ctypes
 import io
 import json
 import os
+import re
 import secrets
 import signal
 import socket
@@ -13,9 +14,16 @@ import time
 
 
 class DebugError(Exception):
-    def __init__(self, code, message):
+    def __init__(self, code, message, adapter_error_id=None):
         super().__init__(message)
         self.code = code
+        self.adapter_error_id = adapter_error_id
+
+    def as_dict(self):
+        result = {"code": self.code, "message": str(self)[:512]}
+        if self.adapter_error_id is not None:
+            result["adapter_error_id"] = self.adapter_error_id
+        return result
 
 
 def hidden():
@@ -263,7 +271,16 @@ class DAP:
             raise DebugError("timeout", "Debug adapter request deadline expired")
         response = slot[1]
         if not response.get("success"):
-            raise DebugError("adapter_failure", response.get("message", "Debug adapter rejected request"))
+            body = response.get("body")
+            detail = body.get("error") if isinstance(body, dict) else None
+            detail = detail if isinstance(detail, dict) else {}
+            message = detail.get("format") or response.get("message") or "Debug adapter rejected request"
+            message = message if isinstance(message, str) else "Debug adapter rejected request"
+            variables = detail.get("variables")
+            if isinstance(variables, dict):
+                message = re.sub(r"\{([^{}]+)\}", lambda match: str(variables.get(match[1], match[0])), message)
+            error_id = detail.get("id")
+            raise DebugError("adapter_failure", message, error_id if type(error_id) is int else None)
         return response.get("body", {})
 
     def request(self, command, arguments, deadline):
