@@ -1,0 +1,10 @@
+{
+  "passed": 2,
+  "failed": 0,
+  "groups": [
+    "Node exitCode and explicit exit 0/7: confirmed code is exact or outcome remains unknown; separate runs verify codes",
+    "deterministic stale restoration: logs and live module state establish old/new mismatch; isolated fix passes fresh debugger and direct runs"
+  ],
+  "node": "v24.18.0",
+  "platform": "win32"
+}

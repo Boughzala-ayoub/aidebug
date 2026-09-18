@@ -7,17 +7,24 @@ description: Debug local Python, JavaScript/TypeScript on Node.js or in a browse
 
 ## Find the CLI and choose a target
 
+Run the smallest relevant test first. If its failure and the source establish the
+cause, fix it and rerun the test without a debugger session. Use aidebug when a
+runtime value, branch, caller, closure, or state transition remains uncertain.
+State the question the next stop must answer before launching. For intermittent
+bugs, first capture a repeatable trigger; pausing can change the timing.
+
 Run `aidebug --help` for the current command reference and debugging loop.
 Use global `--fields` before the command to select response fields without a
 Python extraction script. See `--help` for complete paths and array selection.
 When a Python consumer on Windows cannot print decoded Unicode, set
 `PYTHONIOENCODING=utf-8` in its environment before running the pipeline.
 Use `doctor --language LANGUAGE` with the intended target and adapter options to
-check setup without launching anything. Resolve a reported dependency once.
+check paths without launching anything; it does not validate adapter startup.
+Read `doctor --help` for setup and shared adapter paths. Resolve a dependency once.
 If the executable is absent from PATH, read the adjacent `installation.json`.
 Its `cli_argv` records the Python executable followed by `-m aidebug.cli`.
 Invoke those as separate, shell-quoted arguments, then append the command.
-In PowerShell, use `&` before a quoted executable path. If that interpreter no
+Read `launch --help` for tested PowerShell quoting examples. If that interpreter no
 longer exists, report the missing installation and have setup rerun in the
 current environment. Do not guess a replacement command or install adapters silently.
 
@@ -61,6 +68,10 @@ Read the matching reference before launching:
 5. Explain the cause using observed values and source locations, then make the
    smallest fix. Stop and relaunch to verify edited code in a fresh process.
    Check the final `exit_code` and `output`; a stopped exception is not a final exit.
+   `ok` reports command success, not target success. If `target_exit_confirmed`
+   is false, report the outcome as unknown. For a safe, repeatable reproduction,
+   run its test outside the debugger and collect that separate run's exit code.
+   Do not replay side-effecting targets solely to obtain an exit code.
 6. Run `stop` for sessions you launched, including after failure or normal exit.
    If cleanup fails, report the error and remaining state instead of claiming success.
 

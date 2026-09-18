@@ -1,0 +1,8 @@
+{
+  "passed": 1,
+  "failed": 0,
+  "groups": [
+    "PowerShell 5.1 help commands: spaced executable path, quoted launch and updated conditions, spaced target argument"
+  ],
+  "powershell": "5.1.26100.9444"
+}

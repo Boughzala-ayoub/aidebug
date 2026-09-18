@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Make missing-adapter errors name the attempted path, environment variable, and installed setup help. Clarify that `doctor` checks paths only. Add Windows PowerShell 5.1 examples tested through the actual shell, and guidance for choosing debugging and verifying unknown target exits. Add CI checks for shell quoting, Node exit outcomes, and an isolated stale-restoration trial.
+
+These changes passed nine Python integration groups, five workflow groups, thirteen multi-language groups, seven skill lifecycle groups, the PowerShell check, two Node workflow groups, and report checks on Windows. The package was reinstalled and both managed user skills updated. The first multi-language run failed on a Chrome profile file lock during cleanup; an isolated unchanged rerun passed. Its full report is retained in `checks/artifacts/multilanguage-workflow-cleanup-failure.json`. Linux, macOS, and hosted CI were not run for these changes.
+
+Node exits `0` and `7` remain unknown with the tested js-debug 1.117.0 termination path, which does not forward the target exit code. The new checks require an exact code when confirmed and otherwise retain an unknown result. A synthetic state-restoration replay measured 0.18 seconds to evidence with a temporary log and 2.27 seconds with live inspection. It uses a known cause and fix and does not measure AI diagnosis speed. See [the investigation and trial](checks/agent-workflows.md).
+
 - Limit each workspace to one active `wait`; duplicate waits return `busy` so they cannot accumulate and exhaust control connections. Preserve structured adapter explanations and IDs in CLI errors, session failures, and recordings. Fetch scopes once per inspection. Add a Windows CI job for multi-language debugging, browser automation, and the installed viewer, with report and screenshot artifacts.
 
 These changes passed nine Python integration groups, five workflow groups, thirteen multi-language groups, four browser groups, seven viewer groups with 80 screenshots, and the transport, recording, and report checks on Windows. The Rust conditional-breakpoint fixture now uses `black_box` instead of repeated printing. The printing fixture stalled with both the committed and updated debugger; its cause remains unconfirmed. Failure reports are retained in `checks/artifacts/multilanguage-rust-deadline*.json`. CI YAML, shell syntax, and adapter download URLs were checked locally; hosted CI has not run because no GitHub remote is configured. These changes have not been checked on Linux or macOS.

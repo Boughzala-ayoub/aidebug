@@ -78,9 +78,20 @@ def main():
             assert json.loads(encode(projected)) == sample
             assert project_fields({'rows': []}, fields('rows[].value')) == {'rows': []}
             assert project_fields({}, fields('rows[].value')) == {'rows': None}
-            assert call('doctor')['runs_program'] is False
+            doctor = call('doctor')
+            assert doctor['runs_program'] is False and 'path lookup only' in doctor['checks']
             assert not (work / '.aidebug').exists()
-            assert call('doctor', '--language', 'javascript', '--adapter', 'missing.js', ok=False)['error']['code'] == 'missing_dependency'
+            for language, variable in [('javascript', 'AIDEBUG_JS_DEBUG'), ('rust', 'AIDEBUG_CODELLDB')]:
+                environment[variable] = str(work / 'env-missing')
+                for arguments, expected in [((), work / 'env-missing'), (('--adapter', 'missing.js'), work / 'missing.js')]:
+                    missing = call('doctor', '--language', language, *arguments, ok=False)['error']
+                    assert missing['code'] == 'missing_dependency'
+                    assert str(expected) in missing['message'] and variable in missing['message'] and 'doctor --help' in missing['message'], missing
+                environment.pop(variable)
+                assert '.tools' in call('doctor', '--language', language, ok=False)['error']['message']
+            assert not (work / '.aidebug').exists()
+            setup_help = call('doctor', '--help')['help']
+            assert all(word in setup_help for word in ('AIDEBUG_JS_DEBUG', 'AIDEBUG_CODELLDB', 'extension/lldb', 'Path checks only'))
             assert call('--timeout', '3601', 'wait', ok=False)['error']['code'] == 'invalid_request'
             passed('doctor validates tools without launch; invalid deadlines return JSON')
 

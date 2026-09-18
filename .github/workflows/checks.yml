@@ -33,6 +33,9 @@ jobs:
         run: python checks/skills.py --cli "$(command -v aidebug)"
       - name: Check scope inspection and responsive waiting
         run: python checks/experience.py --cli "$(command -v aidebug)"
+      - name: Check Windows PowerShell help examples
+        if: runner.os == 'Windows'
+        run: python checks/powershell.py --cli "$(command -v aidebug)"
       - name: Debug multi-file unittest and pytest failures
         run: python checks/project.py --cli "$(command -v aidebug)" --pytest-python "$(command -v python)"
   browser-and-languages:
@@ -61,6 +64,8 @@ jobs:
           python -m zipfile -e .tools/codelldb.vsix .tools/codelldb
       - name: Check Node, TypeScript, browser and Rust debugging
         run: .venv/Scripts/python checks/multilanguage.py --cli .venv/Scripts/aidebug.exe --typescript-compiler .tools/ci/node_modules/typescript/lib/typescript.js
+      - name: Check Node exit outcomes and state investigation
+        run: .venv/Scripts/python checks/node_workflows.py --cli .venv/Scripts/aidebug.exe
       - name: Check browser automation and async frames
         run: node checks/browser_experience.mjs --cli .venv/Scripts/aidebug.exe --adapter .tools/js-debug/src/dapDebugServer.js --puppeteer .tools/ci/node_modules/puppeteer-core
       - name: Check installed viewer assets in a fresh browser

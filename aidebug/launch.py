@@ -66,10 +66,12 @@ def resolve(args):
     else:
         default = (workspace / ".tools" / "js-debug" / "src" / "dapDebugServer.js" if is_js else
                    workspace / ".tools" / "codelldb" / "extension" / "adapter" / ("codelldb.exe" if os.name == "nt" else "codelldb"))
-        adapter = args["adapter"] or os.environ.get("AIDEBUG_JS_DEBUG" if is_js else "AIDEBUG_CODELLDB") or str(default)
+        variable = "AIDEBUG_JS_DEBUG" if is_js else "AIDEBUG_CODELLDB"
+        adapter = args["adapter"] or os.environ.get(variable) or str(default)
         args["adapter"] = str((workspace / adapter).resolve())
         if not Path(args["adapter"]).is_file():
-            raise DebugError("missing_dependency", "Adapter not found. Pass --adapter PATH or install it under .tools; see README.md")
+            raise DebugError("missing_dependency", f"Adapter not found. Pass --adapter PATH or set {variable}; "
+                             f"run aidebug doctor --help for setup. Tried: {args['adapter']}")
     if is_js:
         args["node"] = executable(args["node"] or "node", "Node.js")
         args["out_files"] = [str(workspace / pattern).replace("\\", "/") for pattern in args["out_files"]] or [str(workspace).replace("\\", "/") + "/**/*.js"]
@@ -146,12 +148,13 @@ def doctor(args):
     argv.append("http://127.0.0.1/" if args["target"] == "browser" else str(Path(__file__).resolve()))
     result = {"ok": True, "version": version("aidebug-cli"), "workspace": args["workspace"],
               "cli_python": sys.executable, "cli_on_path": shutil.which("aidebug"),
-              "language": args["language"], "runs_program": False}
+              "language": args["language"], "runs_program": False,
+              "checks": "path lookup only; adapter startup and compatibility are not tested"}
     try:
         resolved = parse(argv)
         result["tools"] = {key: resolved.get(key) for key in ("python", "adapter", "node", "browser")}
         result["target"] = resolved["target"]
     except DebugError as exc:
         result.update(ok=False, error=exc.as_dict())
-    result["next_action"] = "Ready to launch an explicitly selected program" if result["ok"] else "Correct the reported dependency or pass its explicit path, then rerun doctor"
+    result["next_action"] = "Paths found; launch an explicitly selected program to verify startup" if result["ok"] else "Correct the reported dependency or pass its explicit path, then rerun doctor"
     return result

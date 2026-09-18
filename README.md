@@ -8,6 +8,8 @@ The local session viewer shows the agent's debugging activity live and replays s
 
 Run `aidebug --help` for the agent usage loop, including inspection, handle expiry, and timeouts. [AGENTS.md](AGENTS.md) contains contributor rules.
 
+Start with the smallest relevant test. Use aidebug when a runtime value, branch, caller, closure, or state transition remains uncertain. If the test and source already explain the failure, fix it and rerun the test. Measure performance separately from breakpoint-driven debugging.
+
 Install with Python 3.10 or newer:
 
 ```sh
@@ -68,7 +70,9 @@ The skill format and locations follow the official [Codex skills](https://learn.
 
 ## Inspect scopes, wait, and diagnose setup
 
-Run `doctor` before launching when tool paths are uncertain. It uses launch validation without starting a program or creating a session:
+Run `doctor` before launching when tool paths are uncertain. It uses launch validation without starting a program or creating a session.
+
+`doctor --help` contains adapter setup instructions and shared-path configuration. `launch --help` contains commands verified through Windows PowerShell 5.1, including quoted conditions and executable paths with spaces. Missing-adapter errors name the attempted path and environment variable. Doctor checks path lookup only; a successful result does not validate adapter startup or compatibility.
 
 ```sh
 aidebug doctor --language python
@@ -105,6 +109,8 @@ If a Python pipeline consumer on Windows raises `UnicodeEncodeError` when printi
 `launch --no-wait` returns `outcome: started` while setup proceeds. Use `status` to check `phase` or `wait` for a stop or terminal state. `wait` allows deadlines up to 3,600 seconds and leaves other commands available. Only one wait can run at a time; another wait returns `busy`, keeping control connections available for `status`, `pause`, and `stop`. It returns the state without expanding frames; use `inspect` after a stop. A deadline returns `timed_out: true` and `outcome: deadline`, preserving the live session. Other command deadlines remain capped at 60 seconds.
 
 An adapter `terminated` event without an `exited` event produces `state: terminated` and `target_exit_confirmed: false`. This means debugging ended; the program's exit is unknown. js-debug can report this even for a normal Node completion, so it is not classified as a failure. Terminal responses include recent events, the adapter's available exit code, transport errors, output tail, and whether cleanup was requested. Use `output` for captured target output, then `stop` before relaunching. Explicit cleanup returns `phase: closed`; it does not manufacture a target exit code.
+
+`ok` reports debugger command success, not target success. If the target exit is unknown, verify a safe, repeatable reproduction outside the debugger and report that separate run's exit code. Do not replay side-effecting programs solely to obtain a code. The [Node exit investigation and state trial](checks/agent-workflows.md) records the observed js-debug limitation and the cost of a scripted investigation.
 
 ## Control the launched browser page
 
@@ -475,6 +481,10 @@ Tracked `checks/*-results.json` and `checks/results.json` contain counts, check 
 Run `python checks/reports.py` to check summary stability and preservation of full failure reports.
 
 Verify the agent workflow additions with `.venv/Scripts/python checks/experience.py --cli .venv/Scripts/aidebug.exe`. It checks that each inspection fetches scopes once and exercises real Python scopes, nested values, asynchronous launch, duplicate wait rejection, and a long wait interrupted by another CLI's pause or stop. See the [Windows summary](checks/experience-results.json) and [Linux summary](checks/experience-linux-results.json).
+
+Verify the installed help examples through real Windows PowerShell 5.1 with `.venv/Scripts/python checks/powershell.py --cli .venv/Scripts/aidebug.exe`. See the [PowerShell summary](checks/powershell-results.json).
+
+Run `.venv/Scripts/python checks/node_workflows.py --cli .venv/Scripts/aidebug.exe` for Node exits `0` and `7` and a deterministic stale-restoration trial. Pass `--adapter PATH` for a shared js-debug installation. The check repairs temporary copies of `examples/javascript/restore.js`; the original remains deliberately buggy. It compares scripted logging and debugger workflows with a known cause and fix, not AI diagnosis speed. See the [Node workflow summary](checks/node-workflows-results.json); timings and observations are retained in `checks/artifacts/node-workflows-results.json`.
 
 Verify browser interaction, module values, source mapping and unknown termination with:
 

@@ -25,7 +25,12 @@ from . import launch as launch_options
 MAX_REQUEST = 32768
 MAX_RESPONSE = 65536
 
-USAGE_LOOP = """Agent debugging loop (run in the target project, or add --workspace PATH):
+USAGE_LOOP = """Choose the tool: run the smallest relevant test first. If the failure and source
+already establish the cause, fix it and rerun the test. Use aidebug when a value,
+branch, caller, closure, or state transition remains uncertain. State that question
+before launching. Use a profiler or equivalent timings for performance measurements.
+
+Agent debugging loop (run in the target project, or add --workspace PATH):
   aidebug view --open
   aidebug launch --module --run --breakpoint pricing.py:6 pytest -- -q test_checkout.py
   aidebug inspect
@@ -72,8 +77,13 @@ are retained. Recordings and inspection work remain unchanged. No string formatt
 When piping into Python on Windows, set PYTHONIOENCODING=utf-8 in the consumer's
 environment (Git Bash: export PYTHONIOENCODING=utf-8; PowerShell: $env:PYTHONIOENCODING='utf-8').
 For unknown termination, read diagnostics and output, then stop before relaunching.
+ok means the debugger command succeeded, not that the target passed. If
+target_exit_confirmed is false, never infer exit 0 from ok or the adapter exit code.
+For a safe, repeatable reproduction, run its test outside the debugger and collect
+that run's exit code. Do not replay side-effecting targets just to get an exit code.
 Use sources to check binding and --url-path /ROUTE/=LOCAL_FILE for browser mappings.
 Use doctor --language javascript --target browser --adapter PATH to check setup.
+Read doctor --help for adapter setup and launch --help for PowerShell examples.
 automation returns a private page CDP connection and a Puppeteer client module.
 Measure performance separately: frame-loop breakpoints affect timing. Confirm
 application progress before claiming a soak passed; running alone is insufficient.
@@ -81,6 +91,40 @@ Use launch --no-record TARGET to disable saved observations and viewer activity.
 After stop, preview cleanup: recordings prune --older-than 30 --dry-run
 Remove matching recordings: recordings prune --older-than 30
 Age is days since last write; 0 matches all recordings. Cleanup requires no live session.
+"""
+
+ADAPTER_SETUP = """Path checks only: doctor does not start or validate adapter binaries, check
+compatibility, compile targets, or contact a browser's web server.
+
+Adapter selection: --adapter PATH, then AIDEBUG_JS_DEBUG / AIDEBUG_CODELLDB,
+then the selected workspace's .tools directory. Use an absolute shared path to
+avoid setting up the adapter in every project. No automatic downloads.
+
+Node/TypeScript/browser: install Node.js and download the standalone
+js-debug-dap archive from https://github.com/microsoft/vscode-js-debug/releases
+Extract so .tools/js-debug/src/dapDebugServer.js exists, or set AIDEBUG_JS_DEBUG
+to its absolute path. Pass --node EXE if Node is not on PATH.
+Rust: download your platform's CodeLLDB archive from
+https://github.com/vadimcn/codelldb/releases and extract the whole archive into
+.tools/codelldb, retaining extension/adapter and extension/lldb together.
+The executable is extension/adapter/codelldb.exe on Windows, codelldb elsewhere.
+Alternatively set AIDEBUG_CODELLDB to that executable's absolute path.
+Browser targets also need Chrome/Chromium/Edge; pass --browser EXE if needed.
+
+PowerShell shared installation example (replace the path with your installation):
+  $env:AIDEBUG_JS_DEBUG = 'C:/debug tools/js-debug/src/dapDebugServer.js'
+  aidebug doctor --language javascript
+  aidebug launch --run app.js
+"""
+
+POWERSHELL_USAGE = """PowerShell: use & before a quoted executable path. Put launch options before
+the target, then -- and target arguments. Outer double quotes can contain the
+single quotes used by Python/JavaScript conditions, without native double-quote
+escaping. These examples work in Windows PowerShell 5.1:
+  & 'C:/debug tools/aidebug.exe' launch --run --breakpoint 'app.py:4' --condition "name == 'ready'" 'app.py' -- 'two words'
+  & 'C:/debug tools/aidebug.exe' break set 'app.py' 4 --condition "name == 'ready'"
+Avoid embedding double quotes in native arguments on PowerShell 5.1 when single
+quotes express the same condition. For adapter setup, run aidebug doctor --help.
 """
 
 
@@ -167,7 +211,8 @@ def parse(argv):
     parser.add_argument("--timeout", type=float, default=10, help="deadline: 0.01..60 seconds; wait allows up to 3600")
     parser.add_argument("--fields", type=fields, help="project JSON stdout using complete comma-separated paths, e.g. state,stack.frames[].name; put before command")
     sub = parser.add_subparsers(dest="command", required=True)
-    launch = sub.add_parser("launch", help="launch a script, executable, or local browser URL")
+    launch = sub.add_parser("launch", help="launch a script, executable, or local browser URL",
+                            epilog=POWERSHELL_USAGE, formatter_class=argparse.RawDescriptionHelpFormatter)
     launch.add_argument("--cwd", help="target working directory, default: workspace")
     launch.add_argument("--python", help="target interpreter; default: VIRTUAL_ENV (except aidebug's own), workspace .venv, then CLI interpreter")
     launch.add_argument("--module", action="store_true", help="launch the positional name as a Python module")
@@ -204,7 +249,8 @@ def parse(argv):
     sources.add_argument("--filter", default="", help="case-insensitive source path substring")
     sources.add_argument("--limit", type=positive, default=20)
     sources.add_argument("--start", type=int, default=0)
-    doctor = sub.add_parser("doctor", help="check local tools without starting a program")
+    doctor = sub.add_parser("doctor", help="check local tool paths without starting a program",
+                            epilog=ADAPTER_SETUP, formatter_class=argparse.RawDescriptionHelpFormatter)
     doctor.add_argument("--language", choices=["python", "javascript", "typescript", "rust"], default="python")
     doctor.add_argument("--target", choices=["process", "node", "browser"])
     for flag in ("python", "adapter", "browser", "node"):
