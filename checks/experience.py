@@ -25,7 +25,7 @@ def main():
     root = Path(__file__).resolve().parents[1]
     groups, transcript = [], []
     with tempfile.TemporaryDirectory(prefix='aidebug-experience-') as directory:
-        work = Path(directory)
+        work = Path(directory).resolve()
         environment = os.environ.copy()
         environment.pop('VIRTUAL_ENV', None)
         (work / 'scope.py').write_text('global_data = {"nested": {"count": 731}}\n'

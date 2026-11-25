@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import {execFile} from 'node:child_process';
 import {promisify} from 'node:util';
 import {createRequire} from 'node:module';
+import {realpathSync} from 'node:fs';
 import {mkdtemp, writeFile, readFile, rm} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
@@ -12,7 +13,7 @@ import {pathToFileURL} from 'node:url';
 const options = Object.fromEntries(process.argv.slice(2).reduce((pairs, value, i, all) => i % 2 ? pairs : [...pairs, [value.slice(2), all[i + 1]]], []));
 const cli = path.resolve(options.cli);
 const adapter = path.resolve(options.adapter);
-const workspace = await mkdtemp(path.join(tmpdir(), 'aidebug-browser-experience-'));
+const workspace = realpathSync.native(await mkdtemp(path.join(tmpdir(), 'aidebug-browser-experience-')));
 const run = promisify(execFile);
 const puppeteer = options.puppeteer ? createRequire(import.meta.url)(path.resolve(options.puppeteer)) : null;
 const html = `<!doctype html><button id="start">Start</button><output id="result"></output>

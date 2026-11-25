@@ -29,7 +29,7 @@ def main():
     environment = os.environ.copy()
     environment.pop("VIRTUAL_ENV", None)
     with tempfile.TemporaryDirectory(prefix="aidebug-project-") as temporary:
-        workspace = Path(temporary)
+        workspace = Path(temporary).resolve()
         project = workspace / "checkout"
         shutil.copytree(root / "examples/project", project)
         venv.EnvBuilder(with_pip=False, symlinks=os.name != "nt").create(workspace / ".venv")

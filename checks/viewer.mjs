@@ -15,7 +15,7 @@ const cli = path.resolve(option('--cli', '.venv/Scripts/aidebug.exe'));
 const puppeteer = require(path.resolve(option('--puppeteer', '.tools/viewer-check/node_modules/puppeteer-core')));
 const chrome = option('--browser', ['C:/Program Files/Google/Chrome/Application/chrome.exe','C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe','/usr/bin/google-chrome','/usr/bin/chromium','/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'].find(p=>fs.existsSync(p)));
 assert(chrome, 'Pass --browser with your Chromium executable');
-const workspace = fs.mkdtempSync(path.join(os.tmpdir(),'aidebug-viewer-'));
+const workspace = fs.realpathSync.native(fs.mkdtempSync(path.join(os.tmpdir(),'aidebug-viewer-')));
 const artifacts = path.join(root,'checks/artifacts/viewer'); fs.mkdirSync(artifacts,{recursive:true});
 const results={passed:[],screenshots:[],transcript:[]}, started=Date.now();
 let browser, page, viewer;

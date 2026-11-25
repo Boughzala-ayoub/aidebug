@@ -22,7 +22,7 @@ def main():
     cli, adapter = str(Path(options.cli).resolve()), str(Path(options.adapter).resolve())
     groups, transcript = [], []
     with tempfile.TemporaryDirectory(prefix='aidebug-node-workflows-') as directory:
-        work = Path(directory)
+        work = Path(directory).resolve()
 
         def call(*args):
             started = time.perf_counter()

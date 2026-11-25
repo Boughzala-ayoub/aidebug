@@ -21,7 +21,7 @@ def main():
     groups, transcript = [], []
     shell_version = None
     with tempfile.TemporaryDirectory(prefix='aidebug shell ') as directory:
-        work = Path(directory)
+        work = Path(directory).resolve()
         executable = work / 'debug tools' / 'aidebug.exe'
         executable.parent.mkdir()
         shutil.copyfile(cli, executable)
