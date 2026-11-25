@@ -1,14 +1,23 @@
 # aidebug
 
-`aidebug` lets a coding agent debug local Python, JavaScript, TypeScript, and Rust programs through one JSON CLI. Run a program, stop at a breakpoint or failure, inspect runtime values, and step through the code before changing it. JavaScript and TypeScript support both Node.js and browser UI code.
+[![Debugger checks](https://github.com/Boughzala-ayoub/aidebug/actions/workflows/checks.yml/badge.svg)](https://github.com/Boughzala-ayoub/aidebug/actions/workflows/checks.yml)
+
+`aidebug` lets a coding agent debug local Python, JavaScript, TypeScript, and Rust programs through one deterministic JSON CLI. Run a program, stop at a breakpoint or failure, inspect runtime values, and step through the code before changing it. JavaScript and TypeScript support both Node.js and browser UI code.
 
 <p align="center">
   <img src="docs/demo.webp" alt="aidebug Session Viewer: live breakpoint inspection, observed source diff, structured DAP command evidence, and verified fix replay" width="900" />
 </p>
 
-Each invocation connects to the same background helper in the selected workspace. The helper owns the debug adapter: debugpy for Python, Microsoft's js-debug for JavaScript and TypeScript, and CodeLLDB for Rust. There is no general expression evaluation command or generic DAP passthrough.
+Each invocation connects to a persistent per-workspace background helper that owns the Debug Adapter Protocol (DAP) backend: `debugpy` for Python, Microsoft's `js-debug` for JavaScript/TypeScript (Node & browser), and `CodeLLDB` for Rust. A local Session Viewer streams the agent's debugging activity live and replays saved sessions afterward.
 
-A local viewer shows the agent's debugging activity live and replays saved sessions afterwards.
+```sh
+$ aidebug launch --run --breakpoint checkout.py:4 checkout.py
+{"ok": true, "state": "stopped", "reason": "breakpoint", "location": {"file": "checkout.py", "line": 4}}
+$ aidebug --fields 'locals.items[].name,locals.items[].value' inspect
+{"ok": true, "locals": {"items": [{"name": "prices", "value": "[10, 20]"}, {"name": "count", "value": "2"}]}}
+```
+
+*(Design boundary: `aidebug` intentionally exposes structured DAP inspection and stepping rather than arbitrary expression evaluation or raw DAP passthrough.)*
 
 `aidebug --help` is the agent usage reference. The bundled [skill](aidebug/skill/SKILL.md) tells agents when to use it. [AGENTS.md](AGENTS.md) contains contributor rules and [CHANGELOG.md](CHANGELOG.md) the release and verification history.
 
