@@ -52,7 +52,7 @@ def main():
     transcript, groups = [], []
     started = time.monotonic()
     with tempfile.TemporaryDirectory(prefix="aidebug-languages-") as temporary:
-        workspace = Path(temporary)
+        workspace = Path(temporary).resolve()
         shutil.copy(root / "examples/javascript/walk.js", workspace / "walk.js")
         shutil.copy(root / "examples/typescript/walk.ts", workspace / "ts-walk.ts")
         shutil.copy(root / "examples/rust/walk.rs", workspace / "walk.rs")
@@ -92,8 +92,8 @@ for (const input of process.argv.slice(2)) {
         subprocess.run(["rustc", "-g", "-C", "opt-level=0", str(workspace / "panic.rs"), "-o", str(panic_binary)], check=True, timeout=60)
 
         def call(*args, ok=True, timeout=15):
-            process = subprocess.run([cli, "--workspace", temporary, "--timeout", str(timeout), *args],
-                                     cwd=temporary, capture_output=True, timeout=timeout + 12)
+            process = subprocess.run([cli, "--workspace", str(workspace), "--timeout", str(timeout), *args],
+                                     cwd=str(workspace), capture_output=True, timeout=timeout + 12)
             assert len(process.stdout) <= 65536
             result = json.loads(process.stdout)
             transcript.append({"command": list(args), "response": result})

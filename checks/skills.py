@@ -24,7 +24,7 @@ def main():
     groups, transcript, skipped = [], [], []
     versions = {"python": sys.version.split()[0], "platform": sys.platform}
     with tempfile.TemporaryDirectory(prefix="aidebug-skills-") as temporary:
-        work = Path(temporary)
+        work = Path(temporary).resolve()
         home, project = work / "fake home", work / "project with spaces"
         home.mkdir()
         project.mkdir()
