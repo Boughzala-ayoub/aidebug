@@ -5,6 +5,7 @@ import ast
 from pathlib import Path
 import secrets
 import shutil
+import tempfile
 import threading
 import time
 import tokenize
@@ -160,7 +161,7 @@ class Session:
                 result["recording"] = {"enabled": False}
             if self.launch_args:
                 result["launch"] = {key: self.launch_args.get(key) for key in
-                    ("script", "cwd", "adapter", "browser", "headed", "disable_gpu", "path_mapping")}
+                    ("script", "cwd", "adapter", "browser", "profile", "headed", "disable_gpu", "path_mapping")}
             return result
 
     def handle(self, kind, reference):
@@ -204,7 +205,9 @@ class Session:
                         if os.name != "nt":
                             Path(self.endpoint).unlink(missing_ok=True)
                         command.append(self.endpoint)
-                    args["profile"] = str(Path(args["workspace"]) / ".aidebug" / f"browser-{self.id}")
+                    if self.target == "browser":
+                        # Outside the workspace: dev servers watch it and crash on Chrome's locked files.
+                        args["profile"] = tempfile.mkdtemp(prefix=f"aidebug-browser-{self.id}-")
                     self.root_dap = self.dap = DAP(self.event, self.failure, lambda text: self.capture("adapter", text),
                         command=command, endpoint=self.endpoint, reverse=self.start_child,
                         connect_back=self.adapter.TRANSPORT == "connect", capture=self.capture)
@@ -609,10 +612,10 @@ class Session:
             Path(self.endpoint).unlink(missing_ok=True)
         if self.target == "browser" and self.launch_args.get("profile"):
             profile = Path(self.launch_args["profile"])
-            directory = Path(self.launch_args["workspace"]) / ".aidebug"
             # Delete only our generated profile, after terminating the browser job.
-            if profile.resolve().parent != directory.resolve() or profile.is_symlink():
-                raise DebugError("unsafe_state", "Browser profile moved outside the session directory")
+            if (profile.resolve().parent != Path(tempfile.gettempdir()).resolve() or profile.is_symlink()
+                    or not profile.name.startswith(f"aidebug-browser-{self.id}-")):
+                raise DebugError("unsafe_state", "Browser profile is not this session's temporary directory")
             deadline = time.monotonic() + 5
             while profile.exists():
                 try:

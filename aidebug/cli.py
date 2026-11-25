@@ -46,51 +46,33 @@ Agent debugging loop (run in the target project, or add --workspace PATH):
 
 Replace the test and breakpoint with your project paths. For a script, use
 launch script.py; for unittest, use launch --module unittest -- -q test_module.
-Pytest must be installed in the target interpreter. Test runners catch assertions;
---uncaught can stop at their final SystemExit instead. Set a breakpoint near the failure.
-Python selection: --python, VIRTUAL_ENV, workspace .venv, then the CLI interpreter.
-VIRTUAL_ENV is ignored when it identifies aidebug's own environment.
-Check the response's python path. Every command returns JSON: check ok and state.
-Handles expire when execution resumes. Expand only values needed for the investigation.
-timed_out is not an exit: inspect status, or pause a running target, or stop it.
+Test runners catch assertions, so set a breakpoint near the failure; --uncaught
+can only stop at their final SystemExit. Pytest must be in the target interpreter.
+Python selection: --python, VIRTUAL_ENV (ignored when it is aidebug's own
+environment), workspace .venv, then the CLI interpreter. Check the returned python.
+
+Every command returns JSON. ok means the debugger command succeeded, not that the
+target passed. Handles expire when execution resumes; use fresh ones from each stop.
+timed_out is a deadline, not an exit: run status, pause a running target, or stop it.
 Wait for phase: ready before pause. Idle browsers may wait for the next JS task.
-After editing source, stop and relaunch to verify. Recordings remain available.
+Long runs: launch --no-wait TARGET, then --timeout 300 wait.
 Conditional stop: break set pricing.py 6 --condition "count == 437"
-Conditions use the adapter's expression syntax and can execute target code.
-No arbitrary evaluate command is provided. See launch --help and break --help.
-Start without waiting: launch --no-wait TARGET. Then use --timeout 300 wait.
-wait ends on stopped, exited, terminated, or failed; other commands remain available.
-One wait may be active per workspace; additional waits return busy. Use pause or stop
-to interrupt it. Adapter failures retain their explanation and adapter_error_id when supplied.
-timed_out means the wait deadline expired, not that the program failed.
-scopes exposes adapter-provided local, closure, module and global containers.
-value follows child names through DAP variables; it does not evaluate expressions.
-Stack entries with hint: label are separators without handles. Historical JS/TS
-async frames have async: true and scopes_available: false; inspect a live frame instead.
-For a missing value child, expand the parent handle named in the error with variables.
-Reduce stdout with global --fields before the command:
+Conditions execute target code. There is no evaluate command; value follows child
+names through DAP variables. Error messages name the next step to take.
+After editing source, stop and relaunch to verify.
+If target_exit_confirmed is false, the exit is unknown: read diagnostics and output
+and never infer exit 0. Run a safe reproduction outside the debugger for its code.
+
+Reduce stdout with global --fields before the command ([] selects array items):
   aidebug --fields state,reason,timed_out wait
   aidebug --fields 'stack.frames[].name,stack.frames[].line,stack.frames[].handle' inspect
-Use complete comma-separated paths; [] selects each array element. Output keeps its
-JSON structure. Missing fields become null. ok, errors, and truncation/paging flags
-are retained. Recordings and inspection work remain unchanged. No string formatting.
-When piping into Python on Windows, set PYTHONIOENCODING=utf-8 in the consumer's
-environment (Git Bash: export PYTHONIOENCODING=utf-8; PowerShell: $env:PYTHONIOENCODING='utf-8').
-For unknown termination, read diagnostics and output, then stop before relaunching.
-ok means the debugger command succeeded, not that the target passed. If
-target_exit_confirmed is false, never infer exit 0 from ok or the adapter exit code.
-For a safe, repeatable reproduction, run its test outside the debugger and collect
-that run's exit code. Do not replay side-effecting targets just to get an exit code.
-Use sources to check binding and --url-path /ROUTE/=LOCAL_FILE for browser mappings.
-Use doctor --language javascript --target browser --adapter PATH to check setup.
-Read doctor --help for adapter setup and launch --help for PowerShell examples.
-automation returns a private page CDP connection and a Puppeteer client module.
-Measure performance separately: frame-loop breakpoints affect timing. Confirm
-application progress before claiming a soak passed; running alone is insufficient.
-Use launch --no-record TARGET to disable saved observations and viewer activity.
-After stop, preview cleanup: recordings prune --older-than 30 --dry-run
-Remove matching recordings: recordings prune --older-than 30
-Age is days since last write; 0 matches all recordings. Cleanup requires no live session.
+On Windows, set PYTHONIOENCODING=utf-8 before piping output into a Python script.
+
+Frame-loop breakpoints distort timing. A running soak proves nothing until you
+confirm the application progressed.
+More: launch --help (browser options, PowerShell quoting), doctor --help (adapter
+setup), break --help, recordings --help. sources checks breakpoint binding;
+automation returns private CDP access to a launched browser page.
 """
 
 ADAPTER_SETUP = """Path checks only: doctor does not start or validate adapter binaries, check

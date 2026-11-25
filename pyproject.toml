@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "aidebug-cli"
-version = "0.7.0"
+version = "0.8.0"
 description = "A local multi-language DAP debugger with a JSON CLI for coding agents"
 requires-python = ">=3.10"
 dependencies = ["debugpy>=1.8,<2"]

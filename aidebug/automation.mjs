@@ -27,7 +27,9 @@ export async function connectPuppeteer(puppeteer, automation) {
     socket.send(JSON.stringify({id, method, params}));
   });
   socket.onmessage = ({data}) => {
-    const message = JSON.parse(data);
+    let message;
+    // A corrupt frame loses its response id; fail every pending request now via onclose.
+    try { message = JSON.parse(data); } catch { socket.close(); return; }
     if (message.id) {
       const task = pending.get(message.id);
       if (!task) return;

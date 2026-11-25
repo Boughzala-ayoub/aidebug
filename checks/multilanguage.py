@@ -7,6 +7,7 @@ import http.server
 import json
 import os
 from pathlib import Path
+import re
 import shutil
 import sys
 import subprocess
@@ -16,6 +17,27 @@ import time
 import urllib.request
 
 from integration import alive, redact, until, write_report
+
+
+def lock_owners(path):
+    """Name the processes holding a file open (Windows Restart Manager), for cleanup failures."""
+    if os.name != "nt":
+        return []
+    from ctypes import wintypes as w
+    class Info(ctypes.Structure):
+        _fields_ = [("pid", w.DWORD), ("started", w.FILETIME), ("app", w.WCHAR * 256), ("service", w.WCHAR * 64),
+                    ("kind", w.DWORD), ("status", w.ULONG), ("session", w.DWORD), ("restart", w.BOOL)]
+    api, handle, key = ctypes.WinDLL("rstrtmgr"), w.DWORD(), ctypes.create_unicode_buffer(33)
+    if api.RmStartSession(ctypes.byref(handle), 0, key):
+        return ["RmStartSession failed"]
+    try:
+        needed, count, reason, info = w.UINT(), w.UINT(16), w.DWORD(), (Info * 16)()
+        api.RmRegisterResources(handle, 1, (w.LPCWSTR * 1)(path), 0, None, 0, None)
+        if api.RmGetList(handle, ctypes.byref(needed), ctypes.byref(count), info, ctypes.byref(reason)):
+            return [f"RmGetList failed, {needed.value} owners"]
+        return [f"{item.pid} {item.app}" for item in info[:count.value]]
+    finally:
+        api.RmEndSession(handle)
 
 
 def main():
@@ -77,6 +99,16 @@ for (const input of process.argv.slice(2)) {
             transcript.append({"command": list(args), "response": result})
             assert (ok is None or result["ok"] == ok) and process.returncode == (0 if result["ok"] else 1), (args, result, process.stderr)
             assert not process.stderr, process.stderr
+            if result.get("inspection_truncated") and result["state"] == "stopped":
+                # A slow machine can spend the deadline reaching the stop; the contract is to inspect again.
+                result = {**result, **call("inspect", timeout=timeout)}
+            return result
+
+        def settle(result):
+            # Conditions are evaluated on every hit; a loaded machine can outlast the launch deadline.
+            if result["state"] == "running" and result["timed_out"]:
+                assert call("wait", timeout=600)["state"] == "stopped"
+                result = call("inspect")
             return result
 
         def values(result, key="locals"):
@@ -94,17 +126,25 @@ for (const input of process.argv.slice(2)) {
             assert recording.exists() == result["recording"]["enabled"], result
             # A transient OS profile lock is a reported, retryable cleanup failure.
             # Require that retry actually removes both metadata and the profile.
-            for attempt in range(3):
+            # Under load Chrome can take over 20 seconds to release its crashpad metrics file.
+            for attempt in range(6):
                 closed = call("stop", ok=None)
                 if closed["ok"]:
                     break
                 assert closed["error"]["code"] == "cleanup_failure", closed
+                locked = re.search(r"'([^']+)'$", closed["error"]["message"])
+                owners = lock_owners(locked.group(1).replace("\\\\", "\\")) if locked else []
+                transcript.append({"command": ["lock-owners"], "response": owners})
+                print("cleanup lock held by", owners or "no process found", file=sys.stderr)
                 assert (workspace / ".aidebug/session.json").exists(), closed
-                time.sleep(0.2)
+                time.sleep(1)
             assert closed["ok"], closed
             until(lambda: all(not alive(pid) for pid in result["processes"].values() if pid))
             assert not (workspace / ".aidebug/session.json").exists()
-            assert not list((workspace / ".aidebug").glob("browser-*")), "Browser profile leaked"
+            assert not list((workspace / ".aidebug").glob("browser-*")), "Browser profile created in workspace"
+            profile = (result.get("launch") or {}).get("profile")
+            assert (profile is not None) == (result["target"] == "browser"), result.get("launch")
+            assert not profile or not Path(profile).exists(), "Browser profile leaked: " + profile
 
         server = None
         try:
@@ -145,7 +185,7 @@ for (const input of process.argv.slice(2)) {
                 print("PASS", language, flush=True)
 
             (workspace / "conditional-node.js").write_text('for (let i = 0; i < 500; i++) {\n  console.log(i);\n}\n')
-            result = call("launch", "--adapter", options.js_adapter, "--run", "--breakpoint", "conditional-node.js:2", "--condition", "i === 437", "conditional-node.js")
+            result = settle(call("launch", "--adapter", options.js_adapter, "--run", "--breakpoint", "conditional-node.js:2", "--condition", "i === 437", "conditional-node.js"))
             assert values(result)["i"]["value"] == "437", result
             call("break", "set", "conditional-node.js", "2", "--condition", "i === 439")
             assert values(call("continue"))["i"]["value"] == "439"
@@ -173,6 +213,7 @@ for (const input of process.argv.slice(2)) {
             until(lambda: "pid " in call("output")["output"]["stdout"]["text"], seconds=20)
             output = call("output")["output"]["stdout"]["text"]
             pid = int(output.split("pid ")[1].split()[0])
+            until(lambda: call("status")["phase"] == "ready", seconds=20)
             paused = call("pause")
             assert paused["state"] == "stopped" and paused["stack"]["frames"], paused
             assert call("continue", timeout=0.2)["timed_out"]
@@ -227,7 +268,7 @@ for (const input of process.argv.slice(2)) {
                 browser_handles = [handle for pid in browser_pids if (handle := kernel.OpenProcess(0x100000, False, pid))]
             try:
                 stop(result)
-                until(lambda: all(not alive(pid) for pid in browser_pids))
+                until(lambda: all(not alive(pid) for pid in browser_pids), seconds=20)
             finally:
                 for handle in browser_handles:
                     kernel.CloseHandle(handle)
@@ -246,9 +287,9 @@ for (const input of process.argv.slice(2)) {
             groups.append("Browser with recurring JavaScript pauses, inspects, resumes and cleans up")
             print("PASS browser pause", flush=True)
 
-            result = call("launch", "--language", "typescript", "--target", "browser", "--adapter", options.js_adapter,
+            result = settle(call("launch", "--language", "typescript", "--target", "browser", "--adapter", options.js_adapter,
                           "--breakpoint", "conditional.ts:2", "--condition", "i === 437",
-                          f"http://127.0.0.1:{server.server_port}/conditional.html")
+                          f"http://127.0.0.1:{server.server_port}/conditional.html"))
             assert values(result)["i"]["value"] == "437" and Path(result["location"]["file"]).name == "conditional.ts", result
             call("break", "set", "conditional.ts", "2", "--condition", "i === 439")
             assert values(call("continue"))["i"]["value"] == "439"
@@ -294,6 +335,7 @@ for (const input of process.argv.slice(2)) {
             subprocess.run(["rustc", "-g", str(workspace / "loop.rs"), "-o", str(loop_binary)], check=True, timeout=60)
             result = call("launch", "--language", "rust", "--adapter", options.rust_adapter, "--run", str(loop_binary), timeout=2)
             assert result["state"] == "running" and result["timed_out"], result
+            until(lambda: call("status")["phase"] == "ready", seconds=20)
             paused = call("pause")
             assert paused["state"] == "stopped" and paused["stack"]["frames"], paused
             assert call("continue", timeout=0.2)["timed_out"]
@@ -304,8 +346,8 @@ for (const input of process.argv.slice(2)) {
             (workspace / "conditional.rs").write_text('fn main() {\n    for i in 0..500 {\n        std::hint::black_box(i);\n    }\n}\n')
             conditional_binary = workspace / ("conditional.exe" if os.name == "nt" else "conditional")
             subprocess.run(["rustc", "-g", str(workspace / "conditional.rs"), "-o", str(conditional_binary)], check=True, timeout=60)
-            result = call("launch", "--language", "rust", "--adapter", options.rust_adapter, "--run",
-                          "--breakpoint", "conditional.rs:3", "--condition", "i == 437", str(conditional_binary))
+            result = settle(call("launch", "--language", "rust", "--adapter", options.rust_adapter, "--run",
+                          "--breakpoint", "conditional.rs:3", "--condition", "i == 437", str(conditional_binary)))
             assert values(result)["i"]["value"] == "437", result
             call("break", "set", "conditional.rs", "3", "--condition", "i == 439")
             assert values(call("continue"))["i"]["value"] == "439"

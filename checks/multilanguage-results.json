@@ -1,6 +1,6 @@
 {
-  "passed": 13,
-  "failed": 0,
+  "passed": 8,
+  "failed": 1,
   "groups": [
     "invalid language/target combinations, remote browser URL, source binary, adapter and breakpoint return JSON without a session",
     "javascript: recording opt-out, real breakpoint, nested values, all steps, handle expiry, output and cleanup",
@@ -9,11 +9,6 @@
     "JavaScript uncaught exception and exception toggle",
     "Node deadline, pause/inspection/resume and actual target PID cleanup",
     "headless browser recording opt-out, Save handler stops in original TypeScript with quantity=2, price=21, total=42",
-    "Browser with recurring JavaScript pauses, inspects, resumes and cleans up",
-    "Browser TypeScript conditional breakpoint skips to 437 and updates through source maps",
-    "Rust recording opt-out, debug-symbol breakpoint, nested array, all steps, output, exit and cleanup",
-    "Rust panic filter, failing caller locals, stderr and nonzero exit",
-    "Rust running deadline, pause/inspection/resume and cleanup",
-    "Rust conditional launch skips to iteration 437, updates to 439 and clears to unconditional"
+    "Browser with recurring JavaScript pauses, inspects, resumes and cleans up"
   ]
 }
