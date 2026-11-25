@@ -40,9 +40,6 @@ jobs:
         run: python checks/project.py --cli "$(command -v aidebug)" --pytest-python "$(command -v python)"
   browser-and-languages:
     runs-on: windows-2025
-    env:
-      TEMP: ${{ runner.temp }}
-      TMP: ${{ runner.temp }}
     defaults:
       run:
         shell: bash
