@@ -16,7 +16,10 @@ def main():
     parser.add_argument('--cli', required=True)
     options = parser.parse_args()
     assert os.name == 'nt', 'This check requires Windows PowerShell'
-    cli = str(Path(options.cli).resolve())
+    cli_path = Path(options.cli)
+    if not cli_path.exists() and cli_path.with_suffix('.exe').exists():
+        cli_path = cli_path.with_suffix('.exe')
+    cli = str(cli_path.resolve())
     root = Path(__file__).resolve().parents[1]
     groups, transcript = [], []
     shell_version = None
