@@ -37,7 +37,7 @@ jobs:
         if: runner.os == 'Windows'
         run: python checks/powershell.py --cli "$(command -v aidebug)"
       - name: Debug multi-file unittest and pytest failures
-        run: python checks/project.py --cli "$(command -v aidebug)" --pytest-python "$(command -v python)"
+        run: python checks/project.py --cli "$(command -v aidebug)" --pytest-python "$(python -c 'import sys; print(sys.executable)')"
   browser-and-languages:
     runs-on: windows-2025
     defaults:
